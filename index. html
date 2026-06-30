@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>rajaguptaact Studio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const Icon = ({ name, className, size = 24 }) => {
+      const iconRef = React.useRef();
+      useEffect(() => {
+        if (iconRef.current) {
+          lucide.createIcons({
+            icons: { [name]: lucide.icons[name] },
+            nameAttr: 'data-lucide',
+            attrs: { class: className, width: size, height: size }
+          });
+        }
+      });
+      return <i ref={iconRef} data-lucide={name}></i>;
+    };
+
+    const initialArtworks = [
+      {
+        id: 1,
+        title: "Traditional Heritage",
+        artist: "Raja Gupta",
+        description: "A highly detailed realistic coloured pencil drawing of a cultural figure. This piece required over 72 hours of dedicated, precise work.",
+        originalPrice: 15000, 
+        printPrices: { A5: 800, A4: 1500, A3: 2500 },
+        image: "https://images.unsplash.com/photo-1578301978693-85fa9c026f19?auto=format&fit=crop&q=80&w=800"
+      },
+      {
+        id: 2,
+        title: "Vibrant Horizon",
+        artist: "Raja Gupta",
+        description: "Intricate coloured pencil strokes bringing breathtaking realism to life with brilliant hues.",
+        originalPrice: 12000,
+        printPrices: { A5: 600, A4: 1200, A3: 2000 },
+        image: "https://images.unsplash.com/photo-1549887552-cb1071d3e5ca?auto=format&fit=crop&q=80&w=800"
+      }
+    ];
+
+    const FrameMockup = ({ artworkImage }) => (
+      <div className="relative w-full aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl overflow-hidden shadow-inner ring-4 ring-white/50 flex items-center justify-center">
+        <div className="w-[50%] h-[70%] bg-white shadow-2xl transition-transform hover:scale-105 duration-500 ease-in-out">
+          <div className="w-full h-full border-[14px] border-gray-900 flex items-center justify-center p-2 bg-white">
+            <img src={artworkImage} alt="Artwork" className="w-full h-full object-cover shadow-sm" />
+          </div>
+        </div>
+      </div>
+    );
+
+    const WallMockup = ({ artworkImage }) => (
+      <div className="relative w-full aspect-[4/3] bg-gray-100 rounded-xl overflow-hidden shadow-inner ring-4 ring-white/50">
+        <img src="https://images.unsplash.com/photo-1598928303038-1647466d3a95?auto=format&fit=crop&q=80&w=1000" alt="Wall Interior" className="absolute inset-0 w-full h-full object-cover opacity-80" />
+        <div className="absolute top-[15%] left-[30%] w-[40%] h-[60%] bg-white shadow-2xl transition-transform hover:scale-105 duration-500 ease-in-out">
+          <div className="w-full h-full border-[10px] border-gray-900 flex items-center justify-center p-1.5 bg-white">
+            <img src={artworkImage} alt="Artwork" className="w-full h-full object-cover shadow-sm" />
+          </div>
+        </div>
+      </div>
+    );
+
+    const TableMockup = ({ artworkImage }) => (
+      <div className="relative w-full aspect-[4/3] bg-gray-100 rounded-xl overflow-hidden shadow-inner ring-4 ring-white/50">
+        <img src="https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&q=80&w=1000" alt="Table Interior" className="absolute inset-0 w-full h-full object-cover opacity-90" />
+        <div className="absolute bottom-[25%] left-[35%] w-[30%] h-[45%] bg-white shadow-2xl transition-transform hover:scale-105 duration-500 ease-in-out transform -rotate-2">
+          <div className="w-full h-full border-[6px] border-[#8b5a2b] flex items-center justify-center p-1.5 bg-stone-100">
+            <img src={artworkImage} alt="Artwork" className="w-full h-full object-cover shadow-sm" />
+          </div>
+        </div>
+      </div>
+    );
+
+    function App() {
+      const [view, setView] = useState('home'); 
+      const [artworks, setArtworks] = useState(initialArtworks);
+      const [selectedArtwork, setSelectedArtwork] = useState(null);
+      const [cart, setCart] = useState([]);
+      const [orders, setOrders] = useState([]);
+      const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+      const [smsNotification, setSmsNotification] = useState(null);
+
+      const triggerSMS = (message) => {
+        setSmsNotification(message);
+        setTimeout(() => setSmsNotification(null), 6000);
+      };
+
+      const navigateTo = (newView, artwork = null) => {
+        setView(newView);
+        if (artwork) setSelectedArtwork(artwork);
+        window.scrollTo(0, 0);
+        setIsMobileMenuOpen(false);
+      };
+
+      const HomeView = () => (
+        <div className="max-w-6xl mx-auto px-4 py-12">
+          <div className="text-center mb-16 bg-white/40 backdrop-blur-md p-10 rounded-3xl shadow-sm border border-white/60">
+            <div className="flex justify-center mb-4 text-pink-500">
+              <Icon name="palette" size={48} />
+            </div>
+            <h1 className="text-4xl md:text-5xl font-serif text-gray-900 mb-4 font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500">
+              rajaguptaact Studio
+            </h1>
+            <p className="text-gray-700 max-w-2xl mx-auto text-lg font-medium">
+              Vibrant, detailed, and full of life. Browse my collection of highly detailed original coloured pencil drawings and premium HD prints.
+            </p>
+          </div>
+
+          <div className="space-y-16">
+            {artworks.map(art => (
+              <div key={art.id} className="group cursor-pointer bg-white/60 backdrop-blur-sm p-6 md:p-10 rounded-3xl shadow-sm hover:shadow-xl transition-all border border-white/50" onClick={() => navigateTo('product', art)}>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <FrameMockup artworkImage={art.image} />
+                    <p className="text-center font-bold text-gray-500 mt-3 text-sm tracking-wide uppercase">In Frame</p>
+                  </div>
+                  <div>
+                    <WallMockup artworkImage={art.image} />
+                    <p className="text-center font-bold text-gray-500 mt-3 text-sm tracking-wide uppercase">Home Wall</p>
+                  </div>
+                  <div>
+                    <TableMockup artworkImage={art.image} />
+                    <p className="text-center font-bold text-gray-500 mt-3 text-sm tracking-wide uppercase">On Table</p>
+                  </div>
+                </div>
+                <div className="mt-8 text-center border-t border-white/50 pt-8">
+                  <h3 className="text-3xl font-serif font-bold text-gray-900 group-hover:text-purple-600 transition-colors">{art.title}</h3>
+                  <p className="text-gray-600 mt-2 font-bold text-lg">Original (A4): ₹{art.originalPrice.toLocaleString()} <span className="text-gray-300 mx-2">|</span> Prints from: ₹{art.printPrices.A5.toLocaleString()}</p>
+                  <button className="mt-6 bg-purple-100 text-purple-700 px-8 py-3 rounded-xl font-bold group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-pink-500 group-hover:text-white transition-all shadow-sm">
+                    View Details & Purchase
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+
+      const ProductView = () => {
+        const [selectedType, setSelectedType] = useState('print');
+        const [printSize, setPrintSize] = useState('A4'); 
+
+        const currentPrice = selectedType === 'original' ? selectedArtwork.originalPrice : selectedArtwork.printPrices[printSize];
+
+        const handleAddToCart = () => {
+          const finalSize = selectedType === 'original' ? 'A4' : printSize;
+          setCart([...cart, { ...selectedArtwork, purchaseType: selectedType, size: finalSize, price: currentPrice }]);
+          navigateTo('checkout');
+        };
+
+        return (
+          <div className="max-w-7xl mx-auto px-4 py-12">
+            <button onClick={() => navigateTo('home')} className="text-purple-600 font-bold hover:text-purple-800 mb-8 flex items-center bg-white/50 px-4 py-2 rounded-full">
+              ← Back to Gallery
+            </button>
+            <div className="flex flex-col lg:flex-row gap-10 bg-white/70 backdrop-blur-md p-6 md:p-10 rounded-3xl border border-white/60 shadow-xl">
+              
+              <div className="lg:w-2/3 space-y-8">
+                 <div className="bg-white/80 p-6 rounded-3xl shadow-sm border border-white">
+                   <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-purple-700">
+                     <Icon name="layout" size={24}/> 3-in-1 Gallery View
+                   </h3>
+                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                     <div>
+                       <FrameMockup artworkImage={selectedArtwork.image} />
+                       <p className="text-center font-bold text-gray-700 mt-3">1. In Frame</p>
+                     </div>
+                     <div>
+                       <WallMockup artworkImage={selectedArtwork.image} />
+                       <p className="text-center font-bold text-gray-700 mt-3">2. Home Wall</p>
+                     </div>
+                     <div>
+                       <TableMockup artworkImage={selectedArtwork.image} />
+                       <p className="text-center font-bold text-gray-700 mt-3">3. On Table</p>
+                     </div>
+                   </div>
+                 </div>
+
+                 <div className="bg-white/80 p-6 rounded-3xl shadow-sm border border-white">
+                   <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-700"><Icon name="image" size={20} className="text-pink-500"/> Pure HD Artwork View</h3>
+                   <img src={selectedArtwork.image} alt={selectedArtwork.title} className="w-full rounded-xl shadow-md object-contain border-4 border-white" />
+                 </div>
+              </div>
+              
+              <div className="lg:w-1/3 space-y-8 sticky top-28 h-fit">
+                <div>
+                  <h1 className="text-3xl font-serif text-gray-900 font-bold">{selectedArtwork.title}</h1>
+                  <p className="text-purple-600 font-medium mt-2">Hand-drawn by {selectedArtwork.artist}</p>
+                </div>
+                
+                <p className="text-gray-800 leading-relaxed font-medium bg-white/50 p-4 rounded-xl">{selectedArtwork.description}</p>
+                
+                <div className="space-y-4">
+                  <h4 className="font-bold text-gray-900 text-lg">Select Format</h4>
+                  
+                  <label className={`block border-2 rounded-xl p-4 cursor-pointer transition-all ${selectedType === 'print' ? 'border-purple-500 bg-purple-50/80 shadow-md' : 'border-white bg-white/50 hover:border-purple-300'}`}>
+                    <div className="flex justify-between items-center mb-4">
+                      <div>
+                        <input type="radio" name="format" checked={selectedType === 'print'} onChange={() => setSelectedType('print')} className="sr-only" />
+                        <span className="font-bold block text-gray-900">HD Coloured Pencil Print</span>
+                        <span className="text-sm text-gray-600 font-medium">Museum-quality fine art paper</span>
+                      </div>
+                      <span className="text-xl font-bold text-gray-900">₹{selectedArtwork.printPrices[printSize].toLocaleString()}</span>
+                    </div>
+                    
+                    {selectedType === 'print' && (
+                      <div className="flex gap-2 mt-4 pt-4 border-t border-purple-200">
+                        {['A5', 'A4', 'A3'].map(size => (
+                           <button 
+                             key={size}
+                             onClick={(e) => { e.preventDefault(); setPrintSize(size); }}
+                             className={`flex-1 py-2 rounded-lg font-bold text-sm transition-colors ${printSize === size ? 'bg-purple-600 text-white shadow-md' : 'bg-white text-gray-600 border border-purple-200 hover:bg-purple-100'}`}
+                           >
+                             {size} Size
+                           </button>
+                        ))}
+                      </div>
+                    )}
+                  </label>
+
+                  <label className={`block border-2 rounded-xl p-4 cursor-pointer transition-all ${selectedType === 'original' ? 'border-purple-500 bg-purple-50/80 shadow-md' : 'border-white bg-white/50 hover:border-purple-300'}`}>
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <input type="radio" name="format" checked={selectedType === 'original'} onChange={() => setSelectedType('original')} className="sr-only" />
+                        <span className="font-bold block text-gray-900">Original Coloured Pencil Drawing</span>
+                        <span className="text-sm text-purple-600 font-bold bg-purple-100 px-2 py-0.5 rounded-md mt-1 inline-block">Fixed Size: A4</span>
+                      </div>
+                      <span className="text-xl font-bold text-gray-900">₹{selectedArtwork.originalPrice.toLocaleString()}</span>
+                    </div>
+                  </label>
+                </div>
+
+                <button onClick={handleAddToCart} className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white py-4 rounded-xl hover:opacity-90 transition-opacity font-bold text-lg shadow-lg">
+                  Add to Cart - ₹{currentPrice.toLocaleString()}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      const CommissionView = () => {
+        const [commissionDetails, setCommissionDetails] = useState({ name: '', phone: '', email: '', subject: '', size: 'A4', details: '' });
+        const [submitted, setSubmitted] = useState(false);
+
+        const handleCommissionSubmit = (e) => {
+          e.preventDefault();
+          triggerSMS(`New Commission Request from ${commissionDetails.name} for a ${commissionDetails.size} portrait!`);
+          setSubmitted(true);
+        };
+
+        if (submitted) {
+          return (
+            <div className="max-w-2xl mx-auto px-4 py-20 text-center">
+              <div className="bg-white/80 backdrop-blur-md p-12 rounded-3xl shadow-xl border border-white">
+                 <Icon name="check-circle" size={64} className="text-green-500 mx-auto mb-6" />
+                 <h2 className="text-3xl font-serif font-bold text-gray-900 mb-4">Request Received!</h2>
+                 <p className="text-lg text-gray-700 font-medium mb-8">Thank you for choosing me for your custom artwork. I will review your request and contact you shortly with a final price and timeline.</p>
+                 <button onClick={() => navigateTo('home')} className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:opacity-90">Back to Gallery</button>
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <div className="max-w-4xl mx-auto px-4 py-12">
+            <div className="bg-white/80 backdrop-blur-md p-8 md:p-12 rounded-3xl shadow-xl border border-white">
+              <div className="text-center mb-8">
+                <Icon name="brush" size={48} className="text-purple-600 mx-auto mb-4" />
+                <h1 className="text-4xl font-serif font-bold text-gray-900 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500">Custom Commissioned Artwork</h1>
+                <p className="text-gray-700 text-lg font-medium max-w-2xl mx-auto mb-3">
+                  I strictly specialize in highly detailed realistic coloured pencil drawings of traditional figures, cultural art, and custom portraits.
+                </p>
+                <p className="text-pink-600 font-bold bg-pink-50 px-4 py-2 rounded-lg inline-block shadow-sm border border-pink-100 mb-6">
+                  Please note: I only accept custom orders for coloured pencil artworks (no charcoal or painting).
+                </p>
+                
+                <div className="flex justify-center gap-4 text-sm font-bold">
+                  <a href="https://wa.me/917281074416" target="_blank" className="text-green-600 flex items-center gap-1 hover:underline"><Icon name="message-circle" size={16}/> WhatsApp Me Directly</a>
+                  <span className="text-gray-300">|</span>
+                  <a href="https://www.instagram.com/rajaguptaact?igsh=MXZmODNvdDlrY3lnNg==" target="_blank" className="text-pink-600 flex items-center gap-1 hover:underline"><Icon name="instagram" size={16}/> DM on Instagram</a>
+                </div>
+              </div>
+              <form onSubmit={handleCommissionSubmit} className="space-y-6 max-w-2xl mx-auto mt-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Full Name</label>
+                    <input required className="w-full border-2 border-white/50 bg-white/70 p-3 rounded-xl font-medium focus:outline-none focus:border-pink-400" value={commissionDetails.name} onChange={e => setCommissionDetails({...commissionDetails, name: e.target.value})} />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">WhatsApp / Phone</label>
+                    <input required type="tel" className="w-full border-2 border-white/50 bg-white/70 p-3 rounded-xl font-medium focus:outline-none focus:border-pink-400" value={commissionDetails.phone} onChange={e => setCommissionDetails({...commissionDetails, phone: e.target.value})} />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Email Address</label>
+                    <input required type="email" className="w-full border-2 border-white/50 bg-white/70 p-3 rounded-xl font-medium focus:outline-none focus:border-pink-400" value={commissionDetails.email} onChange={e => setCommissionDetails({...commissionDetails, email: e.target.value})} />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Subject (What would you like me to draw?)</label>
+                    <input required placeholder="e.g., Traditional Figure, Family Portrait..." className="w-full border-2 border-white/50 bg-white/70 p-3 rounded-xl font-medium focus:outline-none focus:border-pink-400" value={commissionDetails.subject} onChange={e => setCommissionDetails({...commissionDetails, subject: e.target.value})} />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Preferred Size</label>
+                    <select className="w-full border-2 border-white/50 bg-white/70 p-3 rounded-xl font-medium focus:outline-none focus:border-pink-400" value={commissionDetails.size} onChange={e => setCommissionDetails({...commissionDetails, size: e.target.value})}>
+                      <option value="A4">A4 (Standard Portrait)</option>
+                      <option value="A3">A3 (Large Portrait)</option>
+                    </select>
+                  </div>
+                </div>
+                <button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:opacity-90">
+                  Request Commission Quote
+                </button>
+              </form>
+            </div>
+          </div>
+        );
+      };
+
+      const CheckoutView = () => {
+        const [step, setStep] = useState(1); 
+        const [buyer, setBuyer] = useState({ name: '', phone: '', email: '', address: '', country: 'India' });
+        const [paymentMethod, setPaymentMethod] = useState('');
+
+        const item = cart[cart.length - 1]; 
+        if (!item && step !== 3) return <div className="p-12 text-center text-lg font-bold">Your cart is empty. <button onClick={() => navigateTo('home')} className="text-purple-600 underline">Browse Artworks</button></div>;
+
+        const isInternational = buyer.country.trim().toLowerCase() !== 'india';
+        const shippingCost = isInternational ? 100 : 0;
+        const total = (item?.price || 0) + shippingCost;
+
+        const handlePaymentComplete = () => {
+          setOrders([{ id: Math.random().toString(36).substr(2, 9).toUpperCase(), item, buyer, total, date: new Date().toLocaleString() }, ...orders]);
+          setStep(3);
+          setCart([]); 
+          triggerSMS(`New Order! ${buyer.name} bought ${item.purchaseType} (${item.size}) of "${item.title}" for ₹${total}.`);
+        };
+
+        const upiLink = `upi://pay?pa=7281074416@ybl&pn=Raja%20Gupta&am=${total}&cu=INR`;
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiLink)}`;
+
+        return (
+          <div className="max-w-4xl mx-auto px-4 py-12">
+            {step === 1 && (
+              <div className="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-white">
+                <h2 className="text-3xl font-serif mb-6 font-bold text-gray-900">Delivery Details</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                  <input type="text" placeholder="Full Name" className="border-2 border-white/50 bg-white/70 p-4 rounded-xl w-full font-medium" value={buyer.name} onChange={e => setBuyer({...buyer, name: e.target.value})} />
+                  <input type="tel" placeholder="Phone Number" className="border-2 border-white/50 bg-white/70 p-4 rounded-xl w-full font-medium" value={buyer.phone} onChange={e => setBuyer({...buyer, phone: e.target.value})} />
+                  <textarea placeholder="Full Address" className="border-2 border-white/50 bg-white/70 p-4 rounded-xl w-full md:col-span-2 font-medium" rows="3" value={buyer.address} onChange={e => setBuyer({...buyer, address: e.target.value})}></textarea>
+                  <select className="border-2 border-white/50 bg-white/70 p-4 rounded-xl w-full md:col-span-2 font-medium" value={buyer.country} onChange={e => setBuyer({...buyer, country: e.target.value})}>
+                    <option value="India">India</option>
+                    <option value="Other">Other International</option>
+                  </select>
+                </div>
+                
+                <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-2xl mb-8 border border-white">
+                  <h3 className="font-bold mb-4 text-lg text-gray-800">Order Summary</h3>
+                  <div className="flex justify-between mb-2 text-gray-700 font-medium">
+                    <span>{item.title} - {item.purchaseType === 'original' ? 'Original' : 'Print'} ({item.size})</span>
+                    <span>₹{item.price.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between mb-4 text-gray-700 font-medium border-b border-gray-300 pb-4">
+                    <span>Shipping {isInternational && "(International +₹100)"}</span>
+                    <span>{shippingCost === 0 ? 'Free' : `₹${shippingCost}`}</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-2xl text-gray-900">
+                    <span>Total to Pay</span>
+                    <span>₹{total.toLocaleString()}</span>
+                  </div>
+                </div>
+
+                <button onClick={() => { if(!buyer.name || !buyer.phone || !buyer.address) return alert("Please fill details"); setStep(2); }} className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white py-4 rounded-xl font-bold text-lg shadow-lg">Proceed to Payment</button>
+              </div>
+            )}
+            
+            {step === 2 && (
+              <div className="bg-white/90 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-white max-w-md mx-auto text-center">
+                 <h2 className="text-3xl font-serif mb-2 font-bold text-gray-900">Secure Payment</h2>
+                 <p className="text-gray-600 mb-6 font-medium">Amount to pay: ₹{total.toLocaleString()}</p>
+                 
+                 <div className="space-y-4 mb-6">
+                   <button onClick={() => setPaymentMethod('gpay')} className={`w-full flex items-center justify-center gap-3 p-4 border-2 rounded-xl transition-all font-bold ${paymentMethod === 'gpay' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-300'}`}>
+                     <Icon name="smartphone" className="text-blue-600" /><span>Pay with Google Pay</span>
+                   </button>
+                   <button onClick={() => setPaymentMethod('phonepe')} className={`w-full flex items-center justify-center gap-3 p-4 border-2 rounded-xl transition-all font-bold ${paymentMethod === 'phonepe' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 bg-white hover:border-purple-300'}`}>
+                     <Icon name="smartphone" className="text-purple-600" /><span>Pay with PhonePe</span>
+                   </button>
+                 </div>
+                 
+                 {paymentMethod && (
+                   <div className="animate-fade-in">
+                     <div className="bg-white p-6 mx-auto mb-6 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-purple-300 shadow-sm">
+                        <span className="text-gray-900 text-sm font-bold mb-4">Scan QR Code to Pay ₹{total.toLocaleString()}</span>
+                        
+                        <img src={qrCodeUrl} alt="UPI QR Code" className="w-48 h-48 mb-6 border-4 border-purple-100 rounded-2xl shadow-sm" />
+
+                        <span className="text-gray-500 text-xs font-bold mb-2 uppercase tracking-wide">Or copy UPI ID</span>
+                        
+                        <div className="bg-gradient-to-r from-purple-100 to-pink-100 px-6 py-3 rounded-xl mb-4 border border-white shadow-inner flex items-center gap-3">
+                           <Icon name="copy" size={20} className="text-purple-600" />
+                           <span className="font-black text-xl text-purple-800 tracking-wide select-all">7281074416@ybl</span>
+                        </div>
+                        
+                        <p className="text-xs text-gray-500 font-medium leading-relaxed">Open your GPay or PhonePe app to scan the code or paste the UPI ID.</p>
+                     </div>
+                     <button onClick={handlePaymentComplete} className="w-full bg-green-500 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-green-600 shadow-md transition-colors">
+                       <Icon name="check-circle" size={20} /> I have made the payment
+                     </button>
+                   </div>
+                 )}
+              </div>
+            )}
+            
+            {step === 3 && (
+              <div className="bg-white/90 backdrop-blur-md p-12 rounded-3xl shadow-xl border border-white text-center max-w-lg mx-auto">
+                <Icon name="check-circle" size={50} className="text-green-500 mx-auto mb-4" />
+                <h2 className="text-4xl font-serif mb-4 font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-500 to-teal-500">Order Placed!</h2>
+                <p className="text-gray-700 font-medium mb-6">Thank you for your purchase. Once the payment of ₹{total.toLocaleString()} is verified in the bank, we will prepare your realistic coloured pencil artwork for shipping.</p>
+                <button onClick={() => navigateTo('home')} className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-8 py-4 rounded-xl font-bold shadow-lg hover:opacity-90">Back to Gallery</button>
+              </div>
+            )}
+          </div>
+        );
+      };
+
+      const AdminView = () => {
+        const [tab, setTab] = useState('artworks'); 
+        const [editingItem, setEditingItem] = useState(null);
+        const [imagePreview, setImagePreview] = useState('');
+
+        const handleImageUpload = (e) => {
+          const file = e.target.files[0];
+          if (file) { setImagePreview(URL.createObjectURL(file)); }
+        };
+
+        const handleSaveArtwork = (e) => {
+          e.preventDefault();
+          if (!imagePreview) return alert("Please upload an HD artwork image.");
+          const formData = new FormData(e.target);
+          const newArt = {
+            id: editingItem?.id || Date.now(),
+            title: formData.get('title'),
+            artist: formData.get('artist'),
+            description: formData.get('description'),
+            originalPrice: parseInt(formData.get('originalPrice')),
+            printPrices: {
+              A5: parseInt(formData.get('printPriceA5')),
+              A4: parseInt(formData.get('printPriceA4')),
+              A3: parseInt(formData.get('printPriceA3'))
+            },
+            image: imagePreview
+          };
+          if (editingItem && editingItem.id) { setArtworks(artworks.map(a => a.id === editingItem.id ? newArt : a)); } 
+          else { setArtworks([newArt, ...artworks]); }
+          setEditingItem(null);
+          setImagePreview('');
+        };
+
+        return (
+          <div className="max-w-6xl mx-auto px-4 py-8">
+            <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 bg-white/60 backdrop-blur-sm p-6 rounded-2xl shadow-sm border border-white">
+              <h2 className="text-3xl font-serif font-bold text-gray-900">Artist Dashboard</h2>
+              <div className="flex gap-4">
+                <button onClick={() => setTab('artworks')} className={`px-5 py-2.5 rounded-xl font-bold transition-colors ${tab === 'artworks' ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>Manage Artworks</button>
+                <button onClick={() => setTab('orders')} className={`px-5 py-2.5 rounded-xl font-bold transition-colors flex items-center ${tab === 'orders' ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>
+                  Orders {orders.length > 0 && <span className="bg-red-500 text-white text-xs px-2.5 py-1 rounded-full ml-2 shadow-sm">{orders.length}</span>}
+                </button>
+              </div>
+            </div>
+
+            {tab === 'artworks' && (
+              <div>
+                {!editingItem ? (
+                  <>
+                    <button onClick={() => { setEditingItem({}); setImagePreview(''); }} className="mb-6 flex items-center gap-2 bg-white text-purple-600 font-bold px-6 py-3 rounded-xl hover:bg-purple-50 transition-colors shadow-sm border border-purple-100">
+                      <Icon name="plus" size={20} /> Upload Coloured Pencil Art
+                    </button>
+                    <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-white overflow-hidden">
+                      <table className="w-full text-left">
+                        <thead className="bg-white/50 border-b border-gray-200">
+                          <tr>
+                            <th className="p-5 font-bold text-gray-700">Artwork</th>
+                            <th className="p-5 font-bold text-gray-700">Prices (₹)</th>
+                            <th className="p-5 font-bold text-gray-700">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                          {artworks.map(art => (
+                            <tr key={art.id} className="hover:bg-white/60 transition-colors">
+                              <td className="p-5 flex items-center gap-4">
+                                <img src={art.image} alt="" className="w-16 h-16 object-cover rounded-lg shadow-sm border border-gray-200" />
+                                <span className="font-bold text-lg text-gray-800">{art.title}</span>
+                              </td>
+                              <td className="p-5 text-gray-600 font-medium text-sm">
+                                Orig(A4): ₹{art.originalPrice} <br/>
+                                Prints: A5(₹{art.printPrices.A5}) | A4(₹{art.printPrices.A4}) | A3(₹{art.printPrices.A3})
+                              </td>
+                              <td className="p-5">
+                                <button onClick={() => { setEditingItem(art); setImagePreview(art.image); }} className="text-blue-600 p-2 hover:bg-blue-50 rounded-lg transition-colors"><Icon name="edit-2" size={20} /></button>
+                                <button onClick={() => setArtworks(artworks.filter(a => a.id !== art.id))} className="text-pink-600 p-2 hover:bg-pink-50 rounded-lg ml-2 transition-colors"><Icon name="trash-2" size={20} /></button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                ) : (
+                  <div className="bg-white/90 backdrop-blur-md p-8 rounded-3xl border border-white shadow-xl max-w-3xl">
+                    <h3 className="text-2xl font-serif mb-6 font-bold text-gray-900">{editingItem.id ? 'Edit Coloured Pencil Artwork' : 'Upload New Coloured Pencil Art'}</h3>
+                    <form onSubmit={handleSaveArtwork} className="space-y-6">
+                      <div className="col-span-2">
+                        <label className="block text-sm font-bold text-gray-700 mb-2">Artwork Image (Direct Upload)</label>
+                        <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-purple-200 border-dashed rounded-2xl hover:border-purple-500 transition-colors bg-white/50 relative">
+                          {imagePreview ? (
+                            <div className="relative w-full flex flex-col items-center">
+                               <img src={imagePreview} alt="Preview" className="max-h-64 object-contain rounded-xl shadow-md mb-4" />
+                               <label className="cursor-pointer bg-white px-5 py-2.5 border border-gray-200 rounded-xl shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors">
+                                  Change Image <input type="file" accept="image/*" onChange={handleImageUpload} className="sr-only" />
+                               </label>
+                            </div>
+                          ) : (
+                            <div className="space-y-1 text-center">
+                              <Icon name="upload-cloud" className="mx-auto text-pink-400" size={48} />
+                              <div className="flex justify-center mt-4">
+                                <label className="cursor-pointer bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg font-bold px-4 py-2 shadow-sm hover:opacity-90">
+                                  <span>Select HD Coloured Pencil Image</span> <input type="file" accept="image/*" onChange={handleImageUpload} className="sr-only" required={!editingItem.id} />
+                                </label>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-bold text-gray-700 mb-1">Title</label>
+                          <input name="title" defaultValue={editingItem.title} required className="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-pink-400 outline-none font-medium" />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-bold text-gray-700 mb-1">Artist Name</label>
+                          <input name="artist" defaultValue={editingItem.artist || 'Raja Gupta'} required className="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-pink-400 outline-none font-medium" />
+                        </div>
+                        
+                        <div className="md:col-span-2 bg-purple-50 p-4 rounded-xl border border-purple-100">
+                          <label className="block text-sm font-bold text-purple-900 mb-4 border-b border-purple-200 pb-2">Set Pricing (₹)</label>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-xs font-bold text-gray-600 mb-1">Original Drawing (A4)</label>
+                              <input type="number" name="originalPrice" defaultValue={editingItem.originalPrice} required className="w-full border-2 border-gray-200 p-2 rounded-lg focus:border-pink-400 outline-none font-medium" />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-bold text-gray-600 mb-1">A5 Print Price</label>
+                              <input type="number" name="printPriceA5" defaultValue={editingItem.printPrices?.A5} required className="w-full border-2 border-gray-200 p-2 rounded-lg focus:border-pink-400 outline-none font-medium" />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-bold text-gray-600 mb-1">A4 Print Price</label>
+                              <input type="number" name="printPriceA4" defaultValue={editingItem.printPrices?.A4} required className="w-full border-2 border-gray-200 p-2 rounded-lg focus:border-pink-400 outline-none font-medium" />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-bold text-gray-600 mb-1">A3 Print Price</label>
+                              <input type="number" name="printPriceA3" defaultValue={editingItem.printPrices?.A3} required className="w-full border-2 border-gray-200 p-2 rounded-lg focus:border-pink-400 outline-none font-medium" />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-bold text-gray-700 mb-1">Description (Highlight your pencil techniques!)</label>
+                          <textarea name="description" defaultValue={editingItem.description} required rows="3" className="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-pink-400 outline-none font-medium"></textarea>
+                        </div>
+                      </div>
+                      <div className="flex gap-4 pt-6 border-t border-gray-200">
+                        <button type="submit" className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-8 py-3 rounded-xl font-bold shadow-md hover:opacity-90">Save Artwork</button>
+                        <button type="button" onClick={() => { setEditingItem(null); setImagePreview(''); }} className="bg-white border-2 border-gray-200 text-gray-700 px-8 py-3 rounded-xl font-bold hover:bg-gray-50">Cancel</button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+              </div>
+            )}
+            {tab === 'orders' && (
+              <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-white overflow-hidden p-6">
+                <h3 className="font-bold text-lg mb-4">Orders will appear here once buyers checkout!</h3>
+              </div>
+            )}
+          </div>
+        );
+      };
+
+      return (
+        <div className="min-h-screen bg-gradient-to-tr from-rose-100 via-purple-50 to-teal-100 font-sans text-gray-800 flex flex-col">
+          {smsNotification && (
+            <div className="fixed top-24 right-4 z-50 bg-white/90 p-4 rounded-2xl shadow-2xl flex items-start gap-3 border-l-4 border-pink-500">
+              <Icon name="message-square" className="text-pink-500 mt-1" size={24} />
+              <div>
+                <p className="text-xs text-purple-600 font-bold uppercase mb-1">SMS Alert Received</p>
+                <p className="text-sm font-bold text-gray-800">{smsNotification}</p>
+              </div>
+            </div>
+          )}
+          <header className="bg-white/60 backdrop-blur-lg sticky top-0 z-30 border-b border-white/50 shadow-sm flex-shrink-0">
+            <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
+              <div className="text-2xl font-serif font-black flex items-center gap-2 cursor-pointer" onClick={() => navigateTo('home')}>
+                <span className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-2 rounded-xl"><Icon name="palette" size={24} /></span>
+                RAJAGUPTA<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">ACT</span>
+              </div>
+              <nav className="hidden md:flex gap-8 items-center">
+                <button onClick={() => navigateTo('home')} className="font-bold text-gray-700 hover:text-pink-600">Gallery</button>
+                <button onClick={() => navigateTo('commission')} className="font-bold text-purple-700 hover:text-pink-600 flex items-center gap-1"><Icon name="brush" size={18}/> Commissions</button>
+                <button onClick={() => navigateTo('admin')} className="flex items-center gap-1 font-bold text-gray-500 hover:text-purple-600"><Icon name="lock" size={16} /> Admin</button>
+                {cart.length > 0 && <button onClick={() => navigateTo('checkout')} className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white px-6 py-2.5 rounded-full font-bold shadow-md"><Icon name="shopping-bag" size={18} /> Checkout ({cart.length})</button>}
+              </nav>
+            </div>
+          </header>
+          <main className="flex-grow">
+            {view === 'home' && <HomeView />}
+            {view === 'product' && <ProductView />}
+            {view === 'commission' && <CommissionView />}
+            {view === 'checkout' && <CheckoutView />}
+            {view === 'admin' && <AdminView />}
+          </main>
+          
+          <footer className="bg-white/40 backdrop-blur-md border-t border-white/60 mt-auto py-12 text-center">
+            <p className="text-2xl font-serif font-bold text-gray-900 flex justify-center items-center gap-2 mb-4"><Icon name="palette" size={28} className="text-pink-500"/> rajaguptaact</p>
+            
+            <div className="flex justify-center gap-8 mb-6">
+              <a href="https://www.instagram.com/rajaguptaact?igsh=MXZmODNvdDlrY3lnNg==" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-gray-600 hover:text-pink-600 font-bold transition-colors">
+                <Icon name="instagram" size={24} /> Instagram
+              </a>
+              <a href="https://wa.me/917281074416" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-gray-600 hover:text-green-600 font-bold transition-colors">
+                <Icon name="message-circle" size={24} /> WhatsApp
+              </a>
+            </div>
+
+            <p className="text-gray-500 font-medium text-sm">© 2026 rajaguptaact Studio</p>
+          </footer>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
