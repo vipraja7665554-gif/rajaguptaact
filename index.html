@@ -3,652 +3,632 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>rajaguptaact Studio</title>
+  <title>Raja Gupta Act | Professional Colour Pencil Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <style>
+    /* Forces browsers to prioritize image sharpness */
+    img { image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; image-rendering: high-quality; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
+  </style>
 </head>
-<body>
+<body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-gray-900 font-sans antialiased selection:bg-purple-300">
   <div id="root"></div>
 
   <script type="text/babel">
     const { useState, useEffect } = React;
 
-    const Icon = ({ name, className, size = 24 }) => {
-      const iconRef = React.useRef();
-      useEffect(() => {
-        if (iconRef.current) {
-          lucide.createIcons({
-            icons: { [name]: lucide.icons[name] },
-            nameAttr: 'data-lucide',
-            attrs: { class: className, width: size, height: size }
-          });
-        }
-      });
-      return <i ref={iconRef} data-lucide={name}></i>;
+    const ADMIN_PASSWORD = "RAJA_ADMIN_2026"; 
+
+    // --- SAFE MEMORY FUNCTION ---
+    const safeParse = (key, defaultVal) => {
+      try {
+        const val = localStorage.getItem(key);
+        return val ? JSON.parse(val) : defaultVal;
+      } catch (error) {
+        localStorage.removeItem(key); 
+        return defaultVal;
+      }
     };
 
-    const initialArtworks = [
-      {
-        id: 1,
-        title: "Traditional Heritage",
-        artist: "Raja Gupta",
-        description: "A highly detailed realistic coloured pencil drawing of a cultural figure. This piece required over 72 hours of dedicated, precise work.",
-        originalPrice: 15000, 
-        printPrices: { A5: 800, A4: 1500, A3: 2500 },
-        image: "https://images.unsplash.com/photo-1578301978693-85fa9c026f19?auto=format&fit=crop&q=80&w=800"
-      },
-      {
-        id: 2,
-        title: "Vibrant Horizon",
-        artist: "Raja Gupta",
-        description: "Intricate coloured pencil strokes bringing breathtaking realism to life with brilliant hues.",
-        originalPrice: 12000,
-        printPrices: { A5: 600, A4: 1200, A3: 2000 },
-        image: "https://images.unsplash.com/photo-1549887552-cb1071d3e5ca?auto=format&fit=crop&q=80&w=800"
-      }
-    ];
-
-    const FrameMockup = ({ artworkImage }) => (
-      <div className="relative w-full aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl overflow-hidden shadow-inner ring-4 ring-white/50 flex items-center justify-center">
-        <div className="w-[50%] h-[70%] bg-white shadow-2xl transition-transform hover:scale-105 duration-500 ease-in-out">
-          <div className="w-full h-full border-[14px] border-gray-900 flex items-center justify-center p-2 bg-white">
-            <img src={artworkImage} alt="Artwork" className="w-full h-full object-cover shadow-sm" />
-          </div>
-        </div>
+    // --- UPGRADED A4 FRAME COMPONENT ---
+    const A4Frame = ({ src, className }) => (
+      <div 
+        className={`bg-white p-1.5 md:p-2 border-[8px] md:border-[12px] border-gray-900 z-10 flex items-center justify-center w-[52%] aspect-[1/1.414] ${className}`}
+      >
+        <img src={src} alt="A4 Framed Artwork" className="w-full h-full object-cover" />
       </div>
     );
 
-    const WallMockup = ({ artworkImage }) => (
-      <div className="relative w-full aspect-[4/3] bg-gray-100 rounded-xl overflow-hidden shadow-inner ring-4 ring-white/50">
-        <img src="https://images.unsplash.com/photo-1598928303038-1647466d3a95?auto=format&fit=crop&q=80&w=1000" alt="Wall Interior" className="absolute inset-0 w-full h-full object-cover opacity-80" />
-        <div className="absolute top-[15%] left-[30%] w-[40%] h-[60%] bg-white shadow-2xl transition-transform hover:scale-105 duration-500 ease-in-out">
-          <div className="w-full h-full border-[10px] border-gray-900 flex items-center justify-center p-1.5 bg-white">
-            <img src={artworkImage} alt="Artwork" className="w-full h-full object-cover shadow-sm" />
-          </div>
-        </div>
+    // 1. Studio Mockup
+    const FrameMockup = ({ src }) => (
+      <div className="w-full aspect-square bg-gradient-to-br from-gray-100 to-gray-300 rounded-2xl flex items-center justify-center p-4 shadow-inner relative overflow-hidden">
+        <A4Frame src={src} className="shadow-2xl transition-transform hover:scale-105 duration-500" />
       </div>
     );
 
-    const TableMockup = ({ artworkImage }) => (
-      <div className="relative w-full aspect-[4/3] bg-gray-100 rounded-xl overflow-hidden shadow-inner ring-4 ring-white/50">
-        <img src="https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&q=80&w=1000" alt="Table Interior" className="absolute inset-0 w-full h-full object-cover opacity-90" />
-        <div className="absolute bottom-[25%] left-[35%] w-[30%] h-[45%] bg-white shadow-2xl transition-transform hover:scale-105 duration-500 ease-in-out transform -rotate-2">
-          <div className="w-full h-full border-[6px] border-[#8b5a2b] flex items-center justify-center p-1.5 bg-stone-100">
-            <img src={artworkImage} alt="Artwork" className="w-full h-full object-cover shadow-sm" />
-          </div>
+    // 2. Wall Mockup (Deep Slate Wall with Premium Brass Gallery Lamp)
+    const WallMockup = ({ src }) => (
+      <div className="w-full aspect-square rounded-2xl flex items-center justify-center p-4 shadow-inner relative overflow-hidden bg-[#2a3441]">
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)", backgroundSize: "20px 100%" }}></div>
+        
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center">
+           <div className="w-2 h-2 bg-gradient-to-b from-yellow-300 to-yellow-600 rounded-sm"></div>
+           <div className="w-16 h-3 bg-gradient-to-b from-yellow-200 to-yellow-600 rounded-full shadow-[0_5px_15px_rgba(255,220,100,0.5)] border border-yellow-200/50"></div>
         </div>
+
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 w-[150%] h-[100%] bg-gradient-to-b from-yellow-100/20 via-yellow-50/5 to-transparent z-20 pointer-events-none" style={{ clipPath: 'polygon(43% 0, 57% 0, 100% 100%, 0% 100%)' }}></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[100%] h-[80%] bg-[radial-gradient(ellipse_at_top,rgba(255,230,150,0.25)_0%,transparent_70%)] pointer-events-none z-0"></div>
+
+        <A4Frame src={src} className="mt-4 shadow-[0_30px_50px_rgba(0,0,0,0.8)] transition-transform hover:scale-105 duration-500 relative z-10" />
+      </div>
+    );
+
+    // 3. Table Mockup
+    const TableMockup = ({ src }) => (
+      <div className="w-full aspect-square rounded-2xl relative overflow-hidden shadow-inner flex justify-center items-end pb-[10%]">
+        <div className="absolute top-0 left-0 w-full h-[75%] bg-gradient-to-b from-gray-100 to-gray-300"></div>
+        <div className="absolute bottom-0 left-0 w-full h-[25%] bg-amber-900 border-t-[8px] border-amber-950 shadow-inner"></div>
+        <A4Frame src={src} className="relative z-10 shadow-[0_20px_20px_-5px_rgba(0,0,0,0.8)] transition-transform hover:-translate-y-2 duration-500" />
       </div>
     );
 
     function App() {
-      const [view, setView] = useState('home'); 
-      const [artworks, setArtworks] = useState(initialArtworks);
-      const [selectedArtwork, setSelectedArtwork] = useState(null);
-      const [cart, setCart] = useState([]);
-      const [orders, setOrders] = useState([]);
-      const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-      const [smsNotification, setSmsNotification] = useState(null);
+      // --- APP STATE ---
+      const [view, setView] = useState('gallery');
+      const [menuOpen, setMenuOpen] = useState(false);
+      const [isAdmin, setIsAdmin] = useState(false);
+      const [password, setPassword] = useState('');
+      
+      const [artworks, setArtworks] = useState(() => safeParse('raja_artworks', []));
+      const [cart, setCart] = useState(() => safeParse('raja_cart', []));
+      const [orders, setOrders] = useState(() => safeParse('raja_orders', []));
+      const [announcements, setAnnouncements] = useState(() => safeParse('raja_announcements', []));
+      const [checkoutData, setCheckoutData] = useState({ name: '', phone: '', address: '', pin: '', type: '', itemDetails: null, amount: 0 });
+      
+      const [uploadData, setUploadData] = useState({ title: '', desc: '', image: '', priceOriginal: '', priceA3: '', priceA4: '', priceA5: '' });
+      const [editingId, setEditingId] = useState(null);
+      const [annTitle, setAnnTitle] = useState('');
+      const [annMsg, setAnnMsg] = useState('');
 
-      const triggerSMS = (message) => {
-        setSmsNotification(message);
-        setTimeout(() => setSmsNotification(null), 6000);
+      useEffect(() => localStorage.setItem('raja_artworks', JSON.stringify(artworks)), [artworks]);
+      useEffect(() => localStorage.setItem('raja_cart', JSON.stringify(cart)), [cart]);
+      useEffect(() => localStorage.setItem('raja_orders', JSON.stringify(orders)), [orders]);
+      useEffect(() => localStorage.setItem('raja_announcements', JSON.stringify(announcements)), [announcements]);
+      useEffect(() => { feather.replace(); }, [view, menuOpen, artworks, orders, announcements]);
+
+      const nav = (v) => { setView(v); setMenuOpen(false); window.scrollTo(0,0); };
+
+      const addToCart = (art, size, price) => {
+        setCart([...cart, { ...art, selectedSize: size, price: Number(price), cartId: Date.now() }]);
+        alert("Artwork added to your Cart!");
       };
 
-      const navigateTo = (newView, artwork = null) => {
-        setView(newView);
-        if (artwork) setSelectedArtwork(artwork);
-        window.scrollTo(0, 0);
-        setIsMobileMenuOpen(false);
+      const startCheckout = (items, type) => {
+        let total = items.reduce((sum, item) => sum + item.price, 0);
+        setCheckoutData({ ...checkoutData, type, itemDetails: items, amount: total });
+        nav('checkout_form');
       };
 
-      const HomeView = () => (
-        <div className="max-w-6xl mx-auto px-4 py-12">
-          <div className="text-center mb-16 bg-white/40 backdrop-blur-md p-10 rounded-3xl shadow-sm border border-white/60">
-            <div className="flex justify-center mb-4 text-pink-500">
-              <Icon name="palette" size={48} />
-            </div>
-            <h1 className="text-4xl md:text-5xl font-serif text-gray-900 mb-4 font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500">
-              rajaguptaact Studio
+      // --- VIEWS ---
+      const GalleryView = () => (
+        <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-12">
+          <div className="text-center space-y-4 mb-12 glass-panel p-10 rounded-3xl shadow-lg border-t-4 border-t-purple-500">
+            <h1 className="text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500">
+              Highly Detailed Realistic Portraits
             </h1>
-            <p className="text-gray-700 max-w-2xl mx-auto text-lg font-medium">
-              Vibrant, detailed, and full of life. Browse my collection of highly detailed original coloured pencil drawings and premium HD prints.
+            <p className="text-gray-700 font-bold text-lg max-w-2xl mx-auto">
+              Welcome to my professional studio. All gallery pieces are 100% authentic, highly detailed <span className="text-purple-600">Colour Pencil</span> artworks. Every original piece is strictly drawn on premium <span className="text-pink-600">A4 size paper</span>.
             </p>
           </div>
-
-          <div className="space-y-16">
-            {artworks.map(art => (
-              <div key={art.id} className="group cursor-pointer bg-white/60 backdrop-blur-sm p-6 md:p-10 rounded-3xl shadow-sm hover:shadow-xl transition-all border border-white/50" onClick={() => navigateTo('product', art)}>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          {artworks.length === 0 ? (
+            <div className="text-center p-12 glass-panel rounded-3xl shadow-xl font-bold text-purple-600 text-xl">Gallery is currently empty.</div>
+          ) : (
+            artworks.map(art => (
+              <div key={art.id} className="glass-panel rounded-3xl shadow-xl overflow-hidden p-6 md:p-10 mb-10">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b pb-4 border-gray-200">
                   <div>
-                    <FrameMockup artworkImage={art.image} />
-                    <p className="text-center font-bold text-gray-500 mt-3 text-sm tracking-wide uppercase">In Frame</p>
+                    <h2 className="text-3xl font-black text-gray-900">{art.title}</h2>
+                    <span className="inline-block mt-2 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 text-xs font-black px-3 py-1 rounded-full border border-purple-200">
+                      100% COLOUR PENCIL
+                    </span>
                   </div>
-                  <div>
-                    <WallMockup artworkImage={art.image} />
-                    <p className="text-center font-bold text-gray-500 mt-3 text-sm tracking-wide uppercase">Home Wall</p>
-                  </div>
-                  <div>
-                    <TableMockup artworkImage={art.image} />
-                    <p className="text-center font-bold text-gray-500 mt-3 text-sm tracking-wide uppercase">On Table</p>
-                  </div>
+                  <p className="text-gray-600 font-medium max-w-md mt-4 md:mt-0 text-sm md:text-right">{art.description}</p>
                 </div>
-                <div className="mt-8 text-center border-t border-white/50 pt-8">
-                  <h3 className="text-3xl font-serif font-bold text-gray-900 group-hover:text-purple-600 transition-colors">{art.title}</h3>
-                  <p className="text-gray-600 mt-2 font-bold text-lg">Original (A4): ₹{art.originalPrice.toLocaleString()} <span className="text-gray-300 mx-2">|</span> Prints from: ₹{art.printPrices.A5.toLocaleString()}</p>
-                  <button className="mt-6 bg-purple-100 text-purple-700 px-8 py-3 rounded-xl font-bold group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-pink-500 group-hover:text-white transition-all shadow-sm">
-                    View Details & Purchase
-                  </button>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                  <div><FrameMockup src={art.image} /><p className="text-center font-bold mt-3 text-sm text-gray-500 uppercase tracking-widest">In Frame</p></div>
+                  <div><WallMockup src={art.image} /><p className="text-center font-bold mt-3 text-sm text-gray-500 uppercase tracking-widest">Home Wall</p></div>
+                  <div><TableMockup src={art.image} /><p className="text-center font-bold mt-3 text-sm text-gray-500 uppercase tracking-widest">On Table</p></div>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-gradient-to-br from-purple-600 to-indigo-600 p-5 rounded-2xl shadow-lg text-center transform hover:-translate-y-1 transition text-white">
+                    <p className="font-bold text-purple-100 text-sm">Original Artwork</p>
+                    <p className="font-black text-lg mb-1">A4 Size (Colour Pencil)</p>
+                    <p className="text-2xl font-black my-2">₹{art.priceOriginal}</p>
+                    <button onClick={() => addToCart(art, 'Original A4 Colour Pencil', art.priceOriginal)} className="w-full bg-white text-purple-700 py-2.5 rounded-xl font-bold shadow-md hover:bg-gray-50">Add to Cart</button>
+                  </div>
+                  <div className="bg-white p-5 rounded-2xl shadow-md text-center border-2 border-transparent hover:border-pink-400 transition">
+                    <p className="font-bold text-gray-500 text-sm">HD Print</p>
+                    <p className="font-black text-gray-800 text-lg mb-1">A3 Size</p>
+                    <p className="text-2xl font-black text-pink-600 my-2">₹{art.priceA3}</p>
+                    <button onClick={() => addToCart(art, 'Print A3', art.priceA3)} className="w-full bg-gray-100 text-gray-900 py-2.5 rounded-xl font-bold hover:bg-pink-50 hover:text-pink-600 transition">Add to Cart</button>
+                  </div>
+                  <div className="bg-white p-5 rounded-2xl shadow-md text-center border-2 border-transparent hover:border-pink-400 transition">
+                    <p className="font-bold text-gray-500 text-sm">HD Print</p>
+                    <p className="font-black text-gray-800 text-lg mb-1">A4 Size</p>
+                    <p className="text-2xl font-black text-pink-600 my-2">₹{art.priceA4}</p>
+                    <button onClick={() => addToCart(art, 'Print A4', art.priceA4)} className="w-full bg-gray-100 text-gray-900 py-2.5 rounded-xl font-bold hover:bg-pink-50 hover:text-pink-600 transition">Add to Cart</button>
+                  </div>
+                  <div className="bg-white p-5 rounded-2xl shadow-md text-center border-2 border-transparent hover:border-pink-400 transition">
+                    <p className="font-bold text-gray-500 text-sm">HD Print</p>
+                    <p className="font-black text-gray-800 text-lg mb-1">A5 Size</p>
+                    <p className="text-2xl font-black text-pink-600 my-2">₹{art.priceA5}</p>
+                    <button onClick={() => addToCart(art, 'Print A5', art.priceA5)} className="w-full bg-gray-100 text-gray-900 py-2.5 rounded-xl font-bold hover:bg-pink-50 hover:text-pink-600 transition">Add to Cart</button>
+                  </div>
                 </div>
               </div>
-            ))}
+            ))
+          )}
+        </div>
+      );
+
+      const CartView = () => {
+        const total = cart.reduce((sum, item) => sum + item.price, 0);
+        return (
+          <div className="p-6 max-w-3xl mx-auto min-h-screen">
+            <h2 className="text-3xl font-black mb-8 border-b pb-4 text-purple-800">Your Cart</h2>
+            {cart.length === 0 ? <p className="text-gray-500 font-bold glass-panel p-8 rounded-2xl text-center">Your cart is completely empty.</p> : (
+              <div className="space-y-4">
+                {cart.map((item, i) => (
+                  <div key={i} className="flex items-center justify-between glass-panel p-4 rounded-2xl shadow-sm border border-white">
+                    <div className="flex items-center gap-4">
+                      <img src={item.image} className="w-20 h-20 object-cover rounded-xl shadow-md border-2 border-white" />
+                      <div>
+                        <h4 className="font-black text-lg text-gray-900">{item.title}</h4>
+                        <p className="text-sm font-bold text-purple-600">{item.selectedSize}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-black text-xl text-gray-900">₹{item.price}</p>
+                      <button onClick={() => setCart(cart.filter(c => c.cartId !== item.cartId))} className="text-rose-500 text-sm font-bold hover:underline mt-1">Remove</button>
+                    </div>
+                  </div>
+                ))}
+                <div className="bg-gradient-to-r from-purple-700 to-pink-600 text-white p-6 rounded-2xl mt-8 flex flex-col md:flex-row justify-between items-center shadow-xl">
+                  <div className="mb-4 md:mb-0 text-center md:text-left"><p className="text-sm text-purple-200 font-bold">Total Amount Payable</p><p className="text-4xl font-black">₹{total}</p></div>
+                  <button onClick={() => startCheckout(cart, 'Gallery Purchase')} className="w-full md:w-auto bg-white text-purple-700 px-10 py-4 rounded-xl font-black text-lg shadow-lg hover:scale-105 transition-transform">Proceed to Checkout</button>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      };
+
+      const CommissionView = () => (
+        <div className="p-6 max-w-xl mx-auto min-h-screen">
+          <div className="mb-8 text-center">
+             <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 mb-2">Commission an Artwork</h2>
+             <p className="text-gray-600 font-bold">Professional Colour Pencil Portraits</p>
+          </div>
+          
+          <div className="bg-rose-50 border-l-4 border-rose-500 p-4 rounded-r-xl mb-6 shadow-sm">
+             <p className="font-black text-rose-700 flex items-center gap-2"><i data-feather="alert-circle" className="w-5 h-5"></i> STRICTLY COLOUR PENCIL ONLY</p>
+             <p className="text-sm text-rose-600 mt-1 font-medium">I do not accept orders for watercolor, oil, or digital mediums. All commissioned requests must be for highly detailed colour pencil artworks.</p>
+          </div>
+
+          <div className="glass-panel p-8 rounded-3xl shadow-xl">
+            <form onSubmit={(e) => { 
+                e.preventDefault(); 
+                startCheckout([{ title: 'Commission: ' + e.target.subject.value, selectedSize: e.target.size.value, price: Number(e.target.budget.value) }], 'Commission'); 
+              }} className="space-y-5">
+              <div>
+                <label className="font-black text-sm text-gray-800 uppercase tracking-wide">Artwork Subject Details</label>
+                <input required name="subject" placeholder="E.g. Portrait of two people, cultural figure..." className="w-full border-2 border-gray-200 p-4 rounded-xl bg-white focus:border-purple-500 outline-none transition font-medium mt-1" />
+              </div>
+              <div>
+                <label className="font-black text-sm text-gray-800 uppercase tracking-wide">Select Paper Size</label>
+                <select name="size" className="w-full border-2 border-gray-200 p-4 rounded-xl bg-white focus:border-purple-500 outline-none transition font-medium mt-1">
+                  <option value="A4 Colour Pencil">A4 Size (Medium)</option>
+                  <option value="A3 Colour Pencil">A3 Size (Large)</option>
+                </select>
+              </div>
+              <div>
+                <label className="font-black text-sm text-gray-800 uppercase tracking-wide">Estimated Budget (₹)</label>
+                <input required name="budget" type="number" min="500" placeholder="Enter amount..." className="w-full border-2 border-gray-200 p-4 rounded-xl bg-white focus:border-purple-500 outline-none transition font-medium mt-1" />
+              </div>
+              <button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-black text-lg shadow-lg hover:shadow-xl transition-all mt-4 relative z-50">Proceed to Details</button>
+            </form>
           </div>
         </div>
       );
 
-      const ProductView = () => {
-        const [selectedType, setSelectedType] = useState('print');
-        const [printSize, setPrintSize] = useState('A4'); 
-
-        const currentPrice = selectedType === 'original' ? selectedArtwork.originalPrice : selectedArtwork.printPrices[printSize];
-
-        const handleAddToCart = () => {
-          const finalSize = selectedType === 'original' ? 'A4' : printSize;
-          setCart([...cart, { ...selectedArtwork, purchaseType: selectedType, size: finalSize, price: currentPrice }]);
-          navigateTo('checkout');
-        };
-
-        return (
-          <div className="max-w-7xl mx-auto px-4 py-12">
-            <button onClick={() => navigateTo('home')} className="text-purple-600 font-bold hover:text-purple-800 mb-8 flex items-center bg-white/50 px-4 py-2 rounded-full">
-              ← Back to Gallery
-            </button>
-            <div className="flex flex-col lg:flex-row gap-10 bg-white/70 backdrop-blur-md p-6 md:p-10 rounded-3xl border border-white/60 shadow-xl">
-              
-              <div className="lg:w-2/3 space-y-8">
-                 <div className="bg-white/80 p-6 rounded-3xl shadow-sm border border-white">
-                   <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-purple-700">
-                     <Icon name="layout" size={24}/> 3-in-1 Gallery View
-                   </h3>
-                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                     <div>
-                       <FrameMockup artworkImage={selectedArtwork.image} />
-                       <p className="text-center font-bold text-gray-700 mt-3">1. In Frame</p>
-                     </div>
-                     <div>
-                       <WallMockup artworkImage={selectedArtwork.image} />
-                       <p className="text-center font-bold text-gray-700 mt-3">2. Home Wall</p>
-                     </div>
-                     <div>
-                       <TableMockup artworkImage={selectedArtwork.image} />
-                       <p className="text-center font-bold text-gray-700 mt-3">3. On Table</p>
-                     </div>
-                   </div>
-                 </div>
-
-                 <div className="bg-white/80 p-6 rounded-3xl shadow-sm border border-white">
-                   <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-700"><Icon name="image" size={20} className="text-pink-500"/> Pure HD Artwork View</h3>
-                   <img src={selectedArtwork.image} alt={selectedArtwork.title} className="w-full rounded-xl shadow-md object-contain border-4 border-white" />
-                 </div>
-              </div>
-              
-              <div className="lg:w-1/3 space-y-8 sticky top-28 h-fit">
-                <div>
-                  <h1 className="text-3xl font-serif text-gray-900 font-bold">{selectedArtwork.title}</h1>
-                  <p className="text-purple-600 font-medium mt-2">Hand-drawn by {selectedArtwork.artist}</p>
-                </div>
-                
-                <p className="text-gray-800 leading-relaxed font-medium bg-white/50 p-4 rounded-xl">{selectedArtwork.description}</p>
-                
-                <div className="space-y-4">
-                  <h4 className="font-bold text-gray-900 text-lg">Select Format</h4>
-                  
-                  <label className={`block border-2 rounded-xl p-4 cursor-pointer transition-all ${selectedType === 'print' ? 'border-purple-500 bg-purple-50/80 shadow-md' : 'border-white bg-white/50 hover:border-purple-300'}`}>
-                    <div className="flex justify-between items-center mb-4">
-                      <div>
-                        <input type="radio" name="format" checked={selectedType === 'print'} onChange={() => setSelectedType('print')} className="sr-only" />
-                        <span className="font-bold block text-gray-900">HD Coloured Pencil Print</span>
-                        <span className="text-sm text-gray-600 font-medium">Museum-quality fine art paper</span>
-                      </div>
-                      <span className="text-xl font-bold text-gray-900">₹{selectedArtwork.printPrices[printSize].toLocaleString()}</span>
-                    </div>
-                    
-                    {selectedType === 'print' && (
-                      <div className="flex gap-2 mt-4 pt-4 border-t border-purple-200">
-                        {['A5', 'A4', 'A3'].map(size => (
-                           <button 
-                             key={size}
-                             onClick={(e) => { e.preventDefault(); setPrintSize(size); }}
-                             className={`flex-1 py-2 rounded-lg font-bold text-sm transition-colors ${printSize === size ? 'bg-purple-600 text-white shadow-md' : 'bg-white text-gray-600 border border-purple-200 hover:bg-purple-100'}`}
-                           >
-                             {size} Size
-                           </button>
-                        ))}
-                      </div>
-                    )}
-                  </label>
-
-                  <label className={`block border-2 rounded-xl p-4 cursor-pointer transition-all ${selectedType === 'original' ? 'border-purple-500 bg-purple-50/80 shadow-md' : 'border-white bg-white/50 hover:border-purple-300'}`}>
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <input type="radio" name="format" checked={selectedType === 'original'} onChange={() => setSelectedType('original')} className="sr-only" />
-                        <span className="font-bold block text-gray-900">Original Coloured Pencil Drawing</span>
-                        <span className="text-sm text-purple-600 font-bold bg-purple-100 px-2 py-0.5 rounded-md mt-1 inline-block">Fixed Size: A4</span>
-                      </div>
-                      <span className="text-xl font-bold text-gray-900">₹{selectedArtwork.originalPrice.toLocaleString()}</span>
-                    </div>
-                  </label>
-                </div>
-
-                <button onClick={handleAddToCart} className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white py-4 rounded-xl hover:opacity-90 transition-opacity font-bold text-lg shadow-lg">
-                  Add to Cart - ₹{currentPrice.toLocaleString()}
-                </button>
-              </div>
-            </div>
+      const PublicNotificationsView = () => (
+        <div className="p-6 max-w-4xl mx-auto min-h-screen">
+          <div className="mb-8 text-center">
+             <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 mb-2">Studio Announcements</h2>
+             <p className="text-gray-600 font-bold">Latest news and offers from Raja Gupta</p>
           </div>
-        );
-      };
+          
+          {announcements.length === 0 ? (
+            <div className="text-center p-12 glass-panel rounded-3xl shadow-md font-bold text-gray-500 text-lg">No new announcements at this time.</div>
+          ) : (
+            <div className="space-y-6">
+              {announcements.map((ann, i) => (
+                <div key={i} className="glass-panel p-8 rounded-3xl shadow-lg border-l-8 border-purple-500 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 bg-purple-100 text-purple-700 text-xs font-black px-4 py-2 rounded-bl-xl border-b border-l border-purple-200">{ann.date}</div>
+                  <h3 className="text-2xl font-black text-gray-900 mb-3">{ann.title}</h3>
+                  <p className="text-gray-700 font-medium whitespace-pre-wrap">{ann.message}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
 
-      const CommissionView = () => {
-        const [commissionDetails, setCommissionDetails] = useState({ name: '', phone: '', email: '', subject: '', size: 'A4', details: '' });
-        const [submitted, setSubmitted] = useState(false);
-
-        const handleCommissionSubmit = (e) => {
+      const CheckoutForm = () => {
+        const handleShippingSubmit = (e) => {
           e.preventDefault();
-          triggerSMS(`New Commission Request from ${commissionDetails.name} for a ${commissionDetails.size} portrait!`);
-          setSubmitted(true);
+          if (checkoutData.type === 'Commission') {
+             const newOrder = { id: 'ORD-' + Math.floor(Math.random()*10000), date: new Date().toLocaleString(), ...checkoutData };
+             setOrders([newOrder, ...orders]);
+             setCheckoutData({ name: '', phone: '', address: '', pin: '', type: '', itemDetails: null, amount: 0 });
+             alert("Commission Request Sent Successfully! I will contact you via WhatsApp to discuss details.");
+             nav('gallery');
+          } else {
+             nav('payment');
+          }
         };
 
-        if (submitted) {
-          return (
-            <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-              <div className="bg-white/80 backdrop-blur-md p-12 rounded-3xl shadow-xl border border-white">
-                 <Icon name="check-circle" size={64} className="text-green-500 mx-auto mb-6" />
-                 <h2 className="text-3xl font-serif font-bold text-gray-900 mb-4">Request Received!</h2>
-                 <p className="text-lg text-gray-700 font-medium mb-8">Thank you for choosing me for your custom artwork. I will review your request and contact you shortly with a final price and timeline.</p>
-                 <button onClick={() => navigateTo('home')} className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:opacity-90">Back to Gallery</button>
-              </div>
-            </div>
-          );
-        }
-
         return (
-          <div className="max-w-4xl mx-auto px-4 py-12">
-            <div className="bg-white/80 backdrop-blur-md p-8 md:p-12 rounded-3xl shadow-xl border border-white">
-              <div className="text-center mb-8">
-                <Icon name="brush" size={48} className="text-purple-600 mx-auto mb-4" />
-                <h1 className="text-4xl font-serif font-bold text-gray-900 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500">Custom Commissioned Artwork</h1>
-                <p className="text-gray-700 text-lg font-medium max-w-2xl mx-auto mb-3">
-                  I strictly specialize in highly detailed realistic coloured pencil drawings of traditional figures, cultural art, and custom portraits.
-                </p>
-                <p className="text-pink-600 font-bold bg-pink-50 px-4 py-2 rounded-lg inline-block shadow-sm border border-pink-100 mb-6">
-                  Please note: I only accept custom orders for coloured pencil artworks (no charcoal or painting).
-                </p>
-                
-                <div className="flex justify-center gap-4 text-sm font-bold">
-                  <a href="https://wa.me/917281074416" target="_blank" className="text-green-600 flex items-center gap-1 hover:underline"><Icon name="message-circle" size={16}/> WhatsApp Me Directly</a>
-                  <span className="text-gray-300">|</span>
-                  <a href="https://www.instagram.com/rajaguptaact?igsh=MXZmODNvdDlrY3lnNg==" target="_blank" className="text-pink-600 flex items-center gap-1 hover:underline"><Icon name="instagram" size={16}/> DM on Instagram</a>
-                </div>
-              </div>
-              <form onSubmit={handleCommissionSubmit} className="space-y-6 max-w-2xl mx-auto mt-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Full Name</label>
-                    <input required className="w-full border-2 border-white/50 bg-white/70 p-3 rounded-xl font-medium focus:outline-none focus:border-pink-400" value={commissionDetails.name} onChange={e => setCommissionDetails({...commissionDetails, name: e.target.value})} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">WhatsApp / Phone</label>
-                    <input required type="tel" className="w-full border-2 border-white/50 bg-white/70 p-3 rounded-xl font-medium focus:outline-none focus:border-pink-400" value={commissionDetails.phone} onChange={e => setCommissionDetails({...commissionDetails, phone: e.target.value})} />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Email Address</label>
-                    <input required type="email" className="w-full border-2 border-white/50 bg-white/70 p-3 rounded-xl font-medium focus:outline-none focus:border-pink-400" value={commissionDetails.email} onChange={e => setCommissionDetails({...commissionDetails, email: e.target.value})} />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Subject (What would you like me to draw?)</label>
-                    <input required placeholder="e.g., Traditional Figure, Family Portrait..." className="w-full border-2 border-white/50 bg-white/70 p-3 rounded-xl font-medium focus:outline-none focus:border-pink-400" value={commissionDetails.subject} onChange={e => setCommissionDetails({...commissionDetails, subject: e.target.value})} />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Preferred Size</label>
-                    <select className="w-full border-2 border-white/50 bg-white/70 p-3 rounded-xl font-medium focus:outline-none focus:border-pink-400" value={commissionDetails.size} onChange={e => setCommissionDetails({...commissionDetails, size: e.target.value})}>
-                      <option value="A4">A4 (Standard Portrait)</option>
-                      <option value="A3">A3 (Large Portrait)</option>
-                    </select>
-                  </div>
-                </div>
-                <button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:opacity-90">
-                  Request Commission Quote
-                </button>
-              </form>
-            </div>
+          <div className="p-6 max-w-xl mx-auto min-h-screen">
+            <h2 className="text-3xl font-black mb-6 text-purple-800 text-center">Shipping & Contact Details</h2>
+            <form className="glass-panel p-8 rounded-3xl shadow-xl space-y-5" onSubmit={handleShippingSubmit}>
+              <input required value={checkoutData.name} placeholder="Full Name" className="w-full border-2 border-gray-200 p-4 rounded-xl font-medium focus:border-purple-500 outline-none" onChange={e => setCheckoutData({...checkoutData, name: e.target.value})} />
+              <input required value={checkoutData.phone} type="tel" placeholder="WhatsApp Number (For tracking/contact)" className="w-full border-2 border-gray-200 p-4 rounded-xl font-medium focus:border-purple-500 outline-none" onChange={e => setCheckoutData({...checkoutData, phone: e.target.value})} />
+              <textarea required value={checkoutData.address} placeholder="Full Delivery Address (House No, Street, Landmark)" className="w-full border-2 border-gray-200 p-4 rounded-xl font-medium focus:border-purple-500 outline-none" rows="3" onChange={e => setCheckoutData({...checkoutData, address: e.target.value})}></textarea>
+              <input required value={checkoutData.pin} placeholder="PIN Code" className="w-full border-2 border-gray-200 p-4 rounded-xl font-medium focus:border-purple-500 outline-none" onChange={e => setCheckoutData({...checkoutData, pin: e.target.value})} />
+              
+              <button type="submit" className="w-full bg-gray-900 text-white py-4 rounded-xl font-black text-lg shadow-lg hover:bg-gray-800 transition-colors relative z-50 cursor-pointer">
+                {checkoutData.type === 'Commission' ? "Submit Commission Request" : "Proceed to Secure Payment"}
+              </button>
+            </form>
           </div>
         );
       };
 
-      const CheckoutView = () => {
-        const [step, setStep] = useState(1); 
-        const [buyer, setBuyer] = useState({ name: '', phone: '', email: '', address: '', country: 'India' });
-        const [paymentMethod, setPaymentMethod] = useState('');
+      const PaymentView = () => {
+        const upiID = "7281074416@ybl";
+        const upiLink = `upi://pay?pa=${upiID}&pn=Raja%20Gupta&am=${checkoutData.amount}&cu=INR`;
+        const qrURL = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiLink)}&color=000000&bgcolor=ffffff`;
 
-        const item = cart[cart.length - 1]; 
-        if (!item && step !== 3) return <div className="p-12 text-center text-lg font-bold">Your cart is empty. <button onClick={() => navigateTo('home')} className="text-purple-600 underline">Browse Artworks</button></div>;
-
-        const isInternational = buyer.country.trim().toLowerCase() !== 'india';
-        const shippingCost = isInternational ? 100 : 0;
-        const total = (item?.price || 0) + shippingCost;
-
-        const handlePaymentComplete = () => {
-          setOrders([{ id: Math.random().toString(36).substr(2, 9).toUpperCase(), item, buyer, total, date: new Date().toLocaleString() }, ...orders]);
-          setStep(3);
+        const finalizeOrder = () => {
+          const newOrder = { id: 'ORD-' + Math.floor(Math.random()*10000), date: new Date().toLocaleString(), ...checkoutData };
+          setOrders([newOrder, ...orders]);
           setCart([]); 
-          triggerSMS(`New Order! ${buyer.name} bought ${item.purchaseType} (${item.size}) of "${item.title}" for ₹${total}.`);
+          setCheckoutData({ name: '', phone: '', address: '', pin: '', type: '', itemDetails: null, amount: 0 });
+          alert("Payment Confirmed! Your order has been securely sent to my Admin Notifications.");
+          nav('gallery');
         };
 
-        const upiLink = `upi://pay?pa=7281074416@ybl&pn=Raja%20Gupta&am=${total}&cu=INR`;
-        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiLink)}`;
-
         return (
-          <div className="max-w-4xl mx-auto px-4 py-12">
-            {step === 1 && (
-              <div className="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-white">
-                <h2 className="text-3xl font-serif mb-6 font-bold text-gray-900">Delivery Details</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                  <input type="text" placeholder="Full Name" className="border-2 border-white/50 bg-white/70 p-4 rounded-xl w-full font-medium" value={buyer.name} onChange={e => setBuyer({...buyer, name: e.target.value})} />
-                  <input type="tel" placeholder="Phone Number" className="border-2 border-white/50 bg-white/70 p-4 rounded-xl w-full font-medium" value={buyer.phone} onChange={e => setBuyer({...buyer, phone: e.target.value})} />
-                  <textarea placeholder="Full Address" className="border-2 border-white/50 bg-white/70 p-4 rounded-xl w-full md:col-span-2 font-medium" rows="3" value={buyer.address} onChange={e => setBuyer({...buyer, address: e.target.value})}></textarea>
-                  <select className="border-2 border-white/50 bg-white/70 p-4 rounded-xl w-full md:col-span-2 font-medium" value={buyer.country} onChange={e => setBuyer({...buyer, country: e.target.value})}>
-                    <option value="India">India</option>
-                    <option value="Other">Other International</option>
-                  </select>
-                </div>
-                
-                <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-2xl mb-8 border border-white">
-                  <h3 className="font-bold mb-4 text-lg text-gray-800">Order Summary</h3>
-                  <div className="flex justify-between mb-2 text-gray-700 font-medium">
-                    <span>{item.title} - {item.purchaseType === 'original' ? 'Original' : 'Print'} ({item.size})</span>
-                    <span>₹{item.price.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between mb-4 text-gray-700 font-medium border-b border-gray-300 pb-4">
-                    <span>Shipping {isInternational && "(International +₹100)"}</span>
-                    <span>{shippingCost === 0 ? 'Free' : `₹${shippingCost}`}</span>
-                  </div>
-                  <div className="flex justify-between font-bold text-2xl text-gray-900">
-                    <span>Total to Pay</span>
-                    <span>₹{total.toLocaleString()}</span>
-                  </div>
-                </div>
-
-                <button onClick={() => { if(!buyer.name || !buyer.phone || !buyer.address) return alert("Please fill details"); setStep(2); }} className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white py-4 rounded-xl font-bold text-lg shadow-lg">Proceed to Payment</button>
-              </div>
-            )}
+          <div className="p-6 max-w-md mx-auto text-center min-h-screen">
+            <h2 className="text-3xl font-black mb-2 text-purple-800">Scan & Pay</h2>
+            <p className="text-gray-600 mb-8 font-bold text-lg">Total Payable: <span className="text-pink-600 font-black text-2xl ml-2">₹{checkoutData.amount}</span></p>
             
-            {step === 2 && (
-              <div className="bg-white/90 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-white max-w-md mx-auto text-center">
-                 <h2 className="text-3xl font-serif mb-2 font-bold text-gray-900">Secure Payment</h2>
-                 <p className="text-gray-600 mb-6 font-medium">Amount to pay: ₹{total.toLocaleString()}</p>
-                 
-                 <div className="space-y-4 mb-6">
-                   <button onClick={() => setPaymentMethod('gpay')} className={`w-full flex items-center justify-center gap-3 p-4 border-2 rounded-xl transition-all font-bold ${paymentMethod === 'gpay' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-300'}`}>
-                     <Icon name="smartphone" className="text-blue-600" /><span>Pay with Google Pay</span>
-                   </button>
-                   <button onClick={() => setPaymentMethod('phonepe')} className={`w-full flex items-center justify-center gap-3 p-4 border-2 rounded-xl transition-all font-bold ${paymentMethod === 'phonepe' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 bg-white hover:border-purple-300'}`}>
-                     <Icon name="smartphone" className="text-purple-600" /><span>Pay with PhonePe</span>
-                   </button>
-                 </div>
-                 
-                 {paymentMethod && (
-                   <div className="animate-fade-in">
-                     <div className="bg-white p-6 mx-auto mb-6 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-purple-300 shadow-sm">
-                        <span className="text-gray-900 text-sm font-bold mb-4">Scan QR Code to Pay ₹{total.toLocaleString()}</span>
-                        
-                        <img src={qrCodeUrl} alt="UPI QR Code" className="w-48 h-48 mb-6 border-4 border-purple-100 rounded-2xl shadow-sm" />
-
-                        <span className="text-gray-500 text-xs font-bold mb-2 uppercase tracking-wide">Or copy UPI ID</span>
-                        
-                        <div className="bg-gradient-to-r from-purple-100 to-pink-100 px-6 py-3 rounded-xl mb-4 border border-white shadow-inner flex items-center gap-3">
-                           <Icon name="copy" size={20} className="text-purple-600" />
-                           <span className="font-black text-xl text-purple-800 tracking-wide select-all">7281074416@ybl</span>
-                        </div>
-                        
-                        <p className="text-xs text-gray-500 font-medium leading-relaxed">Open your GPay or PhonePe app to scan the code or paste the UPI ID.</p>
-                     </div>
-                     <button onClick={handlePaymentComplete} className="w-full bg-green-500 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-green-600 shadow-md transition-colors">
-                       <Icon name="check-circle" size={20} /> I have made the payment
-                     </button>
-                   </div>
-                 )}
+            <div className="bg-white p-8 rounded-3xl shadow-2xl border-2 border-purple-100 mb-8 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 to-pink-500"></div>
+              <img src={qrURL} alt="UPI QR Code" className="mx-auto mb-6 rounded-xl shadow-md border-4 border-gray-50 p-2" />
+              <p className="font-black text-gray-800 text-sm tracking-widest uppercase">Scan with PhonePe, GPay, Paytm</p>
+              <div className="bg-purple-50 border border-purple-100 p-4 rounded-xl mt-6 font-mono font-black text-purple-900 text-lg select-all cursor-pointer relative z-50">
+                {upiID}
               </div>
-            )}
+              <p className="text-xs font-bold text-gray-400 mt-2">Tap to copy UPI ID</p>
+            </div>
             
-            {step === 3 && (
-              <div className="bg-white/90 backdrop-blur-md p-12 rounded-3xl shadow-xl border border-white text-center max-w-lg mx-auto">
-                <Icon name="check-circle" size={50} className="text-green-500 mx-auto mb-4" />
-                <h2 className="text-4xl font-serif mb-4 font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-500 to-teal-500">Order Placed!</h2>
-                <p className="text-gray-700 font-medium mb-6">Thank you for your purchase. Once the payment of ₹{total.toLocaleString()} is verified in the bank, we will prepare your realistic coloured pencil artwork for shipping.</p>
-                <button onClick={() => navigateTo('home')} className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-8 py-4 rounded-xl font-bold shadow-lg hover:opacity-90">Back to Gallery</button>
-              </div>
-            )}
+            <button onClick={finalizeOrder} className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-black text-lg shadow-xl hover:shadow-2xl transition-all relative z-50 cursor-pointer">I Have Successfully Paid</button>
           </div>
         );
       };
 
-      const AdminView = () => {
-        const [tab, setTab] = useState('artworks'); 
-        const [editingItem, setEditingItem] = useState(null);
-        const [imagePreview, setImagePreview] = useState('');
-
-        const handleImageUpload = (e) => {
+      const AdminPanel = () => {
+        const handleImage = (e) => {
           const file = e.target.files[0];
-          if (file) { setImagePreview(URL.createObjectURL(file)); }
+          if(file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              const img = new Image();
+              img.onload = () => {
+                const canvas = document.createElement('canvas');
+                // UPGRADED FOR HD UPLOADS
+                const MAX_WIDTH = 1800; 
+                const MAX_HEIGHT = 1800;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height && width > MAX_WIDTH) {
+                  height *= MAX_WIDTH / width;
+                  width = MAX_WIDTH;
+                } else if (height > MAX_HEIGHT) {
+                  width *= MAX_HEIGHT / height;
+                  height = MAX_HEIGHT;
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // HIGHEST QUALITY JPEG OUTPUT (95%)
+                const fastBase64 = canvas.toDataURL('image/jpeg', 0.95); 
+                setUploadData({...uploadData, image: fastBase64});
+              };
+              img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+          }
         };
 
-        const handleSaveArtwork = (e) => {
+        const saveArtwork = (e) => {
           e.preventDefault();
-          if (!imagePreview) return alert("Please upload an HD artwork image.");
-          const formData = new FormData(e.target);
-          const newArt = {
-            id: editingItem?.id || Date.now(),
-            title: formData.get('title'),
-            artist: formData.get('artist'),
-            description: formData.get('description'),
-            originalPrice: parseInt(formData.get('originalPrice')),
-            printPrices: {
-              A5: parseInt(formData.get('printPriceA5')),
-              A4: parseInt(formData.get('printPriceA4')),
-              A3: parseInt(formData.get('printPriceA3'))
-            },
-            image: imagePreview
-          };
-          if (editingItem && editingItem.id) { setArtworks(artworks.map(a => a.id === editingItem.id ? newArt : a)); } 
-          else { setArtworks([newArt, ...artworks]); }
-          setEditingItem(null);
-          setImagePreview('');
+          if (editingId) {
+             setArtworks(artworks.map(a => a.id === editingId ? { ...uploadData, id: editingId } : a));
+             alert("Artwork Updated Successfully in High Quality!");
+             setEditingId(null);
+          } else {
+             setArtworks([{ id: Date.now(), ...uploadData }, ...artworks]);
+             alert("High Quality Artwork Uploaded Instantly!");
+          }
+          setUploadData({ title: '', desc: '', image: '', priceOriginal: '', priceA3: '', priceA4: '', priceA5: '' });
+        };
+
+        const editArt = (art) => {
+          setEditingId(art.id);
+          setUploadData(art);
+          window.scrollTo(0, 0);
+        };
+
+        const deleteArt = (id) => {
+          if(window.confirm("Are you sure you want to delete this artwork?")) {
+            setArtworks(artworks.filter(a => a.id !== id));
+          }
+        };
+
+        const postAnnouncement = (e) => {
+          e.preventDefault();
+          setAnnouncements([{ id: Date.now(), title: annTitle, message: annMsg, date: new Date().toLocaleDateString() }, ...announcements]);
+          setAnnTitle(''); setAnnMsg('');
+          alert("Announcement successfully posted to the Public Notifications page!");
+        };
+
+        const deleteAnnouncement = (id) => {
+          if(window.confirm("Delete this announcement?")) {
+             setAnnouncements(announcements.filter(a => a.id !== id));
+          }
         };
 
         return (
-          <div className="max-w-6xl mx-auto px-4 py-8">
-            <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 bg-white/60 backdrop-blur-sm p-6 rounded-2xl shadow-sm border border-white">
-              <h2 className="text-3xl font-serif font-bold text-gray-900">Artist Dashboard</h2>
-              <div className="flex gap-4">
-                <button onClick={() => setTab('artworks')} className={`px-5 py-2.5 rounded-xl font-bold transition-colors ${tab === 'artworks' ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>Manage Artworks</button>
-                <button onClick={() => setTab('orders')} className={`px-5 py-2.5 rounded-xl font-bold transition-colors flex items-center ${tab === 'orders' ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>
-                  Orders {orders.length > 0 && <span className="bg-red-500 text-white text-xs px-2.5 py-1 rounded-full ml-2 shadow-sm">{orders.length}</span>}
-                </button>
-              </div>
+          <div className="p-6 max-w-7xl mx-auto space-y-10 min-h-screen">
+            <div className="flex justify-between items-center mb-8 glass-panel p-6 rounded-3xl shadow-sm">
+              <h2 className="text-3xl font-black text-purple-900 flex items-center gap-3"><i data-feather="shield"></i> Admin Security Portal</h2>
+              <button onClick={() => setIsAdmin(false)} className="bg-rose-100 text-rose-700 px-6 py-2.5 rounded-xl font-black hover:bg-rose-200 transition">Logout</button>
             </div>
 
-            {tab === 'artworks' && (
-              <div>
-                {!editingItem ? (
-                  <>
-                    <button onClick={() => { setEditingItem({}); setImagePreview(''); }} className="mb-6 flex items-center gap-2 bg-white text-purple-600 font-bold px-6 py-3 rounded-xl hover:bg-purple-50 transition-colors shadow-sm border border-purple-100">
-                      <Icon name="plus" size={20} /> Upload Coloured Pencil Art
-                    </button>
-                    <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-white overflow-hidden">
-                      <table className="w-full text-left">
-                        <thead className="bg-white/50 border-b border-gray-200">
-                          <tr>
-                            <th className="p-5 font-bold text-gray-700">Artwork</th>
-                            <th className="p-5 font-bold text-gray-700">Prices (₹)</th>
-                            <th className="p-5 font-bold text-gray-700">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                          {artworks.map(art => (
-                            <tr key={art.id} className="hover:bg-white/60 transition-colors">
-                              <td className="p-5 flex items-center gap-4">
-                                <img src={art.image} alt="" className="w-16 h-16 object-cover rounded-lg shadow-sm border border-gray-200" />
-                                <span className="font-bold text-lg text-gray-800">{art.title}</span>
-                              </td>
-                              <td className="p-5 text-gray-600 font-medium text-sm">
-                                Orig(A4): ₹{art.originalPrice} <br/>
-                                Prints: A5(₹{art.printPrices.A5}) | A4(₹{art.printPrices.A4}) | A3(₹{art.printPrices.A3})
-                              </td>
-                              <td className="p-5">
-                                <button onClick={() => { setEditingItem(art); setImagePreview(art.image); }} className="text-blue-600 p-2 hover:bg-blue-50 rounded-lg transition-colors"><Icon name="edit-2" size={20} /></button>
-                                <button onClick={() => setArtworks(artworks.filter(a => a.id !== art.id))} className="text-pink-600 p-2 hover:bg-pink-50 rounded-lg ml-2 transition-colors"><Icon name="trash-2" size={20} /></button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+              
+              {/* LEFT COLUMN: UPLOAD/EDIT FORM & GALLERY MANAGER */}
+              <div className="space-y-8">
+                
+                {/* UPLOAD FORM */}
+                <div className="glass-panel p-8 rounded-3xl shadow-xl border-t-4 border-t-purple-500">
+                  <h3 className="text-2xl font-black mb-6 text-gray-900">
+                    {editingId ? "Edit Artwork Details" : "Upload HD Artwork"}
+                  </h3>
+                  <form onSubmit={saveArtwork} className="space-y-4">
+                    <input required placeholder="Artwork Title" className="w-full border-2 p-4 rounded-xl bg-white font-bold" value={uploadData.title} onChange={e => setUploadData({...uploadData, title: e.target.value})} />
+                    <textarea required placeholder="Description..." className="w-full border-2 p-4 rounded-xl bg-white font-medium" rows="2" value={uploadData.desc} onChange={e => setUploadData({...uploadData, desc: e.target.value})}></textarea>
+                    
+                    <div className="border-2 border-dashed border-purple-300 p-6 rounded-xl text-center bg-purple-50 hover:bg-purple-100 transition cursor-pointer">
+                      <label className="font-black text-purple-700 block cursor-pointer">
+                        <i data-feather="upload-cloud" className="mx-auto mb-2 w-8 h-8"></i>
+                        {uploadData.image ? "Change HD Image" : "Select High-Resolution Image"}
+                        <input type="file" accept="image/*" className="hidden" onChange={handleImage} required={!uploadData.image} />
+                      </label>
+                      {uploadData.image && <img src={uploadData.image} className="mt-4 h-40 mx-auto rounded-lg shadow-md object-contain border-2 border-white" />}
                     </div>
-                  </>
-                ) : (
-                  <div className="bg-white/90 backdrop-blur-md p-8 rounded-3xl border border-white shadow-xl max-w-3xl">
-                    <h3 className="text-2xl font-serif mb-6 font-bold text-gray-900">{editingItem.id ? 'Edit Coloured Pencil Artwork' : 'Upload New Coloured Pencil Art'}</h3>
-                    <form onSubmit={handleSaveArtwork} className="space-y-6">
-                      <div className="col-span-2">
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Artwork Image (Direct Upload)</label>
-                        <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-purple-200 border-dashed rounded-2xl hover:border-purple-500 transition-colors bg-white/50 relative">
-                          {imagePreview ? (
-                            <div className="relative w-full flex flex-col items-center">
-                               <img src={imagePreview} alt="Preview" className="max-h-64 object-contain rounded-xl shadow-md mb-4" />
-                               <label className="cursor-pointer bg-white px-5 py-2.5 border border-gray-200 rounded-xl shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors">
-                                  Change Image <input type="file" accept="image/*" onChange={handleImageUpload} className="sr-only" />
-                               </label>
-                            </div>
-                          ) : (
-                            <div className="space-y-1 text-center">
-                              <Icon name="upload-cloud" className="mx-auto text-pink-400" size={48} />
-                              <div className="flex justify-center mt-4">
-                                <label className="cursor-pointer bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg font-bold px-4 py-2 shadow-sm hover:opacity-90">
-                                  <span>Select HD Coloured Pencil Image</span> <input type="file" accept="image/*" onChange={handleImageUpload} className="sr-only" required={!editingItem.id} />
-                                </label>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="md:col-span-2">
-                          <label className="block text-sm font-bold text-gray-700 mb-1">Title</label>
-                          <input name="title" defaultValue={editingItem.title} required className="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-pink-400 outline-none font-medium" />
-                        </div>
-                        <div className="md:col-span-2">
-                          <label className="block text-sm font-bold text-gray-700 mb-1">Artist Name</label>
-                          <input name="artist" defaultValue={editingItem.artist || 'Raja Gupta'} required className="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-pink-400 outline-none font-medium" />
-                        </div>
-                        
-                        <div className="md:col-span-2 bg-purple-50 p-4 rounded-xl border border-purple-100">
-                          <label className="block text-sm font-bold text-purple-900 mb-4 border-b border-purple-200 pb-2">Set Pricing (₹)</label>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-xs font-bold text-gray-600 mb-1">Original Drawing (A4)</label>
-                              <input type="number" name="originalPrice" defaultValue={editingItem.originalPrice} required className="w-full border-2 border-gray-200 p-2 rounded-lg focus:border-pink-400 outline-none font-medium" />
-                            </div>
-                            <div>
-                              <label className="block text-xs font-bold text-gray-600 mb-1">A5 Print Price</label>
-                              <input type="number" name="printPriceA5" defaultValue={editingItem.printPrices?.A5} required className="w-full border-2 border-gray-200 p-2 rounded-lg focus:border-pink-400 outline-none font-medium" />
-                            </div>
-                            <div>
-                              <label className="block text-xs font-bold text-gray-600 mb-1">A4 Print Price</label>
-                              <input type="number" name="printPriceA4" defaultValue={editingItem.printPrices?.A4} required className="w-full border-2 border-gray-200 p-2 rounded-lg focus:border-pink-400 outline-none font-medium" />
-                            </div>
-                            <div>
-                              <label className="block text-xs font-bold text-gray-600 mb-1">A3 Print Price</label>
-                              <input type="number" name="printPriceA3" defaultValue={editingItem.printPrices?.A3} required className="w-full border-2 border-gray-200 p-2 rounded-lg focus:border-pink-400 outline-none font-medium" />
-                            </div>
-                          </div>
-                        </div>
 
-                        <div className="md:col-span-2">
-                          <label className="block text-sm font-bold text-gray-700 mb-1">Description (Highlight your pencil techniques!)</label>
-                          <textarea name="description" defaultValue={editingItem.description} required rows="3" className="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-pink-400 outline-none font-medium"></textarea>
+                    <div className="grid grid-cols-2 gap-4 mt-6">
+                      <div>
+                         <label className="text-xs font-black text-gray-500 uppercase">Original A4 Price</label>
+                         <input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceOriginal} onChange={e => setUploadData({...uploadData, priceOriginal: e.target.value})} />
+                      </div>
+                      <div>
+                         <label className="text-xs font-black text-gray-500 uppercase">Print A3 Price</label>
+                         <input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceA3} onChange={e => setUploadData({...uploadData, priceA3: e.target.value})} />
+                      </div>
+                      <div>
+                         <label className="text-xs font-black text-gray-500 uppercase">Print A4 Price</label>
+                         <input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceA4} onChange={e => setUploadData({...uploadData, priceA4: e.target.value})} />
+                      </div>
+                      <div>
+                         <label className="text-xs font-black text-gray-500 uppercase">Print A5 Price</label>
+                         <input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceA5} onChange={e => setUploadData({...uploadData, priceA5: e.target.value})} />
+                      </div>
+                    </div>
+                    <button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white py-4 rounded-xl font-black text-lg mt-6 shadow-lg">
+                      {editingId ? "Update Live HD Artwork" : "Publish to Live Gallery"}
+                    </button>
+                    {editingId && (
+                      <button type="button" onClick={() => { setEditingId(null); setUploadData({ title: '', desc: '', image: '', priceOriginal: '', priceA3: '', priceA4: '', priceA5: '' }); }} className="w-full bg-gray-200 text-gray-700 py-3 rounded-xl font-bold mt-2 hover:bg-gray-300 transition">Cancel Edit</button>
+                    )}
+                  </form>
+                </div>
+
+                {/* MANAGE GALLERY LIST */}
+                <div className="glass-panel p-6 rounded-3xl shadow-sm border border-gray-200">
+                  <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-2"><i data-feather="image"></i> Manage Published Artworks</h3>
+                  {artworks.length === 0 ? <p className="text-gray-500 font-bold">No artworks published.</p> : (
+                    <div className="space-y-3">
+                      {artworks.map(art => (
+                        <div key={art.id} className="flex justify-between items-center bg-white p-3 rounded-xl shadow-sm border border-gray-100">
+                           <div className="flex items-center gap-3">
+                             <img src={art.image} className="w-12 h-12 object-cover rounded-lg border border-gray-200" />
+                             <p className="font-bold text-sm text-gray-800 line-clamp-1">{art.title}</p>
+                           </div>
+                           <div className="flex gap-2">
+                             <button onClick={() => editArt(art)} className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100"><i data-feather="edit-2" className="w-4 h-4"></i></button>
+                             <button onClick={() => deleteArt(art.id)} className="p-2 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100"><i data-feather="trash-2" className="w-4 h-4"></i></button>
+                           </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+              </div>
+
+              {/* RIGHT COLUMN: NOTIFICATIONS / ORDERS */}
+              <div className="space-y-8">
+                
+                {/* POST ANNOUNCEMENTS */}
+                <div className="glass-panel p-8 rounded-3xl shadow-xl border-t-4 border-t-pink-500">
+                  <h3 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2"><i data-feather="message-square"></i> Post Public Announcement</h3>
+                  <form onSubmit={postAnnouncement} className="space-y-4">
+                     <input required placeholder="Announcement Title" value={annTitle} onChange={e=>setAnnTitle(e.target.value)} className="w-full border-2 p-4 rounded-xl bg-white font-bold"/>
+                     <textarea required placeholder="Message details..." value={annMsg} onChange={e=>setAnnMsg(e.target.value)} className="w-full border-2 p-4 rounded-xl bg-white font-medium" rows="3"></textarea>
+                     <button type="submit" className="w-full bg-gray-900 text-white py-4 rounded-xl font-black text-lg shadow-lg hover:bg-gray-800 transition">Post to Public Notifications</button>
+                  </form>
+                  {announcements.length > 0 && (
+                    <div className="mt-6 pt-6 border-t border-gray-200 space-y-3">
+                      <p className="font-black text-sm text-gray-500 uppercase">Active Announcements</p>
+                      {announcements.map(ann => (
+                        <div key={ann.id} className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
+                          <p className="font-bold text-sm line-clamp-1">{ann.title}</p>
+                          <button onClick={() => deleteAnnouncement(ann.id)} className="text-rose-500 hover:text-rose-700"><i data-feather="trash-2" className="w-4 h-4"></i></button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* ADMIN INBOX: CUSTOMER ORDERS */}
+                <div className="glass-panel p-8 rounded-3xl shadow-xl">
+                  <h3 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2"><i data-feather="inbox"></i> Secure Inbox: Orders & Commissions</h3>
+                  {orders.length === 0 ? <p className="text-gray-500 font-bold bg-white p-6 rounded-2xl text-center shadow-sm">No orders received yet.</p> : orders.map(o => (
+                    <div key={o.id} className="bg-white p-6 rounded-3xl shadow-md border-l-8 border-pink-500 mb-6">
+                      <div className="flex justify-between items-start mb-4 border-b pb-4">
+                        <div><p className="font-black text-xl text-gray-900">{o.id}</p><p className="text-sm font-bold text-gray-500">{o.date}</p></div>
+                        <span className="bg-pink-100 text-pink-800 text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-wider">{o.type}</span>
+                      </div>
+                      <div className="mb-4">
+                        <p className="font-black text-lg text-gray-800">{o.name} <span className="text-green-500 mx-2">|</span> WA: {o.phone}</p>
+                        <p className="text-sm font-bold text-gray-600 mt-1">{o.address}, PIN: {o.pin}</p>
+                      </div>
+                      <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                        <p className="font-black text-xs mb-3 text-purple-600 uppercase tracking-widest">Items / Request:</p>
+                        {o.itemDetails.map((item, i) => (
+                           <div key={i} className="flex justify-between text-sm font-bold border-b border-gray-200 pb-2 mb-2 last:border-0 last:mb-0 last:pb-0">
+                             <span className="text-gray-800">{item.title} <span className="text-pink-600">({item.selectedSize})</span></span>
+                             <span className="text-gray-900">₹{item.price}</span>
+                           </div>
+                        ))}
+                        <div className="flex justify-between items-center text-lg font-black mt-4 pt-4 border-t border-gray-300">
+                          <span className="text-gray-700">{o.type === 'Commission' ? 'Budget' : 'Total Paid'}</span>
+                          <span className="text-green-600 text-2xl">₹{o.amount}</span>
                         </div>
                       </div>
-                      <div className="flex gap-4 pt-6 border-t border-gray-200">
-                        <button type="submit" className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-8 py-3 rounded-xl font-bold shadow-md hover:opacity-90">Save Artwork</button>
-                        <button type="button" onClick={() => { setEditingItem(null); setImagePreview(''); }} className="bg-white border-2 border-gray-200 text-gray-700 px-8 py-3 rounded-xl font-bold hover:bg-gray-50">Cancel</button>
-                      </div>
-                    </form>
-                  </div>
-                )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            )}
-            {tab === 'orders' && (
-              <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-white overflow-hidden p-6">
-                <h3 className="font-bold text-lg mb-4">Orders will appear here once buyers checkout!</h3>
-              </div>
-            )}
+
+            </div>
           </div>
         );
       };
 
       return (
-        <div className="min-h-screen bg-gradient-to-tr from-rose-100 via-purple-50 to-teal-100 font-sans text-gray-800 flex flex-col">
-          {smsNotification && (
-            <div className="fixed top-24 right-4 z-50 bg-white/90 p-4 rounded-2xl shadow-2xl flex items-start gap-3 border-l-4 border-pink-500">
-              <Icon name="message-square" className="text-pink-500 mt-1" size={24} />
-              <div>
-                <p className="text-xs text-purple-600 font-bold uppercase mb-1">SMS Alert Received</p>
-                <p className="text-sm font-bold text-gray-800">{smsNotification}</p>
+        <div className="min-h-screen flex flex-col">
+          {/* HEADER */}
+          <header className="glass-panel sticky top-0 z-40 shadow-sm">
+            <div className="max-w-7xl mx-auto px-4 md:px-8 h-20 flex items-center justify-between">
+              <div className="text-2xl md:text-3xl font-black tracking-tighter cursor-pointer flex items-center gap-2 relative z-50" onClick={() => nav('gallery')}>
+                <div className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-1.5 rounded-lg"><i data-feather="edit-2"></i></div>
+                RAJA GUPTA <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500">ACT</span>
+              </div>
+              <button onClick={() => setMenuOpen(!menuOpen)} className="bg-gradient-to-r from-purple-600 to-pink-500 text-white font-black px-6 py-2.5 rounded-xl shadow-lg flex items-center gap-2 hover:opacity-90 transition relative z-50 cursor-pointer">
+                <i data-feather={menuOpen ? "x" : "menu"}></i> <span className="hidden md:inline">MENU</span>
+              </button>
+            </div>
+          </header>
+
+          {/* DROP DOWN MENU */}
+          {menuOpen && (
+            <div className="fixed inset-0 top-20 z-50 bg-gray-900/40 backdrop-blur-sm" onClick={() => setMenuOpen(false)}>
+              <div className="bg-white w-full md:w-96 absolute right-0 shadow-2xl flex flex-col font-black text-lg border-l border-gray-100 h-full transform transition-transform" onClick={e => e.stopPropagation()}>
+                <div className="p-4 bg-gray-50 border-b text-xs text-gray-500 uppercase tracking-widest text-center">Navigation</div>
+                <button onClick={() => nav('gallery')} className="text-left p-6 border-b hover:bg-purple-50 flex items-center gap-4 text-gray-800 hover:text-purple-700 transition cursor-pointer"><i data-feather="image"></i> Gallery</button>
+                <button onClick={() => nav('cart')} className="text-left p-6 border-b hover:bg-purple-50 flex items-center gap-4 justify-between text-gray-800 hover:text-purple-700 transition cursor-pointer">
+                  <span className="flex items-center gap-4"><i data-feather="shopping-bag"></i> Cart</span>
+                  {cart.length > 0 && <span className="bg-pink-500 text-white text-sm px-3 py-1 rounded-full shadow-sm">{cart.length}</span>}
+                </button>
+                <button onClick={() => nav('commission')} className="text-left p-6 border-b hover:bg-purple-50 flex items-center gap-4 text-gray-800 hover:text-purple-700 transition cursor-pointer"><i data-feather="pen-tool"></i> Commission</button>
+                
+                {/* PUBLIC NOTIFICATIONS TAB */}
+                <button onClick={() => nav('public_notifications')} className="text-left p-6 border-b hover:bg-pink-50 flex items-center justify-between gap-4 text-purple-700 transition cursor-pointer">
+                  <span className="flex items-center gap-4"><i data-feather="bell"></i> Notifications</span>
+                </button>
+
+                <button onClick={() => nav('admin')} className="text-left p-6 border-b hover:bg-gray-100 flex items-center gap-4 text-gray-400 hover:text-gray-700 transition cursor-pointer"><i data-feather="lock"></i> Admin Panel</button>
+                <a href="https://wa.me/917281074416" target="_blank" rel="noopener noreferrer" className="text-left p-6 bg-green-50 text-green-700 hover:bg-green-100 flex items-center gap-4 mt-auto transition cursor-pointer relative z-50"><i data-feather="message-circle"></i> Help (WhatsApp)</a>
               </div>
             </div>
           )}
-          <header className="bg-white/60 backdrop-blur-lg sticky top-0 z-30 border-b border-white/50 shadow-sm flex-shrink-0">
-            <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
-              <div className="text-2xl font-serif font-black flex items-center gap-2 cursor-pointer" onClick={() => navigateTo('home')}>
-                <span className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-2 rounded-xl"><Icon name="palette" size={24} /></span>
-                RAJAGUPTA<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">ACT</span>
-              </div>
-              <nav className="hidden md:flex gap-8 items-center">
-                <button onClick={() => navigateTo('home')} className="font-bold text-gray-700 hover:text-pink-600">Gallery</button>
-                <button onClick={() => navigateTo('commission')} className="font-bold text-purple-700 hover:text-pink-600 flex items-center gap-1"><Icon name="brush" size={18}/> Commissions</button>
-                <button onClick={() => navigateTo('admin')} className="flex items-center gap-1 font-bold text-gray-500 hover:text-purple-600"><Icon name="lock" size={16} /> Admin</button>
-                {cart.length > 0 && <button onClick={() => navigateTo('checkout')} className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white px-6 py-2.5 rounded-full font-bold shadow-md"><Icon name="shopping-bag" size={18} /> Checkout ({cart.length})</button>}
-              </nav>
-            </div>
-          </header>
-          <main className="flex-grow">
-            {view === 'home' && <HomeView />}
-            {view === 'product' && <ProductView />}
-            {view === 'commission' && <CommissionView />}
-            {view === 'checkout' && <CheckoutView />}
-            {view === 'admin' && <AdminView />}
-          </main>
-          
-          <footer className="bg-white/40 backdrop-blur-md border-t border-white/60 mt-auto py-12 text-center">
-            <p className="text-2xl font-serif font-bold text-gray-900 flex justify-center items-center gap-2 mb-4"><Icon name="palette" size={28} className="text-pink-500"/> rajaguptaact</p>
-            
-            <div className="flex justify-center gap-8 mb-6">
-              <a href="https://www.instagram.com/rajaguptaact?igsh=MXZmODNvdDlrY3lnNg==" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-gray-600 hover:text-pink-600 font-bold transition-colors">
-                <Icon name="instagram" size={24} /> Instagram
-              </a>
-              <a href="https://wa.me/917281074416" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-gray-600 hover:text-green-600 font-bold transition-colors">
-                <Icon name="message-circle" size={24} /> WhatsApp
-              </a>
-            </div>
 
-            <p className="text-gray-500 font-medium text-sm">© 2026 rajaguptaact Studio</p>
+          {/* MAIN CONTENT AREA */}
+          <main className="flex-grow z-10 relative">
+            {view === 'gallery' && GalleryView()}
+            {view === 'cart' && CartView()}
+            {view === 'commission' && CommissionView()}
+            {view === 'checkout_form' && CheckoutForm()}
+            {view === 'payment' && PaymentView()}
+            {view === 'public_notifications' && PublicNotificationsView()}
+            {view === 'admin' && (
+              isAdmin ? AdminPanel() : 
+              <div className="p-6 max-w-sm mx-auto mt-20 text-center">
+                <div className="glass-panel p-10 rounded-3xl shadow-2xl border-t-4 border-t-gray-900">
+                  <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                    <i data-feather="shield" className="text-gray-900 w-8 h-8"></i>
+                  </div>
+                  <h2 className="font-black text-2xl mb-2 text-gray-900">Admin Security</h2>
+                  <p className="text-sm font-bold text-gray-500 mb-8">Protected Access Only</p>
+                  <input type="password" placeholder="Enter Password" value={password} onChange={e => setPassword(e.target.value)} className="w-full border-2 border-gray-200 p-4 rounded-xl mb-6 text-center tracking-widest font-black focus:border-gray-900 outline-none" />
+                  <button onClick={() => { if(password === ADMIN_PASSWORD) { setIsAdmin(true); setPassword(''); } else alert('Access Denied: Incorrect Password'); }} className="w-full bg-gray-900 text-white py-4 rounded-xl font-black text-lg shadow-lg hover:shadow-xl transition-all cursor-pointer relative z-50">Secure Login</button>
+                </div>
+              </div>
+            )}
+          </main>
+
+          {/* FOOTER */}
+          <footer className="glass-panel py-6 mt-12 flex-shrink-0 relative z-50">
+            <div className="flex justify-center items-center gap-8 relative z-50">
+              <a href="https://wa.me/917281074416" target="_blank" rel="noopener noreferrer" className="p-4 bg-white text-green-500 rounded-full hover:bg-green-500 hover:text-white transition-all shadow-md hover:shadow-xl transform hover:-translate-y-1 block cursor-pointer relative z-50">
+                <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+              </a>
+              <a href="https://www.instagram.com/rajaguptaact?igsh=NGg5bmJuczJlNnM1" target="_blank" rel="noopener noreferrer" className="p-4 bg-white text-pink-600 rounded-full hover:bg-gradient-to-tr hover:from-yellow-400 hover:via-pink-500 hover:to-purple-600 hover:text-white transition-all shadow-md hover:shadow-xl transform hover:-translate-y-1 block cursor-pointer relative z-50">
+                 <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+              </a>
+            </div>
           </footer>
         </div>
       );
     }
-
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
   </script>
