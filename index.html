@@ -5,14 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Raja Gupta Act | Professional Colour Pencil Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://unpkg.com/feather-icons"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <style>
+    .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
+  </style>
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans">
+<body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 font-sans">
   <div id="root"></div>
 
   <script type="text/babel">
@@ -24,16 +27,15 @@
       messagingSenderId: "9946165167",
       appId: "1:9946165167:web:5809fb442b06882980495a"
     };
-
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
     function App() {
       const [artworks, setArtworks] = React.useState([]);
 
+      // FIXED: Connected to "RajaStudio" with valid field lookups
       React.useEffect(() => {
-        // Connected to your collection "Raja Studio"
-        const unsub = db.collection('RajaStudio').onSnapshot(snap => {
+        const unsub = db.collection("RajaStudio").onSnapshot(snap => {
           setArtworks(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         });
         return () => unsub();
@@ -41,20 +43,18 @@
 
       return (
         <div className="p-8 max-w-6xl mx-auto">
-          <header className="mb-12 text-center">
-            <h1 className="text-4xl font-black text-purple-800">Raja Gupta Act</h1>
-            <p className="text-gray-600 font-bold mt-2">Professional Colour Pencil Studio</p>
-          </header>
-
+          <h1 className="text-4xl font-black text-center text-purple-800 mb-12">Raja Gupta Act Studio</h1>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {artworks.map(art => (
-              <div key={art.id} className="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
-                <img src={art.image} alt={art.title} className="w-full h-64 object-cover rounded-2xl mb-4" />
-                <h2 className="text-2xl font-black text-gray-900">{art.title}</h2>
-                <p className="text-gray-600 mt-2 font-medium">{art.description}</p>
+              <div key={art.id} className="bg-white p-6 rounded-3xl shadow-xl border border-gray-100">
+                <div className="bg-gray-200 aspect-[1/1.414] mb-4 rounded-xl flex items-center justify-center overflow-hidden">
+                    <img src={art.image} alt={art.title} className="w-full h-full object-cover" />
+                </div>
+                <h2 className="text-2xl font-black">{art.title || "Untitled"}</h2>
+                <p className="text-gray-600 font-medium my-2">{art.description}</p>
                 <div className="mt-4 flex justify-between items-center">
-                  <span className="text-2xl font-black text-purple-600">₹{art.price}</span>
-                  <button className="bg-gray-900 text-white px-6 py-2 rounded-xl font-bold">Buy Now</button>
+                  <span className="text-2xl font-black text-purple-600">₹{art.priceOriginal || "0"}</span>
+                  <button className="bg-gray-900 text-white px-6 py-2 rounded-xl font-bold hover:bg-black">Buy Now</button>
                 </div>
               </div>
             ))}
@@ -67,3 +67,4 @@
   </script>
 </body>
 </html>
+
