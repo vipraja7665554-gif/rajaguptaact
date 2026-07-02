@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Raja Gupta Act | Professional Colour Pencil Studio</title>
+  <title>Raja Gupta Act | Professional Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -11,11 +11,8 @@
   <script src="https://unpkg.com/feather-icons"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-  <style>
-    .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
-  </style>
 </head>
-<body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 font-sans">
+<body class="bg-indigo-50 font-sans">
   <div id="root"></div>
 
   <script type="text/babel">
@@ -31,9 +28,11 @@
     const db = firebase.firestore();
 
     function App() {
+      const [view, setView] = React.useState('gallery');
       const [artworks, setArtworks] = React.useState([]);
+      const [cart, setCart] = React.useState([]);
 
-      // FIXED: Connected to "RajaStudio" with valid field lookups
+      // Fetch Data from "RajaStudio"
       React.useEffect(() => {
         const unsub = db.collection("RajaStudio").onSnapshot(snap => {
           setArtworks(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
@@ -41,24 +40,43 @@
         return () => unsub();
       }, []);
 
+      const nav = (v) => setView(v);
+
       return (
-        <div className="p-8 max-w-6xl mx-auto">
-          <h1 className="text-4xl font-black text-center text-purple-800 mb-12">Raja Gupta Act Studio</h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {artworks.map(art => (
-              <div key={art.id} className="bg-white p-6 rounded-3xl shadow-xl border border-gray-100">
-                <div className="bg-gray-200 aspect-[1/1.414] mb-4 rounded-xl flex items-center justify-center overflow-hidden">
-                    <img src={art.image} alt={art.title} className="w-full h-full object-cover" />
-                </div>
-                <h2 className="text-2xl font-black">{art.title || "Untitled"}</h2>
-                <p className="text-gray-600 font-medium my-2">{art.description}</p>
-                <div className="mt-4 flex justify-between items-center">
-                  <span className="text-2xl font-black text-purple-600">₹{art.priceOriginal || "0"}</span>
-                  <button className="bg-gray-900 text-white px-6 py-2 rounded-xl font-bold hover:bg-black">Buy Now</button>
-                </div>
+        <div>
+          <nav className="bg-white p-4 flex justify-between shadow-md">
+            <h1 className="text-xl font-black text-purple-700" onClick={() => nav('gallery')}>RAJA GUPTA ACT</h1>
+            <div className="flex gap-4">
+              <button onClick={() => nav('gallery')}>Gallery</button>
+              <button onClick={() => nav('cart')}>Cart ({cart.length})</button>
+              <button onClick={() => nav('notifications')}>Notifications</button>
+              <button onClick={() => nav('commission')}>Commission</button>
+              <button onClick={() => nav('admin')}>Admin</button>
+              <a href="https://wa.me/917281074416" className="text-green-600">Help (WhatsApp)</a>
+            </div>
+          </nav>
+
+          <main className="p-6">
+            {view === 'gallery' && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {artworks.map(art => (
+                  <div key={art.id} className="bg-white p-4 rounded-xl shadow">
+                    <img src={art.image} className="w-full h-48 object-cover rounded" />
+                    <h2 className="font-bold text-lg mt-2">{art.title}</h2>
+                    <p className="text-sm text-gray-600">{art.description}</p>
+                    <button onClick={() => setCart([...cart, art])} className="bg-purple-600 text-white w-full py-2 mt-4 rounded">Add to Cart</button>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            )}
+            {view === 'admin' && (
+               <div className="bg-white p-6 rounded-xl shadow">
+                 <h2 className="text-2xl font-black mb-4">Admin Panel</h2>
+                 <p>Upload tools and order management would go here.</p>
+               </div>
+            )}
+            {/* Add other view sections (Cart, Commission, Notifications) here */}
+          </main>
         </div>
       );
     }
@@ -67,4 +85,3 @@
   </script>
 </body>
 </html>
-
