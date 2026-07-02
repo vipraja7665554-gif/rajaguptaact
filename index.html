@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Raja Gupta Act | Professional Studio</title>
+  <title>Raja Gupta Act | Professional Colour Pencil Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -11,11 +11,17 @@
   <script src="https://unpkg.com/feather-icons"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <style>
+    .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
+  </style>
 </head>
-<body class="bg-indigo-50 font-sans">
+<body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-gray-900 font-sans">
   <div id="root"></div>
 
   <script type="text/babel">
+    const { useState, useEffect } = React;
+    const ADMIN_PASSWORD = "RAJA_ADMIN_2026"; 
+
     const firebaseConfig = {
       apiKey: "AIzaSyBCX9rALYZSxzYvawPexwXIHTSA3uhU24E",
       authDomain: "rajaguptaact.firebaseapp.com",
@@ -28,31 +34,32 @@
     const db = firebase.firestore();
 
     function App() {
-      const [view, setView] = React.useState('gallery');
-      const [artworks, setArtworks] = React.useState([]);
-      const [cart, setCart] = React.useState([]);
+      const [view, setView] = useState('gallery');
+      const [artworks, setArtworks] = useState([]);
+      const [cart, setCart] = useState([]);
+      const [isAdmin, setIsAdmin] = useState(false);
+      const [pass, setPass] = useState('');
 
-      // Fetch Data from "RajaStudio"
-      React.useEffect(() => {
+      useEffect(() => {
         const unsub = db.collection("RajaStudio").onSnapshot(snap => {
           setArtworks(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         });
         return () => unsub();
       }, []);
 
-      const nav = (v) => setView(v);
+      const nav = (v) => { setView(v); window.scrollTo(0,0); };
 
       return (
-        <div>
-          <nav className="bg-white p-4 flex justify-between shadow-md">
-            <h1 className="text-xl font-black text-purple-700" onClick={() => nav('gallery')}>RAJA GUPTA ACT</h1>
-            <div className="flex gap-4">
+        <div className="min-h-screen">
+          <nav className="glass-panel p-4 flex justify-between items-center sticky top-0 z-50">
+            <h1 className="text-xl font-black text-purple-800 cursor-pointer" onClick={() => nav('gallery')}>RAJA GUPTA ACT</h1>
+            <div className="flex gap-3 text-sm font-bold">
               <button onClick={() => nav('gallery')}>Gallery</button>
-              <button onClick={() => nav('cart')}>Cart ({cart.length})</button>
+              <button onClick={() => nav('cart')}>Cart</button>
               <button onClick={() => nav('notifications')}>Notifications</button>
               <button onClick={() => nav('commission')}>Commission</button>
               <button onClick={() => nav('admin')}>Admin</button>
-              <a href="https://wa.me/917281074416" className="text-green-600">Help (WhatsApp)</a>
+              <a href="https://wa.me/917281074416" className="text-green-600">Help</a>
             </div>
           </nav>
 
@@ -60,22 +67,29 @@
             {view === 'gallery' && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {artworks.map(art => (
-                  <div key={art.id} className="bg-white p-4 rounded-xl shadow">
-                    <img src={art.image} className="w-full h-48 object-cover rounded" />
-                    <h2 className="font-bold text-lg mt-2">{art.title}</h2>
-                    <p className="text-sm text-gray-600">{art.description}</p>
-                    <button onClick={() => setCart([...cart, art])} className="bg-purple-600 text-white w-full py-2 mt-4 rounded">Add to Cart</button>
+                  <div key={art.id} className="bg-white p-4 rounded-2xl shadow">
+                    <img src={art.image} className="w-full h-64 object-cover rounded-xl" />
+                    <h2 className="font-black text-xl mt-2">{art.title}</h2>
+                    <p className="text-sm text-gray-600">{art.desc}</p>
+                    <button onClick={() => setCart([...cart, art])} className="w-full bg-purple-600 text-white py-2 rounded-lg mt-4 font-bold">Add to Cart (₹{art.priceOriginal})</button>
                   </div>
                 ))}
               </div>
             )}
-            {view === 'admin' && (
-               <div className="bg-white p-6 rounded-xl shadow">
-                 <h2 className="text-2xl font-black mb-4">Admin Panel</h2>
-                 <p>Upload tools and order management would go here.</p>
-               </div>
+
+            {view === 'admin' && !isAdmin && (
+              <div className="max-w-xs mx-auto mt-20 glass-panel p-8 rounded-2xl">
+                <input type="password" placeholder="Admin Password" className="w-full p-2 border rounded mb-4" onChange={e => setPass(e.target.value)} />
+                <button className="w-full bg-black text-white py-2 rounded" onClick={() => { if(pass === ADMIN_PASSWORD) setIsAdmin(true); else alert('Wrong Password'); }}>Login</button>
+              </div>
             )}
-            {/* Add other view sections (Cart, Commission, Notifications) here */}
+
+            {view === 'admin' && isAdmin && (
+              <div className="glass-panel p-6 rounded-2xl">
+                <h2 className="text-2xl font-black mb-4">Admin Panel</h2>
+                <p>Welcome, Raja. You can manage your database via the Firebase Console.</p>
+              </div>
+            )}
           </main>
         </div>
       );
