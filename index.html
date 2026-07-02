@@ -33,7 +33,7 @@
 
       React.useEffect(() => {
         // Connected to your collection "Raja Studio"
-        const unsub = db.collection('Raja Studio').onSnapshot(snap => {
+        const unsub = db.collection('RajaStudio').onSnapshot(snap => {
           setArtworks(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         });
         return () => unsub();
