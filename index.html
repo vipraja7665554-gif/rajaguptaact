@@ -5,17 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Raja Gupta Act | Professional Colour Pencil Studio</title>
   
+  <!-- Tailwind, React, Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://unpkg.com/feather-icons"></script>
 
+  <!-- FIREBASE CLOUD DATABASE -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
   <style>
-    /* IMAGE SECURITY CSS */
     img { 
       image-rendering: -webkit-optimize-contrast; 
       image-rendering: crisp-edges; 
@@ -71,17 +72,23 @@
       </div>
     );
 
-    const WallMockup = ({ src }) => (
-      <div className="w-full aspect-square rounded-2xl flex items-center justify-center p-4 shadow-inner relative overflow-hidden bg-[#2a3441] select-none">
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)", backgroundSize: "20px 100%" }}></div>
-        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center">
-           <div className="w-2 h-2 bg-gradient-to-b from-yellow-300 to-yellow-600 rounded-sm"></div>
-           <div className="w-16 h-3 bg-gradient-to-b from-yellow-200 to-yellow-600 rounded-full shadow-[0_5px_15px_rgba(255,220,100,0.5)] border border-yellow-200/50"></div>
+    // FIX FOR GITHUB RED CROSS: Removed double curly brackets from style
+    const WallMockup = ({ src }) => {
+      const bgStyle = { backgroundImage: "linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)", backgroundSize: "20px 100%" };
+      const clipStyle = { clipPath: 'polygon(43% 0, 57% 0, 100% 100%, 0% 100%)' };
+      
+      return (
+        <div className="w-full aspect-square rounded-2xl flex items-center justify-center p-4 shadow-inner relative overflow-hidden bg-[#2a3441] select-none">
+          <div className="absolute inset-0 opacity-10" style={bgStyle}></div>
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center">
+             <div className="w-2 h-2 bg-gradient-to-b from-yellow-300 to-yellow-600 rounded-sm"></div>
+             <div className="w-16 h-3 bg-gradient-to-b from-yellow-200 to-yellow-600 rounded-full shadow-[0_5px_15px_rgba(255,220,100,0.5)] border border-yellow-200/50"></div>
+          </div>
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 w-[150%] h-[100%] bg-gradient-to-b from-yellow-100/20 via-yellow-50/5 to-transparent z-20" style={clipStyle}></div>
+          <A4Frame src={src} className="mt-4 shadow-[0_30px_50px_rgba(0,0,0,0.8)] transition-transform hover:scale-105 duration-500 relative z-10" />
         </div>
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 w-[150%] h-[100%] bg-gradient-to-b from-yellow-100/20 via-yellow-50/5 to-transparent z-20" style={{ clipPath: 'polygon(43% 0, 57% 0, 100% 100%, 0% 100%)' }}></div>
-        <A4Frame src={src} className="mt-4 shadow-[0_30px_50px_rgba(0,0,0,0.8)] transition-transform hover:scale-105 duration-500 relative z-10" />
-      </div>
-    );
+      );
+    };
 
     const TableMockup = ({ src }) => (
       <div className="w-full aspect-square rounded-2xl relative overflow-hidden shadow-inner flex justify-center items-end pb-[10%] select-none">
@@ -107,12 +114,11 @@
       const [annTitle, setAnnTitle] = useState('');
       const [annMsg, setAnnMsg] = useState('');
 
-      // New States for Edit functionality
       const [editArtId, setEditArtId] = useState(null);
       const [editAnnId, setEditAnnId] = useState(null);
 
       // ==========================================
-      // TELEGRAM BOT SETTINGS - FIXED WITH TIME & DETAILS
+      // TELEGRAM BOT SETTINGS
       // ==========================================
       const BOT_USERNAME = "@rajaguptaact"; 
 
@@ -143,7 +149,6 @@
         fetch(url, { mode: 'no-cors' }).catch(err => console.log("Alert sent"));
       };
 
-      // --- REAL-TIME DATABASE SYNC ---
       useEffect(() => {
         const unsubArt = db.collection("RajaStudio").onSnapshot(snap => {
           setArtworks(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => b.createdAt - a.createdAt));
@@ -487,13 +492,13 @@
                 <div className="glass-panel p-8 rounded-3xl shadow-xl border-t-4 border-t-purple-500">
                   <h3 className="text-2xl font-black mb-6 text-gray-900 flex justify-between items-center">
                     {editArtId ? "✏️ Edit Artwork" : "Upload Artwork"}
-                    {editArtId && <button onClick={()=>{setEditArtId(null); setUploadData({title:'',desc:'',image:'',priceOriginal:'',priceA3:'',priceA4:'',priceA5:''})}} className="text-xs text-red-500 underline font-bold cursor-pointer">Cancel Edit</button>}
+                    {editArtId ? <button onClick={() => { setEditArtId(null); setUploadData({title:'',desc:'',image:'',priceOriginal:'',priceA3:'',priceA4:'',priceA5:''}); }} className="text-xs text-red-500 underline font-bold cursor-pointer">Cancel Edit</button> : null}
                   </h3>
                   <form onSubmit={saveArtwork} className="space-y-4">
                     <input required placeholder="Artwork Title" className="w-full border-2 p-4 rounded-xl bg-white font-bold" value={uploadData.title} onChange={e => setUploadData({...uploadData, title: e.target.value})} />
                     <textarea required placeholder="Description..." className="w-full border-2 p-4 rounded-xl bg-white font-medium" rows="2" value={uploadData.desc} onChange={e => setUploadData({...uploadData, desc: e.target.value})}></textarea>
                     
-                    {!editArtId && (
+                    {!editArtId ? (
                       <div className="border-2 border-dashed border-purple-300 p-6 rounded-xl text-center bg-purple-50 cursor-pointer">
                         <label className="font-black text-purple-700 block cursor-pointer">
                           <i data-feather="upload-cloud" className="mx-auto mb-2 w-8 h-8"></i>
@@ -501,8 +506,8 @@
                           <input type="file" accept="image/*" className="hidden" onChange={handleImage} required={!uploadData.image} />
                         </label>
                       </div>
-                    )}
-                    {uploadData.image && <img src={uploadData.image} className="mt-4 h-40 mx-auto rounded-lg shadow-md object-contain border-2 border-white pointer-events-none" />}
+                    ) : null}
+                    {uploadData.image ? <img src={uploadData.image} className="mt-4 h-40 mx-auto rounded-lg shadow-md object-contain border-2 border-white pointer-events-none" /> : null}
 
                     <div className="grid grid-cols-2 gap-4 mt-6">
                       <div><label className="text-xs font-black text-gray-500 uppercase">Original A4 Price</label><input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceOriginal} onChange={e => setUploadData({...uploadData, priceOriginal: e.target.value})} /></div>
@@ -541,7 +546,7 @@
                 <div className="glass-panel p-8 rounded-3xl shadow-xl border-t-4 border-t-pink-500">
                   <h3 className="text-2xl font-black text-gray-900 mb-6 flex items-center justify-between">
                     <span className="flex items-center gap-2"><i data-feather="message-square"></i> {editAnnId ? "Edit Announcement" : "Post Announcement"}</span>
-                    {editAnnId && <button onClick={()=>{setEditAnnId(null); setAnnTitle(''); setAnnMsg('');}} className="text-xs text-red-500 underline font-bold cursor-pointer">Cancel</button>}
+                    {editAnnId ? <button onClick={() => { setEditAnnId(null); setAnnTitle(''); setAnnMsg(''); }} className="text-xs text-red-500 underline font-bold cursor-pointer">Cancel</button> : null}
                   </h3>
                   <form onSubmit={postAnnouncement} className="space-y-4">
                      <input required placeholder="Announcement Title" value={annTitle} onChange={e=>setAnnTitle(e.target.value)} className="w-full border-2 p-4 rounded-xl bg-white font-bold"/>
@@ -551,7 +556,7 @@
                      </button>
                   </form>
                   
-                  {announcements.length > 0 && (
+                  {announcements.length > 0 ? (
                     <div className="mt-6 pt-6 border-t border-gray-200 space-y-3">
                       {announcements.map(ann => (
                         <div key={ann.id} className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
@@ -563,7 +568,7 @@
                         </div>
                       ))}
                     </div>
-                  )}
+                  ) : null}
                 </div>
 
                 <div className="glass-panel p-8 rounded-3xl shadow-xl">
@@ -584,12 +589,12 @@
                             <p className="text-sm font-bold text-gray-600 mt-1">{o.address}, PIN: {o.pin}</p>
                           </div>
                           <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                            {o.itemDetails && o.itemDetails.map((item, i) => (
+                            {o.itemDetails ? o.itemDetails.map((item, i) => (
                                <div key={i} className="flex justify-between text-sm font-bold border-b border-gray-200 pb-2 mb-2">
                                  <span className="text-gray-800">{item.title} <span className="text-pink-600">({item.selectedSize})</span></span>
                                  <span className="text-gray-900">₹{item.price}</span>
                                </div>
-                            ))}
+                            )) : null}
                             <div className="flex justify-between items-center text-lg font-black mt-4 pt-4 border-t border-gray-300">
                               <span className="text-gray-700">{o.type === 'Commission' ? 'Budget' : 'Total Paid'}</span>
                               <span className="text-green-600 text-2xl">₹{o.amount}</span>
@@ -621,14 +626,14 @@
             </div>
           </header>
 
-          {menuOpen && (
+          {menuOpen ? (
             <div className="fixed inset-0 top-20 z-50 bg-gray-900/40 backdrop-blur-sm" onClick={() => setMenuOpen(false)}>
               <div className="bg-white w-full md:w-96 absolute right-0 shadow-2xl flex flex-col font-black text-lg border-l border-gray-100 h-full transform transition-transform" onClick={e => e.stopPropagation()}>
                 <div className="p-4 bg-gray-50 border-b text-xs text-gray-500 uppercase tracking-widest text-center">Navigation Menu</div>
                 <button onClick={() => nav('gallery')} className="text-left p-6 border-b hover:bg-purple-50 flex items-center gap-4 text-gray-800 hover:text-purple-700 transition cursor-pointer"><i data-feather="image"></i> Gallery</button>
                 <button onClick={() => nav('cart')} className="text-left p-6 border-b hover:bg-purple-50 flex items-center justify-between text-gray-800 hover:text-purple-700 transition cursor-pointer">
                   <span className="flex items-center gap-4"><i data-feather="shopping-bag"></i> Cart</span>
-                  {cart.length > 0 && <span className="bg-pink-500 text-white text-sm px-3 py-1 rounded-full shadow-sm">{cart.length}</span>}
+                  {cart.length > 0 ? <span className="bg-pink-500 text-white text-sm px-3 py-1 rounded-full shadow-sm">{cart.length}</span> : null}
                 </button>
                 <button onClick={() => nav('public_notifications')} className="text-left p-6 border-b hover:bg-pink-50 flex items-center gap-4 text-purple-700 transition cursor-pointer"><i data-feather="bell"></i> Public Notifications</button>
                 <button onClick={() => nav('commission')} className="text-left p-6 border-b hover:bg-purple-50 flex items-center gap-4 text-gray-800 hover:text-purple-700 transition cursor-pointer"><i data-feather="pen-tool"></i> Commission</button>
@@ -636,16 +641,16 @@
                 <a href="https://wa.me/917281074416" target="_blank" rel="noopener noreferrer" className="text-left p-6 bg-green-50 text-green-700 hover:bg-green-100 flex items-center gap-4 mt-auto transition cursor-pointer"><i data-feather="message-circle"></i> Help (WhatsApp)</a>
               </div>
             </div>
-          )}
+          ) : null}
 
           <main className="flex-grow z-10 relative">
-            {view === 'gallery' && GalleryView()}
-            {view === 'cart' && CartView()}
-            {view === 'commission' && CommissionView()}
-            {view === 'checkout_form' && CheckoutForm()}
-            {view === 'payment' && PaymentView()}
-            {view === 'public_notifications' && PublicNotificationsView()}
-            {view === 'admin' && (
+            {view === 'gallery' ? GalleryView() : null}
+            {view === 'cart' ? CartView() : null}
+            {view === 'commission' ? CommissionView() : null}
+            {view === 'checkout_form' ? CheckoutForm() : null}
+            {view === 'payment' ? PaymentView() : null}
+            {view === 'public_notifications' ? PublicNotificationsView() : null}
+            {view === 'admin' ? (
               isAdmin ? AdminPanel() : 
               <div className="p-6 max-w-sm mx-auto mt-20 text-center">
                 <div className="glass-panel p-10 rounded-3xl shadow-2xl border-t-4 border-t-gray-900">
@@ -658,7 +663,7 @@
                   <button onClick={() => { if(password === ADMIN_PASSWORD) { setIsAdmin(true); setPassword(''); } else alert('Access Denied: Incorrect Password'); }} className="w-full bg-gray-900 text-white py-4 rounded-xl font-black text-lg shadow-lg hover:shadow-xl transition-all cursor-pointer">Secure Login</button>
                 </div>
               </div>
-            )}
+            ) : null}
           </main>
 
           <footer className="glass-panel py-8 mt-12 flex-shrink-0 relative z-10">
