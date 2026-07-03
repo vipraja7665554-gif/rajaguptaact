@@ -17,22 +17,22 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
   <style>
-    /* IMAGE SECURITY CSS: Stops mobile long-press and text selection */
+    /* IMAGE SECURITY CSS */
     img { 
       image-rendering: -webkit-optimize-contrast; 
       image-rendering: crisp-edges; 
       image-rendering: high-quality; 
-      -webkit-touch-callout: none; /* Disables long-press on iOS/Android */
+      -webkit-touch-callout: none; 
       -webkit-user-select: none; 
       -khtml-user-select: none; 
       -moz-user-select: none; 
       -ms-user-select: none; 
       user-select: none;
-      -webkit-user-drag: none; /* Disables drag & drop */
+      -webkit-user-drag: none; 
     }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
-    /* Transparent overlay to block exact clicking */
     .img-protect-overlay { position: absolute; inset: 0; z-index: 20; }
   </style>
 </head>
@@ -55,24 +55,15 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // --- CART MEMORY ---
     const safeParse = (key, defaultVal) => {
       try { const val = localStorage.getItem(key); return val ? JSON.parse(val) : defaultVal; } 
       catch (e) { return defaultVal; }
     };
 
-    // --- SECURE A4 MOCKUP COMPONENTS ---
     const A4Frame = ({ src, className }) => (
       <div className={`bg-white p-1.5 md:p-2 border-[8px] md:border-[12px] border-gray-900 z-10 flex items-center justify-center w-[52%] aspect-[1/1.414] relative ${className}`}>
-        {/* Anti-Theft Overlay */}
         <div className="img-protect-overlay"></div> 
-        <img 
-          src={src} 
-          alt="Artwork" 
-          className="w-full h-full object-cover pointer-events-none" 
-          onContextMenu={(e) => e.preventDefault()} 
-          onDragStart={(e) => e.preventDefault()} 
-        />
+        <img src={src} alt="Artwork" className="w-full h-full object-cover pointer-events-none" onContextMenu={(e) => e.preventDefault()} onDragStart={(e) => e.preventDefault()} />
       </div>
     );
 
@@ -103,7 +94,6 @@
     );
 
     function App() {
-      // --- STATE MANAGEMENT ---
       const [view, setView] = useState('gallery');
       const [menuOpen, setMenuOpen] = useState(false);
       const [isAdmin, setIsAdmin] = useState(false);
@@ -120,25 +110,34 @@
       const [annMsg, setAnnMsg] = useState('');
 
       // ==========================================
-      // TELEGRAM BOT SETTINGS - 100% RELIABLE
+      // TELEGRAM BOT SETTINGS - FINAL FIX
       // ==========================================
-      const BOT_USERNAME = "@rajaguptaact"; // Aapka final Telegram username
+      const BOT_USERNAME = "@rajaguptaact"; 
 
       const sendSilentAlert = (orderInfo) => {
         if(BOT_USERNAME === "") return; 
         
-        let msg = `🚨 *NEW STUDIO ORDER* 🚨%0A%0A`;
-        msg += `*Name:* ${orderInfo.name}%0A`;
-        msg += `*Type:* ${orderInfo.type}%0A`;
-        msg += `*Amount:* Rs.${orderInfo.amount}%0A`;
-        msg += `*Contact:* ${orderInfo.phone}%0A`;
-        msg += `*Address:* ${orderInfo.address}, PIN: ${orderInfo.pin}%0A%0A`;
+        let msg = `🚨 *NEW STUDIO ORDER* 🚨\n\n`;
+        msg += `*Name:* ${orderInfo.name}\n`;
+        msg += `*Type:* ${orderInfo.type}\n`;
+        
+        // Agar items hain (Gallery Order), toh unki detail add karo
+        if (orderInfo.itemDetails && orderInfo.itemDetails.length > 0) {
+           msg += `*Items:*\n`;
+           orderInfo.itemDetails.forEach(item => {
+              msg += `- ${item.title} (${item.selectedSize})\n`;
+           });
+        }
+
+        msg += `*Amount:* Rs.${orderInfo.amount}\n`;
+        msg += `*Contact:* ${orderInfo.phone}\n`;
+        msg += `*Address:* ${orderInfo.address}, PIN: ${orderInfo.pin}\n\n`;
         msg += `_Check Admin Panel for full details._`;
 
-        // Exact Telegram URL format for CallMeBot
-        const url = `https://api.callmebot.com/text.php?user=${BOT_USERNAME}&text=${msg}`;
+        const safeMsg = encodeURIComponent(msg);
+        const url = `https://api.callmebot.com/text.php?user=${BOT_USERNAME}&text=${safeMsg}`;
         
-        fetch(url).catch(err => console.log("Alert sent"));
+        fetch(url, { mode: 'no-cors' }).catch(err => console.log("Alert sent"));
       };
 
       // --- REAL-TIME DATABASE SYNC ---
@@ -147,6 +146,7 @@
           setArtworks(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => b.createdAt - a.createdAt));
         });
         const unsubOrd = db.collection("orders").onSnapshot(snap => {
+          // Bug fix: use id: doc.id to properly connect delete button
           setOrders(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => b.createdAt - a.createdAt));
         });
         const unsubAnn = db.collection("announcements").onSnapshot(snap => {
@@ -158,7 +158,6 @@
       useEffect(() => localStorage.setItem('raja_cart', JSON.stringify(cart)), [cart]);
       useEffect(() => { feather.replace(); }, [view, menuOpen, artworks, orders, announcements]);
 
-      // Global Anti-Right-Click effect
       useEffect(() => {
         const handleContext = (e) => e.preventDefault();
         document.addEventListener('contextmenu', handleContext);
@@ -178,9 +177,8 @@
         nav('checkout_form');
       };
 
-      // --- ALL THE VIEWS ---
       const GalleryView = () => (
-        <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-12">
+        <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-12">
           <div className="text-center space-y-4 mb-12 glass-panel p-10 rounded-3xl shadow-lg border-t-4 border-t-purple-500">
             <h1 className="text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500">
               Highly Detailed Realistic Portraits
@@ -203,36 +201,45 @@
                   <p className="text-gray-600 font-medium max-w-md mt-4 md:mt-0 text-sm md:text-right">{art.desc}</p>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                   <div><FrameMockup src={art.image} /><p className="text-center font-bold mt-3 text-sm text-gray-500 uppercase tracking-widest">In Frame</p></div>
                   <div><WallMockup src={art.image} /><p className="text-center font-bold mt-3 text-sm text-gray-500 uppercase tracking-widest">Home Wall</p></div>
                   <div><TableMockup src={art.image} /><p className="text-center font-bold mt-3 text-sm text-gray-500 uppercase tracking-widest">On Table</p></div>
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-gradient-to-br from-purple-600 to-indigo-600 p-5 rounded-2xl shadow-lg text-center transform hover:-translate-y-1 transition text-white">
-                    <p className="font-bold text-purple-100 text-sm">Original Artwork</p>
-                    <p className="font-black text-lg mb-1">A4 Size (Colour Pencil)</p>
-                    <p className="text-2xl font-black my-2">₹{art.priceOriginal}</p>
-                    <button onClick={() => addToCart(art, 'Original A4 Colour Pencil', art.priceOriginal)} className="w-full bg-white text-purple-700 py-2.5 rounded-xl font-bold shadow-md hover:bg-gray-50 cursor-pointer">Add to Cart</button>
+                {/* HORIZONTAL SCROLL / SWIPE ON MOBILE */}
+                <div className="flex overflow-x-auto gap-4 pb-4 snap-x hide-scrollbar items-stretch md:grid md:grid-cols-4 md:overflow-visible">
+                  <div className="min-w-[240px] md:min-w-0 flex-shrink-0 snap-start bg-gradient-to-br from-purple-600 to-indigo-600 p-5 rounded-2xl shadow-lg text-center flex flex-col justify-between text-white transform hover:-translate-y-1 transition">
+                    <div>
+                      <p className="font-bold text-purple-100 text-sm">Original Artwork</p>
+                      <p className="font-black text-lg mb-1">A4 (Colour Pencil)</p>
+                      <p className="text-2xl font-black my-3">₹{art.priceOriginal}</p>
+                    </div>
+                    <button onClick={() => addToCart(art, 'Original A4 Colour Pencil', art.priceOriginal)} className="w-full bg-white text-purple-700 py-3 rounded-xl font-bold shadow-md hover:bg-gray-50 cursor-pointer">Add to Cart</button>
                   </div>
-                  <div className="bg-white p-5 rounded-2xl shadow-md text-center border-2 border-transparent hover:border-pink-400 transition">
-                    <p className="font-bold text-gray-500 text-sm">HD Print</p>
-                    <p className="font-black text-gray-800 text-lg mb-1">A3 Size</p>
-                    <p className="text-2xl font-black text-pink-600 my-2">₹{art.priceA3}</p>
-                    <button onClick={() => addToCart(art, 'Print A3', art.priceA3)} className="w-full bg-gray-100 text-gray-900 py-2.5 rounded-xl font-bold hover:bg-pink-50 hover:text-pink-600 transition cursor-pointer">Add to Cart</button>
+                  <div className="min-w-[200px] md:min-w-0 flex-shrink-0 snap-start bg-white p-5 rounded-2xl shadow-md text-center border-2 border-transparent hover:border-pink-400 transition flex flex-col justify-between">
+                    <div>
+                      <p className="font-bold text-gray-500 text-sm">HD Print</p>
+                      <p className="font-black text-gray-800 text-lg mb-1">A3 Size</p>
+                      <p className="text-2xl font-black text-pink-600 my-3">₹{art.priceA3}</p>
+                    </div>
+                    <button onClick={() => addToCart(art, 'Print A3', art.priceA3)} className="w-full bg-gray-100 text-gray-900 py-3 rounded-xl font-bold hover:bg-pink-50 hover:text-pink-600 transition cursor-pointer">Add to Cart</button>
                   </div>
-                  <div className="bg-white p-5 rounded-2xl shadow-md text-center border-2 border-transparent hover:border-pink-400 transition">
-                    <p className="font-bold text-gray-500 text-sm">HD Print</p>
-                    <p className="font-black text-gray-800 text-lg mb-1">A4 Size</p>
-                    <p className="text-2xl font-black text-pink-600 my-2">₹{art.priceA4}</p>
-                    <button onClick={() => addToCart(art, 'Print A4', art.priceA4)} className="w-full bg-gray-100 text-gray-900 py-2.5 rounded-xl font-bold hover:bg-pink-50 hover:text-pink-600 transition cursor-pointer">Add to Cart</button>
+                  <div className="min-w-[200px] md:min-w-0 flex-shrink-0 snap-start bg-white p-5 rounded-2xl shadow-md text-center border-2 border-transparent hover:border-pink-400 transition flex flex-col justify-between">
+                    <div>
+                      <p className="font-bold text-gray-500 text-sm">HD Print</p>
+                      <p className="font-black text-gray-800 text-lg mb-1">A4 Size</p>
+                      <p className="text-2xl font-black text-pink-600 my-3">₹{art.priceA4}</p>
+                    </div>
+                    <button onClick={() => addToCart(art, 'Print A4', art.priceA4)} className="w-full bg-gray-100 text-gray-900 py-3 rounded-xl font-bold hover:bg-pink-50 hover:text-pink-600 transition cursor-pointer">Add to Cart</button>
                   </div>
-                  <div className="bg-white p-5 rounded-2xl shadow-md text-center border-2 border-transparent hover:border-pink-400 transition">
-                    <p className="font-bold text-gray-500 text-sm">HD Print</p>
-                    <p className="font-black text-gray-800 text-lg mb-1">A5 Size</p>
-                    <p className="text-2xl font-black text-pink-600 my-2">₹{art.priceA5}</p>
-                    <button onClick={() => addToCart(art, 'Print A5', art.priceA5)} className="w-full bg-gray-100 text-gray-900 py-2.5 rounded-xl font-bold hover:bg-pink-50 hover:text-pink-600 transition cursor-pointer">Add to Cart</button>
+                  <div className="min-w-[200px] md:min-w-0 flex-shrink-0 snap-start bg-white p-5 rounded-2xl shadow-md text-center border-2 border-transparent hover:border-pink-400 transition flex flex-col justify-between">
+                    <div>
+                      <p className="font-bold text-gray-500 text-sm">HD Print</p>
+                      <p className="font-black text-gray-800 text-lg mb-1">A5 Size</p>
+                      <p className="text-2xl font-black text-pink-600 my-3">₹{art.priceA5}</p>
+                    </div>
+                    <button onClick={() => addToCart(art, 'Print A5', art.priceA5)} className="w-full bg-gray-100 text-gray-900 py-3 rounded-xl font-bold hover:bg-pink-50 hover:text-pink-600 transition cursor-pointer">Add to Cart</button>
                   </div>
                 </div>
               </div>
@@ -332,13 +339,15 @@
         const handleShippingSubmit = (e) => {
           e.preventDefault();
           if (checkoutData.type === 'Commission') {
-             db.collection('orders').add({
-                 id: 'ORD-' + Math.floor(Math.random()*10000), 
-                 date: new Date().toLocaleDateString(), 
+             const finalPayload = {
+                 orderId: 'ORD-' + Math.floor(Math.random()*10000), 
+                 date: new Date().toLocaleDateString('en-IN'), 
+                 time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
                  createdAt: Date.now(),
                  ...checkoutData 
-             });
-             sendSilentAlert(checkoutData); // <--- TELEGRAM BOT NOTIFICATION 
+             };
+             db.collection('orders').add(finalPayload);
+             sendSilentAlert(finalPayload); 
              setCheckoutData({ name: '', phone: '', address: '', pin: '', type: '', itemDetails: null, amount: 0 });
              alert("Commission Request Sent Successfully! I will contact you via WhatsApp.");
              nav('gallery');
@@ -370,13 +379,15 @@
         const qrURL = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiLink)}&color=000000&bgcolor=ffffff`;
 
         const finalizeOrder = () => {
-          db.collection('orders').add({
-              id: 'ORD-' + Math.floor(Math.random()*10000), 
-              date: new Date().toLocaleDateString(), 
+          const finalPayload = {
+              orderId: 'ORD-' + Math.floor(Math.random()*10000), 
+              date: new Date().toLocaleDateString('en-IN'),
+              time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }), 
               createdAt: Date.now(),
               ...checkoutData 
-          });
-          sendSilentAlert(checkoutData); // <--- TELEGRAM BOT NOTIFICATION 
+          };
+          db.collection('orders').add(finalPayload);
+          sendSilentAlert(finalPayload); 
           setCart([]); 
           setCheckoutData({ name: '', phone: '', address: '', pin: '', type: '', itemDetails: null, amount: 0 });
           alert("Payment Confirmed! Your order has been securely sent to my Admin Notifications.");
@@ -515,11 +526,15 @@
                 <div className="glass-panel p-8 rounded-3xl shadow-xl">
                   <h3 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2"><i data-feather="inbox"></i> Secure Inbox: Orders</h3>
                   {orders.length === 0 ? <p className="text-gray-500 font-bold bg-white p-6 rounded-2xl text-center shadow-sm">No orders yet.</p> : (
-                    <div className="space-y-6 max-h-[500px] overflow-y-auto">
+                    <div className="space-y-6 max-h-[500px] overflow-y-auto pr-2">
                       {orders.map(o => (
                         <div key={o.id} className="bg-white p-6 rounded-3xl shadow-md border-l-8 border-pink-500">
                           <div className="flex justify-between items-start mb-4 border-b pb-4">
-                            <div><p className="font-black text-xl text-gray-900">{o.id}</p><p className="text-sm font-bold text-gray-500">{o.date}</p></div>
+                            <div>
+                               <p className="font-black text-xl text-gray-900">{o.orderId || o.id}</p>
+                               {/* Added Exact Time Here */}
+                               <p className="text-sm font-bold text-gray-500">{o.date} • {o.time}</p>
+                            </div>
                             <span className="bg-pink-100 text-pink-800 text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-wider">{o.type}</span>
                           </div>
                           <div className="mb-4">
@@ -537,7 +552,8 @@
                               <span className="text-gray-700">{o.type === 'Commission' ? 'Budget' : 'Total Paid'}</span>
                               <span className="text-green-600 text-2xl">₹{o.amount}</span>
                             </div>
-                            <button onClick={() => { if(window.confirm("Delete this order?")) db.collection('orders').doc(o.id).delete(); }} className="mt-4 w-full bg-rose-50 text-rose-600 py-2 rounded-xl font-bold text-sm cursor-pointer">Delete Order</button>
+                            {/* Bug fixed here for correct document ID deletion */}
+                            <button onClick={() => { if(window.confirm("Delete this order?")) db.collection('orders').doc(o.id).delete(); }} className="mt-4 w-full bg-rose-50 text-rose-600 py-2 rounded-xl font-bold text-sm cursor-pointer hover:bg-rose-100 transition">Delete Order</button>
                           </div>
                         </div>
                       ))}
@@ -552,7 +568,6 @@
 
       return (
         <div className="min-h-screen flex flex-col relative">
-          {/* TOP HEADER WITH HAMBURGER BUTTON */}
           <header className="glass-panel sticky top-0 z-40 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 md:px-8 h-20 flex items-center justify-between">
               <div className="text-2xl md:text-3xl font-black tracking-tighter cursor-pointer flex items-center gap-2" onClick={() => nav('gallery')}>
@@ -565,7 +580,6 @@
             </div>
           </header>
 
-          {/* DROP DOWN MENU */}
           {menuOpen && (
             <div className="fixed inset-0 top-20 z-50 bg-gray-900/40 backdrop-blur-sm" onClick={() => setMenuOpen(false)}>
               <div className="bg-white w-full md:w-96 absolute right-0 shadow-2xl flex flex-col font-black text-lg border-l border-gray-100 h-full transform transition-transform" onClick={e => e.stopPropagation()}>
@@ -583,7 +597,6 @@
             </div>
           )}
 
-          {/* MAIN CONTENT AREA */}
           <main className="flex-grow z-10 relative">
             {view === 'gallery' && GalleryView()}
             {view === 'cart' && CartView()}
@@ -607,20 +620,16 @@
             )}
           </main>
 
-          {/* FOOTER (Down side contact logos and Copyright) */}
           <footer className="glass-panel py-8 mt-12 flex-shrink-0 relative z-10">
             <div className="flex flex-col items-center justify-center gap-6 relative">
-              {/* Social Media Buttons */}
               <div className="flex gap-8">
                 <a href="https://wa.me/917281074416" target="_blank" rel="noopener noreferrer" className="p-4 bg-white text-green-500 rounded-full hover:bg-green-500 hover:text-white transition-all shadow-md hover:shadow-xl transform hover:-translate-y-1 block cursor-pointer">
                   <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
                 </a>
                 <a href="https://www.instagram.com/rajaguptaact?igsh=NGg5bmJuczJlNnM1" target="_blank" rel="noopener noreferrer" className="p-4 bg-white text-pink-600 rounded-full shadow-md block cursor-pointer hover:bg-gradient-to-tr hover:from-yellow-400 hover:via-pink-500 hover:to-purple-600 hover:text-white transition-all transform hover:-translate-y-1">
-                   <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+                   <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 1 0 0-2.881z"/></svg>
                 </a>
               </div>
-              
-              {/* Copyright Section */}
               <div className="text-center px-4 mt-2">
                 <p className="text-xs md:text-sm font-bold text-gray-500 tracking-wider">
                   &copy; 2026 Raja Gupta Act. All rights reserved. Do not reproduce without permission.
