@@ -3,18 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Raja Gupta Act | Studio</title>
+  <title>Raja Gupta Act | Professional Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Inter:wght@400;700&display=swap');
-    body { font-family: 'Inter', sans-serif; background: #fcfaf7; color: #1c1917; }
-    .title-font { font-family: 'Playfair Display', serif; }
-  </style>
 </head>
 <body>
   <div id="root"></div>
@@ -34,7 +29,7 @@
     function App() {
       const [artworks, setArtworks] = useState([]);
       const [orders, setOrders] = useState([]);
-      const [isAdmin, setIsAdmin] = useState(false);
+      const [view, setView] = useState('gallery');
 
       useEffect(() => {
         db.collection("RajaStudio").onSnapshot(s => setArtworks(s.docs.map(d => ({id: d.id, ...d.data()}))));
@@ -42,42 +37,28 @@
       }, []);
 
       return (
-        <div className="max-w-6xl mx-auto px-6 py-12">
-          {/* Header */}
-          <div className="text-center mb-16 border-b border-stone-200 pb-12">
-            <h1 className="title-font text-5xl md:text-7xl tracking-tighter uppercase">Raja Gupta Act</h1>
-            <div className="mt-4">
-              <button onClick={() => setIsAdmin(false)} className="text-[10px] uppercase tracking-[0.3em] text-stone-500 mx-2">Gallery</button>
-              <button onClick={() => setIsAdmin(true)} className="text-[10px] uppercase tracking-[0.3em] text-stone-500 mx-2">Admin</button>
-            </div>
+        <div className="p-6 max-w-6xl mx-auto">
+          <h1 className="text-center text-4xl font-black py-10 uppercase">Raja Gupta Act</h1>
+          <div className="text-center mb-10">
+             <button onClick={() => setView('gallery')} className="mx-2 underline">Gallery</button>
+             <button onClick={() => setView('admin')} className="mx-2 underline">Admin</button>
           </div>
 
-          {/* Logic */}
-          {isAdmin ? (
-            <div className="space-y-8">
-              <h2 className="text-2xl font-bold">Admin Panel: Orders</h2>
+          {view === 'admin' ? (
+            <div className="space-y-4">
               {orders.map(o => (
-                <div key={o.id} className="bg-white p-6 rounded-2xl flex justify-between items-center shadow-sm border border-stone-100">
-                  <div>
-                    <p className="font-bold text-lg">{o.name}</p>
-                    <p className="text-xs text-stone-400">{o.date} | {o.time}</p>
-                  </div>
-                  <button onClick={() => db.collection('orders').doc(o.id).delete()} className="text-red-500 font-bold text-xs uppercase">Delete</button>
+                <div key={o.id} className="bg-white p-4 border rounded shadow-sm flex justify-between">
+                  <p>{o.name} - ₹{o.amount}</p>
+                  <button onClick={() => db.collection('orders').doc(o.id).delete()} className="text-red-500">Delete</button>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {artworks.map(art => (
-                <div key={art.id} className="bg-white p-4 rounded-2xl border border-stone-100 shadow-sm">
-                  <img src={art.image} loading="lazy" className="w-full h-80 object-cover rounded-xl mb-6" />
-                  <h2 className="text-2xl font-bold mb-4">{art.title}</h2>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-stone-900 text-white p-2 rounded-lg text-[10px] font-bold text-center">ORIG: ₹{art.priceOriginal}</div>
-                    <div className="bg-stone-200 p-2 rounded-lg text-[10px] font-bold text-center">A3: ₹{art.priceA3}</div>
-                    <div className="bg-stone-200 p-2 rounded-lg text-[10px] font-bold text-center">A4: ₹{art.priceA4}</div>
-                    <div className="bg-stone-200 p-2 rounded-lg text-[10px] font-bold text-center">A5: ₹{art.priceA5}</div>
-                  </div>
+                <div key={art.id} className="bg-white p-4 rounded shadow">
+                  <img src={art.image} className="w-full h-64 object-cover rounded mb-4" />
+                  <h2 className="font-bold text-xl">{art.title}</h2>
                 </div>
               ))}
             </div>
