@@ -3,26 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Raja Gupta Act | Professional Studio</title>
+  <title>Raja Gupta Act | Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Inter:wght@400;700&display=swap');
+    body { font-family: 'Inter', sans-serif; background: #fcfaf7; color: #1c1917; }
+    .title-font { font-family: 'Playfair Display', serif; }
+  </style>
 </head>
-<body class="bg-[#fcfaf7]">
+<body>
   <div id="root"></div>
   <script type="text/babel">
     const { useState, useEffect } = React;
+    const firebaseConfig = {
+      apiKey: "AIzaSyBCX9rALYZSxzYvawPexwXIHTSA3uhU24E",
+      authDomain: "rajaguptaact.firebaseapp.com",
+      projectId: "rajaguptaact",
+      storageBucket: "rajaguptaact.firebasestorage.app",
+      messagingSenderId: "9946165167",
+      appId: "1:9946165167:web:5809fb442b06882980495a"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    const BOT_USERNAME = "@rajaguptaact";
 
     function App() {
-      const [view, setView] = useState('gallery');
       const [artworks, setArtworks] = useState([]);
       const [orders, setOrders] = useState([]);
-      const [isAdmin, setIsAdmin] = useState(false);
+      const [view, setView] = useState('gallery');
 
       useEffect(() => {
         db.collection("RajaStudio").onSnapshot(s => setArtworks(s.docs.map(d => ({id: d.id, ...d.data()}))));
@@ -30,39 +42,39 @@
       }, []);
 
       return (
-        <div className="max-w-6xl mx-auto p-6">
-          <header className="text-center py-12 border-b border-stone-200">
-            <h1 className="text-6xl font-black uppercase mb-4">Raja Gupta Act</h1>
-            <div className="flex justify-center gap-6">
-              <button onClick={() => setView('gallery')} className="text-xs font-bold uppercase tracking-widest">Gallery</button>
-              <button onClick={() => setIsAdmin(!isAdmin)} className="text-xs font-bold uppercase tracking-widest text-stone-400">Admin</button>
+        <div className="max-w-6xl mx-auto px-6 py-12">
+          <div className="text-center mb-16 border-b border-stone-200 pb-12">
+            <h1 className="title-font text-5xl md:text-7xl tracking-tighter uppercase">Raja Gupta Act</h1>
+            <div className="mt-6 flex justify-center gap-6">
+              <button onClick={() => setView('gallery')} className="text-[10px] uppercase tracking-[0.3em] font-bold">Gallery</button>
+              <button onClick={() => setView('admin')} className="text-[10px] uppercase tracking-[0.3em] font-bold text-stone-400">Admin</button>
             </div>
-          </header>
+          </div>
 
-          {isAdmin ? (
-            <div className="py-10">
-              <h2 className="text-2xl font-bold mb-6">Orders History</h2>
+          {view === 'admin' ? (
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold mb-6">Orders Management</h2>
               {orders.map(o => (
-                <div key={o.id} className="bg-white p-6 rounded-2xl flex justify-between items-center mb-4 border border-stone-100 shadow-sm">
+                <div key={o.id} className="bg-white p-6 rounded-2xl flex justify-between items-center shadow-sm border border-stone-100">
                   <div>
-                    <p className="font-bold">{o.name || "Customer"}</p>
-                    <p className="text-xs text-stone-500">{o.date} {o.time}</p>
+                    <p className="font-bold text-lg">{o.name || "Customer"}</p>
+                    <p className="text-xs text-stone-400">{o.date} | {o.time}</p>
                   </div>
                   <button onClick={() => db.collection('orders').doc(o.id).delete()} className="text-red-500 font-bold text-xs uppercase">Delete</button>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 py-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {artworks.map(art => (
                 <div key={art.id} className="bg-white p-4 rounded-3xl border border-stone-100 shadow-sm">
-                  <img src={art.image} loading="lazy" className="w-full h-80 object-cover rounded-2xl mb-4" />
+                  <img src={art.image} loading="lazy" className="w-full h-80 object-cover rounded-2xl mb-6" />
                   <h2 className="text-2xl font-bold mb-4">{art.title}</h2>
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-stone-900 text-white p-3 rounded-lg text-[10px] font-bold text-center">ORIG: ₹{art.priceOriginal}</div>
-                    <div className="bg-stone-200 p-3 rounded-lg text-[10px] font-bold text-center">A3: ₹{art.priceA3}</div>
-                    <div className="bg-stone-200 p-3 rounded-lg text-[10px] font-bold text-center">A4: ₹{art.priceA4}</div>
-                    <div className="bg-stone-200 p-3 rounded-lg text-[10px] font-bold text-center">A5: ₹{art.priceA5}</div>
+                    <div className="bg-stone-900 text-white p-2 rounded-lg text-[10px] font-bold text-center">ORIG: ₹{art.priceOriginal}</div>
+                    <div className="bg-stone-200 p-2 rounded-lg text-[10px] font-bold text-center">A3: ₹{art.priceA3}</div>
+                    <div className="bg-stone-200 p-2 rounded-lg text-[10px] font-bold text-center">A4: ₹{art.priceA4}</div>
+                    <div className="bg-stone-200 p-2 rounded-lg text-[10px] font-bold text-center">A5: ₹{art.priceA5}</div>
                   </div>
                 </div>
               ))}
@@ -75,3 +87,4 @@
   </script>
 </body>
 </html>
+
