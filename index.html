@@ -5,12 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Raja Gupta Act | Professional Colour Pencil Studio</title>
   
+  <!-- Tailwind, React, Icons, Phone Verification Library -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://unpkg.com/feather-icons"></script>
+  <!-- GLOBAL PHONE VALIDATOR -->
+  <script src="https://unpkg.com/libphonenumber-js/bundle/libphonenumber-js.min.js"></script>
 
+  <!-- FIREBASE CLOUD DATABASE -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -40,10 +44,8 @@
     const { useState, useEffect } = React;
     const ADMIN_PASSWORD = "RAJA_ADMIN_2026"; 
 
-    // --- YAHAN APNI TELEGRAM DETAILS DAALEIN ---
-    const TELEGRAM_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN_HERE"; 
-    const TELEGRAM_CHAT_ID = "YOUR_TELEGRAM_CHAT_ID_HERE"; 
-    const BOT_USERNAME = "@rajaguptaact"; // For WhatsApp/CallMeBot
+    // --- TELEGRAM CALLMEBOT USERNAME SET AUTOMATICALLY ---
+    const CALLMEBOT_USERNAME = "@rajaguptaact";
 
     // --- FIREBASE INITIALIZATION ---
     const firebaseConfig = {
@@ -111,11 +113,13 @@
       const [announcements, setAnnouncements] = useState([]);
       const [cart, setCart] = useState(() => safeParse('raja_cart', []));
       
-      // FORM STATES
-      const [checkoutData, setCheckoutData] = useState({ name: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0 });
+      // FORM STATES INCL EMAIL & VALIDATIONS
+      const [checkoutData, setCheckoutData] = useState({ name: '', email: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0 });
       const [pinError, setPinError] = useState('');
       const [phoneError, setPhoneError] = useState('');
+      const [emailError, setEmailError] = useState('');
       const [isValidating, setIsValidating] = useState(false);
+      const [isPhoneValid, setIsPhoneValid] = useState(false);
 
       // GLOBAL CURRENCY SYSTEM
       const [currency, setCurrency] = useState('INR');
@@ -131,7 +135,7 @@
           .then(res => res.json())
           .then(data => {
             if (data.country_code && data.country_code !== 'IN') {
-              setCurrency('USD'); // Automatically change to Dollars for foreigners
+              setCurrency('USD');
             }
           })
           .catch(err => console.log('Location detection failed'));
@@ -144,11 +148,13 @@
       const [editArtId, setEditArtId] = useState(null);
       const [editAnnId, setEditAnnId] = useState(null);
 
+      // PERFECT TELEGRAM CALLMEBOT NOTIFICATION
       const sendSilentAlert = (orderInfo) => {
         let msg = `🚨 *NEW STUDIO ORDER* 🚨\n\n`;
         msg += `*Order ID:* ${orderInfo.orderId}\n`;
-        msg += `*Date:* ${orderInfo.date} | *Time:* ${orderInfo.time}\n`;
         msg += `*Name:* ${orderInfo.name}\n`;
+        msg += `*Email:* ${orderInfo.email}\n`;
+        msg += `*Contact:* ${orderInfo.phone}\n`;
         msg += `*Country:* ${orderInfo.country}\n`;
         msg += `*Type:* ${orderInfo.type}\n\n`;
         
@@ -160,29 +166,20 @@
         }
 
         msg += `\n*Final Payable:* ${orderInfo.displayAmount}\n`;
-        msg += `*Contact:* ${orderInfo.phone}\n`;
         msg += `*Address:* ${orderInfo.address}\n`;
         if (orderInfo.city) {
-           msg += `*Location:* ${orderInfo.city}, ${orderInfo.state} - ${orderInfo.pin}\n\n`;
+           msg += `*Location:* ${orderInfo.city}, ${orderInfo.state} - ${orderInfo.pin}`;
         } else {
-           msg += `*Zip/PIN:* ${orderInfo.pin}\n\n`;
+           msg += `*Zip/PIN:* ${orderInfo.pin}`;
         }
-        
-        msg += `_Check Admin Panel for full details._`;
 
         const safeMsg = encodeURIComponent(msg);
         
-        // 1. WhatsApp Alert (CallMeBot)
-        if(BOT_USERNAME !== "") {
-            const waUrl = `https://api.callmebot.com/text.php?user=${BOT_USERNAME}&text=${safeMsg}`;
-            fetch(waUrl, { mode: 'no-cors' }).catch(err => console.log("WA Alert sent"));
-        }
-
-        // 2. Telegram Alert
-        if(TELEGRAM_TOKEN !== "YOUR_TELEGRAM_BOT_TOKEN_HERE" && TELEGRAM_CHAT_ID !== "YOUR_TELEGRAM_CHAT_ID_HERE") {
-            const telUrl = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${safeMsg}&parse_mode=Markdown`;
-            fetch(telUrl).catch(err => console.log("Telegram Alert sent"));
-        }
+        // Telegram via CallMeBot (INSTANT)
+        const url = `https://api.callmebot.com/text.php?user=${CALLMEBOT_USERNAME}&text=${safeMsg}`;
+        fetch(url, { mode: 'no-cors' })
+          .then(() => console.log("Alert Sent to Telegram X"))
+          .catch(err => console.error("Notification failed", err));
       };
 
       const shareSite = () => {
@@ -231,9 +228,11 @@
       const startCheckout = (items, type) => {
         let total = items.reduce((sum, item) => sum + item.price, 0);
         const initCountry = currency === 'USD' ? 'International' : 'India';
-        setCheckoutData({ name: '', phone: '', address: '', pin: '', city: '', state: '', country: initCountry, type: type, itemDetails: items, amount: total });
+        setCheckoutData({ name: '', email: '', phone: '', address: '', pin: '', city: '', state: '', country: initCountry, type: type, itemDetails: items, amount: total });
         setPinError('');
         setPhoneError('');
+        setEmailError('');
+        setIsPhoneValid(false);
         setIsValidating(false);
         nav('checkout_form');
       };
@@ -451,36 +450,59 @@
         </div>
       );
 
-      // PERFECTED PHONE VERIFICATION & TYPING BUG FIX
       const CheckoutForm = () => {
-        
-        const handlePhoneChange = (e) => {
-          let val = e.target.value;
+        // LIVE GMAIL / EMAIL VALIDATION
+        const handleEmailChange = (e) => {
+          const val = e.target.value;
+          setCheckoutData({...checkoutData, email: val});
           
-          // Auto add '+' if user starts typing a number
-          if (val.length === 1 && /[1-9]/.test(val)) {
-             val = '+' + val;
+          if (val.trim() === '') {
+             setEmailError('');
+             return;
           }
           
-          // Allow only +, numbers, spaces, and hyphens
-          val = val.replace(/[^0-9+\s-]/g, '');
-          
-          // Prevent multiple '+' signs
-          if ((val.match(/\+/g) || []).length > 1) {
-             val = val.replace(/\+/g, (match, offset) => offset === 0 ? '+' : '');
-          }
-
-          setCheckoutData({...checkoutData, phone: val});
-          
-          const cleaned = val.replace(/[\s-]/g, '');
-          
-          if (cleaned.length > 0 && !cleaned.startsWith('+')) {
-             setPhoneError("❌ Please start with '+' followed by country code (e.g. +91, +56, +24)");
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(val)) {
+             setEmailError("❌ Please enter a valid email address (e.g., example@gmail.com)");
           } else {
-             setPhoneError('');
+             setEmailError('');
           }
         };
 
+        // LIVE GLOBAL WHATSAPP NUMBER VALIDATION
+        const handlePhoneChange = (e) => {
+          let val = e.target.value;
+          
+          if (val.length === 1 && /[1-9]/.test(val)) {
+             val = '+' + val;
+          }
+          val = val.replace(/[^\d+\s-]/g, ''); // Allow +, digits, space, hyphen
+          
+          setCheckoutData(prev => ({...prev, phone: val}));
+          
+          if (val.trim() === '') {
+             setPhoneError('');
+             setIsPhoneValid(false);
+             return;
+          }
+
+          try {
+            // Check using libphonenumber-js for global formatting
+            const phoneNumber = libphonenumber.parsePhoneNumber(val);
+            if (phoneNumber.isValid()) {
+               setPhoneError('');
+               setIsPhoneValid(true);
+            } else {
+               setPhoneError("❌ Enter a valid complete number with country code.");
+               setIsPhoneValid(false);
+            }
+          } catch (error) {
+            setPhoneError("❌ Start with '+' and country code (e.g. +91, +44)");
+            setIsPhoneValid(false);
+          }
+        };
+
+        // LIVE GLOBAL PIN CODE CHECK
         const handlePinChange = async (e) => {
           const val = e.target.value.replace(/[^0-9A-Za-z\s-]/g, '');
           setCheckoutData(prev => ({...prev, pin: val, city: '', state: ''}));
@@ -505,6 +527,13 @@
             } else if (val.length > 6) {
                setPinError("❌ Indian PIN must be exactly 6 digits.");
             }
+          } else {
+            // International basic length check
+            if (val.length > 0 && val.length < 3) {
+               setPinError("❌ ZIP code is too short.");
+            } else {
+               setPinError('');
+            }
           }
         };
 
@@ -514,15 +543,18 @@
         const handleShippingSubmit = (e) => {
           e.preventDefault();
           
-          if(checkoutData.address.length < 15) {
-             alert("Address is too short. Please enter your complete delivery address (House No, Street, Landmark).");
+          if (emailError || !checkoutData.email.includes('@')) {
+             alert("Please enter a valid email address.");
              return;
           }
 
-          // Final WhatsApp Validation check on submit
-          const cleanedPhone = checkoutData.phone.replace(/[\s-]/g, '');
-          if (cleanedPhone.length < 8 || cleanedPhone.length > 16 || !cleanedPhone.startsWith('+')) {
-             alert("❌ Invalid WhatsApp Number! Please include a valid Country Code (e.g. +91, +56, +24) and your full number.");
+          if(checkoutData.address.length < 15) {
+             alert("Address is too short. Please enter your complete delivery address.");
+             return;
+          }
+
+          if (!isPhoneValid) {
+             alert("Please enter a strictly valid WhatsApp number starting with a '+' and your Country Code.");
              return;
           }
 
@@ -543,8 +575,8 @@
              };
              db.collection('orders').add(finalPayload);
              sendSilentAlert(finalPayload); 
-             setCheckoutData({ name: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0 });
-             alert("Commission Request Sent Successfully! I will contact you via WhatsApp.");
+             setCheckoutData({ name: '', email: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0 });
+             alert("Commission Request Sent Successfully! I will contact you via WhatsApp/Email.");
              nav('gallery');
           } else {
              nav('payment');
@@ -558,8 +590,14 @@
               <input required value={checkoutData.name} placeholder="Full Name" className="w-full border-2 border-gray-200 p-4 rounded-xl font-medium focus:border-purple-500 outline-none" onChange={e => setCheckoutData({...checkoutData, name: e.target.value})} />
               
               <div>
-                <input required value={checkoutData.phone} type="tel" placeholder="WhatsApp (e.g. +91 9876543210 or +56...)" className={`w-full border-2 p-4 rounded-xl font-medium outline-none ${phoneError ? 'border-red-400 focus:border-red-500 bg-red-50' : 'border-gray-200 focus:border-purple-500 bg-white'}`} onChange={handlePhoneChange} />
+                <input required type="email" value={checkoutData.email || ''} placeholder="Email Address (Gmail etc.)" className={`w-full border-2 p-4 rounded-xl font-medium outline-none ${emailError ? 'border-red-400 focus:border-red-500 bg-red-50' : 'border-gray-200 focus:border-purple-500 bg-white'}`} onChange={handleEmailChange} />
+                {emailError && <p className="text-xs text-red-500 font-bold mt-2 ml-2">{emailError}</p>}
+              </div>
+
+              <div>
+                <input required value={checkoutData.phone} type="tel" placeholder="WhatsApp Number (Start with Country Code)" className={`w-full border-2 p-4 rounded-xl font-medium outline-none ${phoneError ? 'border-red-400 focus:border-red-500 bg-red-50' : (isPhoneValid ? 'border-green-400 focus:border-green-500 bg-green-50' : 'border-gray-200 focus:border-purple-500 bg-white')}`} onChange={handlePhoneChange} />
                 {phoneError && <p className="text-xs text-red-500 font-bold mt-2 ml-2">{phoneError}</p>}
+                {isPhoneValid && !phoneError && <p className="text-xs text-green-600 font-bold mt-2 ml-2">✅ Valid international number format.</p>}
               </div>
 
               <div className="grid grid-cols-1 gap-2">
@@ -569,8 +607,8 @@
                      setPinError(''); 
                      setCurrency(newCountry === 'International' ? 'USD' : 'INR');
                   }} className="w-full border-2 border-gray-200 p-4 rounded-xl bg-white focus:border-purple-500 outline-none font-black text-gray-800">
-                    <option value="India">🇮🇳 India</option>
-                    <option value="International">🌍 International</option>
+                    <option value="India">🇮🇳 India (₹ INR)</option>
+                    <option value="International">🌍 International ($ USD)</option>
                  </select>
               </div>
 
@@ -606,7 +644,7 @@
                  </div>
               </div>
 
-              <button type="submit" disabled={isValidating || !!pinError || (checkoutData.country === 'India' && !checkoutData.city)} className={`w-full text-white py-4 rounded-xl font-black text-lg shadow-lg transition-colors ${isValidating || !!pinError || (checkoutData.country === 'India' && !checkoutData.city) ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-900 hover:bg-gray-800 cursor-pointer'}`}>
+              <button type="submit" disabled={isValidating || !!pinError || !isPhoneValid || !!emailError || (checkoutData.country === 'India' && !checkoutData.city)} className={`w-full text-white py-4 rounded-xl font-black text-lg shadow-lg transition-colors ${isValidating || !!pinError || !isPhoneValid || !!emailError || (checkoutData.country === 'India' && !checkoutData.city) ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-900 hover:bg-gray-800 cursor-pointer'}`}>
                 {checkoutData.type === 'Commission' ? "Submit Commission Request" : "Proceed to Payment"}
               </button>
             </form>
@@ -631,7 +669,7 @@
           db.collection('orders').add(finalPayload);
           sendSilentAlert(finalPayload); 
           setCart([]); 
-          setCheckoutData({ name: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0 });
+          setCheckoutData({ name: '', email: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0 });
           alert("Order Sent! Your request has been securely forwarded to Raja Gupta.");
           nav('gallery');
         };
@@ -645,7 +683,7 @@
               <div className="bg-white p-8 rounded-3xl shadow-2xl border-2 border-purple-100 mb-8 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 to-indigo-500"></div>
                 <div className="bg-blue-50 text-blue-700 p-4 rounded-xl mb-4 font-black flex items-center justify-center gap-2">
-                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> Worldwide Shipping
+                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> Worldwide Shipping
                 </div>
                 <p className="font-bold text-gray-700 text-sm mb-4">For clients outside India, we process payments securely via <strong>PayPal</strong> or <strong>Bank Transfer</strong>.</p>
                 <p className="text-xs text-gray-500 font-medium">Click the button below to confirm your order. Raja Gupta will personally contact you via WhatsApp or Email with the final PayPal invoice including exact shipping costs to your country.</p>
@@ -681,6 +719,14 @@
       };
 
       const AdminPanel = () => {
+        // BULK DELETE ORDERS LOGIC
+        const clearAllOrders = () => {
+          if (window.confirm("WARNING: Are you sure you want to permanently delete ALL orders? This action cannot be undone.")) {
+             orders.forEach(o => db.collection('orders').doc(o.id).delete());
+             alert("All orders have been successfully deleted from database.");
+          }
+        };
+
         const handleImage = (e) => {
           const file = e.target.files[0];
           if(file) {
@@ -842,7 +888,12 @@
                 </div>
 
                 <div className="glass-panel p-8 rounded-3xl shadow-xl">
-                  <h3 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2">Secure Inbox: Orders</h3>
+                  <div className="flex justify-between items-center mb-6 border-b pb-4 border-gray-200">
+                     <h3 className="text-2xl font-black text-gray-900 flex items-center gap-2">Secure Inbox: Orders</h3>
+                     {orders.length > 0 && (
+                        <button onClick={clearAllOrders} className="bg-rose-100 text-rose-700 px-4 py-2 rounded-xl text-sm font-black hover:bg-rose-200 transition cursor-pointer shadow-sm">🗑️ Delete All Orders</button>
+                     )}
+                  </div>
                   {orders.length === 0 ? <p className="text-gray-500 font-bold bg-white p-6 rounded-2xl text-center shadow-sm">No orders yet.</p> : (
                     <div className="space-y-6 max-h-[500px] overflow-y-auto pr-2">
                       {orders.map(o => (
@@ -856,6 +907,7 @@
                           </div>
                           <div className="mb-4">
                             <p className="font-black text-lg text-gray-800">{o.name} <span className="text-green-500 mx-2">|</span> {o.country}</p>
+                            <p className="text-sm font-bold text-gray-600 mt-1">Email: {o.email || "Not Provided"}</p>
                             <p className="text-sm font-bold text-gray-600 mt-1">WA: {o.phone}</p>
                             <p className="text-sm font-bold text-gray-600 mt-1">{o.address}</p>
                             {o.city ? <p className="text-sm font-bold text-emerald-600 mt-1">✓ Verified Location: {o.city}, {o.state} - {o.pin}</p> : <p className="text-sm font-bold text-gray-600 mt-1">PIN/ZIP: {o.pin}</p>}
@@ -870,7 +922,7 @@
                               <span className="text-gray-700">{o.type === 'Commission' ? 'Budget / Amount' : 'Total Paid'}</span>
                               <span className="text-green-600 text-2xl">{o.displayAmount || '₹'+o.amount}</span>
                             </div>
-                            <button onClick={() => { if(window.confirm("Delete this order?")) db.collection('orders').doc(o.id).delete(); }} className="mt-4 w-full bg-rose-50 text-rose-600 py-2 rounded-xl font-bold text-sm cursor-pointer hover:bg-rose-100 transition">Delete Order History</button>
+                            <button onClick={() => { if(window.confirm("Delete this single order?")) db.collection('orders').doc(o.id).delete(); }} className="mt-4 w-full bg-rose-50 text-rose-600 py-2 rounded-xl font-bold text-sm cursor-pointer hover:bg-rose-100 transition">Delete Single Order</button>
                           </div>
                         </div>
                       ))}
