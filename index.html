@@ -5,14 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Raja Gupta Act | Professional Colour Pencil Studio</title>
   
-  <!-- Tailwind, React, Icons, Phone Verification Library -->
+  <!-- Tailwind, React, Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://unpkg.com/feather-icons"></script>
-  <!-- GLOBAL PHONE VALIDATOR -->
-  <script src="https://unpkg.com/libphonenumber-js/bundle/libphonenumber-js.min.js"></script>
 
   <!-- FIREBASE CLOUD DATABASE -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -115,11 +113,7 @@
       
       // FORM STATES INCL EMAIL & VALIDATIONS
       const [checkoutData, setCheckoutData] = useState({ name: '', email: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0 });
-      const [pinError, setPinError] = useState('');
-      const [phoneError, setPhoneError] = useState('');
-      const [emailError, setEmailError] = useState('');
       const [isValidating, setIsValidating] = useState(false);
-      const [isPhoneValid, setIsPhoneValid] = useState(false);
 
       // GLOBAL CURRENCY SYSTEM
       const [currency, setCurrency] = useState('INR');
@@ -148,7 +142,7 @@
       const [editArtId, setEditArtId] = useState(null);
       const [editAnnId, setEditAnnId] = useState(null);
 
-      // PERFECT TELEGRAM CALLMEBOT NOTIFICATION
+      // PERFECT TELEGRAM CALLMEBOT NOTIFICATION (INSTANT)
       const sendSilentAlert = (orderInfo) => {
         let msg = `🚨 *NEW STUDIO ORDER* 🚨\n\n`;
         msg += `*Order ID:* ${orderInfo.orderId}\n`;
@@ -175,9 +169,9 @@
 
         const safeMsg = encodeURIComponent(msg);
         
-        // Telegram via CallMeBot (INSTANT)
+        // Telegram via CallMeBot (Reliable GET Request)
         const url = `https://api.callmebot.com/text.php?user=${CALLMEBOT_USERNAME}&text=${safeMsg}`;
-        fetch(url, { mode: 'no-cors' })
+        fetch(url, { method: 'GET', mode: 'no-cors' })
           .then(() => console.log("Alert Sent to Telegram X"))
           .catch(err => console.error("Notification failed", err));
       };
@@ -228,11 +222,14 @@
       const startCheckout = (items, type) => {
         let total = items.reduce((sum, item) => sum + item.price, 0);
         const initCountry = currency === 'USD' ? 'International' : 'India';
-        setCheckoutData({ name: '', email: '', phone: '', address: '', pin: '', city: '', state: '', country: initCountry, type: type, itemDetails: items, amount: total });
-        setPinError('');
-        setPhoneError('');
-        setEmailError('');
-        setIsPhoneValid(false);
+        
+        // Agar pehle se same detail bhari hai toh clear nahi karenge, otherwise default banayenge
+        if (!checkoutData.name || checkoutData.type !== type) {
+            setCheckoutData({ name: '', email: '', phone: '', address: '', pin: '', city: '', state: '', country: initCountry, type: type, itemDetails: items, amount: total });
+        } else {
+            setCheckoutData(prev => ({ ...prev, type: type, itemDetails: items, amount: total }));
+        }
+        
         setIsValidating(false);
         nav('checkout_form');
       };
@@ -451,65 +448,64 @@
       );
 
       const CheckoutForm = () => {
-        // LIVE GMAIL / EMAIL VALIDATION
-        const handleEmailChange = (e) => {
-          const val = e.target.value;
-          setCheckoutData({...checkoutData, email: val});
-          
-          if (val.trim() === '') {
-             setEmailError('');
-             return;
-          }
-          
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-          if (!emailRegex.test(val)) {
-             setEmailError("❌ Please enter a valid email address (e.g., example@gmail.com)");
-          } else {
-             setEmailError('');
-          }
-        };
+        // --- STRICT LIVE VERIFICATIONS ---
+        
+        const isEmailValidNow = checkoutData.email ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(checkoutData.email) : false;
+        const currentEmailError = (checkoutData.email && !isEmailValidNow) ? "❌ Enter a valid email (e.g., name@gmail.com)" : "";
 
-        // LIVE GLOBAL WHATSAPP NUMBER VALIDATION
-        const handlePhoneChange = (e) => {
-          let val = e.target.value;
-          
-          if (val.length === 1 && /[1-9]/.test(val)) {
-             val = '+' + val;
-          }
-          val = val.replace(/[^\d+\s-]/g, ''); // Allow +, digits, space, hyphen
-          
-          setCheckoutData(prev => ({...prev, phone: val}));
-          
-          if (val.trim() === '') {
-             setPhoneError('');
-             setIsPhoneValid(false);
-             return;
-          }
-
-          try {
-            // Check using libphonenumber-js for global formatting
-            const phoneNumber = libphonenumber.parsePhoneNumber(val);
-            if (phoneNumber.isValid()) {
-               setPhoneError('');
-               setIsPhoneValid(true);
+        let isPhoneValidNow = false;
+        let currentPhoneError = '';
+        if (checkoutData.phone) {
+            if (checkoutData.country === 'India') {
+                if (!checkoutData.phone.startsWith('+91')) {
+                    currentPhoneError = "❌ Indian number must start with +91";
+                } else if (checkoutData.phone.length !== 13) {
+                    currentPhoneError = "❌ Must be exactly 10 digits after +91";
+                } else {
+                    isPhoneValidNow = true;
+                }
             } else {
-               setPhoneError("❌ Enter a valid complete number with country code.");
-               setIsPhoneValid(false);
+                if (!checkoutData.phone.startsWith('+')) {
+                    currentPhoneError = "❌ Must start with '+' and country code";
+                } else if (checkoutData.phone.length < 8 || checkoutData.phone.length > 16) {
+                    currentPhoneError = "❌ Invalid international number length";
+                } else {
+                    isPhoneValidNow = true;
+                }
             }
-          } catch (error) {
-            setPhoneError("❌ Start with '+' and country code (e.g. +91, +44)");
-            setIsPhoneValid(false);
-          }
+        }
+
+        let isPinValidNow = false;
+        if (checkoutData.country === 'India') {
+            isPinValidNow = checkoutData.pin.length === 6 && checkoutData.city !== '';
+        } else {
+            isPinValidNow = checkoutData.pin.length >= 3;
+        }
+
+        const isAddressValidNow = checkoutData.address.trim().length >= 10;
+        const isNameValidNow = checkoutData.name.trim().length >= 3;
+
+        // Button completely blocked until ALL true
+        const canSubmit = isEmailValidNow && isPhoneValidNow && isPinValidNow && isAddressValidNow && isNameValidNow;
+
+        const handleEmailChange = (e) => {
+          setCheckoutData({...checkoutData, email: e.target.value});
         };
 
-        // LIVE GLOBAL PIN CODE CHECK
+        const handlePhoneChange = (e) => {
+          let val = e.target.value.replace(/[^\d+]/g, ''); 
+          if (val.length === 1 && /[1-9]/.test(val)) val = '+' + val;
+          if (val.lastIndexOf('+') > 0) {
+             val = val.substring(0, val.lastIndexOf('+')) + val.substring(val.lastIndexOf('+')).replace(/\+/g, '');
+          }
+          setCheckoutData({...checkoutData, phone: val});
+        };
+
         const handlePinChange = async (e) => {
           const val = e.target.value.replace(/[^0-9A-Za-z\s-]/g, '');
           setCheckoutData(prev => ({...prev, pin: val, city: '', state: ''}));
-          setPinError('');
-
-          if (checkoutData.country === 'India') {
-            if (val.length === 6 && /^\d+$/.test(val)) {
+          
+          if (checkoutData.country === 'India' && val.length === 6 && /^\d+$/.test(val)) {
               setIsValidating(true);
               try {
                 const res = await fetch(`https://api.postalpincode.in/pincode/${val}`);
@@ -517,23 +513,9 @@
                 if (data[0].Status === "Success") {
                   const details = data[0].PostOffice[0];
                   setCheckoutData(prev => ({...prev, pin: val, city: details.District, state: details.State}));
-                } else {
-                  setPinError("❌ Invalid Indian PIN Code. Please check again.");
                 }
-              } catch (err) {
-                setPinError("⚠️ Network error while verifying PIN.");
-              }
+              } catch (err) { console.log(err); }
               setIsValidating(false);
-            } else if (val.length > 6) {
-               setPinError("❌ Indian PIN must be exactly 6 digits.");
-            }
-          } else {
-            // International basic length check
-            if (val.length > 0 && val.length < 3) {
-               setPinError("❌ ZIP code is too short.");
-            } else {
-               setPinError('');
-            }
           }
         };
 
@@ -542,26 +524,7 @@
 
         const handleShippingSubmit = (e) => {
           e.preventDefault();
-          
-          if (emailError || !checkoutData.email.includes('@')) {
-             alert("Please enter a valid email address.");
-             return;
-          }
-
-          if(checkoutData.address.length < 15) {
-             alert("Address is too short. Please enter your complete delivery address.");
-             return;
-          }
-
-          if (!isPhoneValid) {
-             alert("Please enter a strictly valid WhatsApp number starting with a '+' and your Country Code.");
-             return;
-          }
-
-          if (checkoutData.country === 'India' && !checkoutData.city) {
-             alert("Please enter a valid 6-digit Indian PIN Code before proceeding.");
-             return;
-          }
+          if (!canSubmit) return;
 
           if (checkoutData.type === 'Commission') {
              const finalPayload = {
@@ -590,21 +553,20 @@
               <input required value={checkoutData.name} placeholder="Full Name" className="w-full border-2 border-gray-200 p-4 rounded-xl font-medium focus:border-purple-500 outline-none" onChange={e => setCheckoutData({...checkoutData, name: e.target.value})} />
               
               <div>
-                <input required type="email" value={checkoutData.email || ''} placeholder="Email Address (Gmail etc.)" className={`w-full border-2 p-4 rounded-xl font-medium outline-none ${emailError ? 'border-red-400 focus:border-red-500 bg-red-50' : 'border-gray-200 focus:border-purple-500 bg-white'}`} onChange={handleEmailChange} />
-                {emailError && <p className="text-xs text-red-500 font-bold mt-2 ml-2">{emailError}</p>}
+                <input required type="email" value={checkoutData.email} placeholder="Email Address (Gmail etc.)" className={`w-full border-2 p-4 rounded-xl font-medium outline-none ${currentEmailError ? 'border-red-400 focus:border-red-500 bg-red-50' : 'border-gray-200 focus:border-purple-500 bg-white'}`} onChange={handleEmailChange} />
+                {currentEmailError && <p className="text-xs text-red-500 font-bold mt-2 ml-2">{currentEmailError}</p>}
               </div>
 
               <div>
-                <input required value={checkoutData.phone} type="tel" placeholder="WhatsApp Number (Start with Country Code)" className={`w-full border-2 p-4 rounded-xl font-medium outline-none ${phoneError ? 'border-red-400 focus:border-red-500 bg-red-50' : (isPhoneValid ? 'border-green-400 focus:border-green-500 bg-green-50' : 'border-gray-200 focus:border-purple-500 bg-white')}`} onChange={handlePhoneChange} />
-                {phoneError && <p className="text-xs text-red-500 font-bold mt-2 ml-2">{phoneError}</p>}
-                {isPhoneValid && !phoneError && <p className="text-xs text-green-600 font-bold mt-2 ml-2">✅ Valid international number format.</p>}
+                <input required value={checkoutData.phone} type="tel" placeholder={checkoutData.country === "India" ? "WhatsApp (+91...)" : "WhatsApp (Start with Country Code)"} className={`w-full border-2 p-4 rounded-xl font-medium outline-none ${currentPhoneError ? 'border-red-400 focus:border-red-500 bg-red-50' : (isPhoneValidNow ? 'border-green-400 focus:border-green-500 bg-green-50' : 'border-gray-200 focus:border-purple-500 bg-white')}`} onChange={handlePhoneChange} />
+                {currentPhoneError && <p className="text-xs text-red-500 font-bold mt-2 ml-2">{currentPhoneError}</p>}
+                {isPhoneValidNow && !currentPhoneError && <p className="text-xs text-green-600 font-bold mt-2 ml-2">✅ Valid {checkoutData.country === 'India' ? 'Indian' : 'International'} number format.</p>}
               </div>
 
               <div className="grid grid-cols-1 gap-2">
                  <select required value={checkoutData.country} onChange={e => { 
                      const newCountry = e.target.value;
-                     setCheckoutData({...checkoutData, country: newCountry, city: '', state: '', pin: ''}); 
-                     setPinError(''); 
+                     setCheckoutData({...checkoutData, country: newCountry, city: '', state: '', pin: '', phone: ''}); 
                      setCurrency(newCountry === 'International' ? 'USD' : 'INR');
                   }} className="w-full border-2 border-gray-200 p-4 rounded-xl bg-white focus:border-purple-500 outline-none font-black text-gray-800">
                     <option value="India">🇮🇳 India (₹ INR)</option>
@@ -613,9 +575,9 @@
               </div>
 
               <div>
-                 <input required value={checkoutData.pin} placeholder={checkoutData.country === "India" ? "6-Digit Indian PIN Code" : "Zip Code / Postal Code"} className={`w-full border-2 p-4 rounded-xl font-medium outline-none ${pinError ? 'border-red-400 focus:border-red-500 bg-red-50' : 'border-gray-200 focus:border-purple-500 bg-white'}`} onChange={handlePinChange} />
+                 <input required value={checkoutData.pin} placeholder={checkoutData.country === "India" ? "6-Digit Indian PIN Code" : "Zip Code / Postal Code"} className={`w-full border-2 p-4 rounded-xl font-medium outline-none ${(!isPinValidNow && checkoutData.pin.length > 0) ? 'border-red-400 focus:border-red-500 bg-red-50' : 'border-gray-200 focus:border-purple-500 bg-white'}`} onChange={handlePinChange} />
                  {isValidating && <p className="text-xs text-blue-500 font-bold mt-2 ml-2">⏳ Verifying Postal Code...</p>}
-                 {pinError && <p className="text-xs text-red-500 font-bold mt-2 ml-2">{pinError}</p>}
+                 {checkoutData.country === 'India' && checkoutData.pin.length > 0 && !isPinValidNow && !isValidating && <p className="text-xs text-red-500 font-bold mt-2 ml-2">❌ Enter valid 6-Digit Indian PIN.</p>}
               </div>
 
               {checkoutData.country === 'India' && checkoutData.city && (
@@ -644,7 +606,7 @@
                  </div>
               </div>
 
-              <button type="submit" disabled={isValidating || !!pinError || !isPhoneValid || !!emailError || (checkoutData.country === 'India' && !checkoutData.city)} className={`w-full text-white py-4 rounded-xl font-black text-lg shadow-lg transition-colors ${isValidating || !!pinError || !isPhoneValid || !!emailError || (checkoutData.country === 'India' && !checkoutData.city) ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-900 hover:bg-gray-800 cursor-pointer'}`}>
+              <button type="submit" disabled={!canSubmit} className={`w-full text-white py-4 rounded-xl font-black text-lg shadow-lg transition-all ${!canSubmit ? 'bg-gray-400 cursor-not-allowed opacity-70' : 'bg-purple-600 hover:bg-purple-700 cursor-pointer hover:shadow-xl hover:-translate-y-1'}`}>
                 {checkoutData.type === 'Commission' ? "Submit Commission Request" : "Proceed to Payment"}
               </button>
             </form>
@@ -683,13 +645,16 @@
               <div className="bg-white p-8 rounded-3xl shadow-2xl border-2 border-purple-100 mb-8 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 to-indigo-500"></div>
                 <div className="bg-blue-50 text-blue-700 p-4 rounded-xl mb-4 font-black flex items-center justify-center gap-2">
-                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> Worldwide Shipping
+                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> Worldwide Shipping
                 </div>
                 <p className="font-bold text-gray-700 text-sm mb-4">For clients outside India, we process payments securely via <strong>PayPal</strong> or <strong>Bank Transfer</strong>.</p>
                 <p className="text-xs text-gray-500 font-medium">Click the button below to confirm your order. Raja Gupta will personally contact you via WhatsApp or Email with the final PayPal invoice including exact shipping costs to your country.</p>
               </div>
               
               <button onClick={finalizeOrder} className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-4 rounded-xl font-black text-lg shadow-xl hover:shadow-2xl transition-all cursor-pointer">Confirm International Order</button>
+              
+              {/* EDIT BUTTON ADDED */}
+              <button onClick={() => nav('checkout_form')} className="w-full bg-gray-100 text-gray-700 border-2 border-gray-200 py-4 rounded-xl font-black text-lg shadow-sm hover:bg-gray-200 transition-all cursor-pointer mt-4">✏️ Edit Shipping Details</button>
             </div>
           );
         }
@@ -714,16 +679,19 @@
             </div>
             
             <button onClick={finalizeOrder} className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-black text-lg shadow-xl hover:shadow-2xl transition-all cursor-pointer">I Have Successfully Paid</button>
+            
+            {/* EDIT BUTTON ADDED */}
+            <button onClick={() => nav('checkout_form')} className="w-full bg-gray-100 text-gray-700 border-2 border-gray-200 py-4 rounded-xl font-black text-lg shadow-sm hover:bg-gray-200 transition-all cursor-pointer mt-4">✏️ Edit Shipping Details</button>
           </div>
         );
       };
 
       const AdminPanel = () => {
-        // BULK DELETE ORDERS LOGIC
+        // DELETE ALL ORDERS BUTTON LOGIC ADDED
         const clearAllOrders = () => {
           if (window.confirm("WARNING: Are you sure you want to permanently delete ALL orders? This action cannot be undone.")) {
              orders.forEach(o => db.collection('orders').doc(o.id).delete());
-             alert("All orders have been successfully deleted from database.");
+             alert("All orders have been successfully deleted from the database.");
           }
         };
 
@@ -888,10 +856,14 @@
                 </div>
 
                 <div className="glass-panel p-8 rounded-3xl shadow-xl">
+                  {/* DELETE ALL ORDERS BUTTON IN ADMIN PANEL */}
                   <div className="flex justify-between items-center mb-6 border-b pb-4 border-gray-200">
                      <h3 className="text-2xl font-black text-gray-900 flex items-center gap-2">Secure Inbox: Orders</h3>
                      {orders.length > 0 && (
-                        <button onClick={clearAllOrders} className="bg-rose-100 text-rose-700 px-4 py-2 rounded-xl text-sm font-black hover:bg-rose-200 transition cursor-pointer shadow-sm">🗑️ Delete All Orders</button>
+                        <button onClick={clearAllOrders} className="bg-red-500 text-white px-4 py-2 rounded-xl text-sm font-black hover:bg-red-600 transition cursor-pointer shadow-md flex items-center gap-2">
+                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                           Delete All Orders
+                        </button>
                      )}
                   </div>
                   {orders.length === 0 ? <p className="text-gray-500 font-bold bg-white p-6 rounded-2xl text-center shadow-sm">No orders yet.</p> : (
