@@ -5,14 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Raja Gupta Act | Professional Colour Pencil Studio</title>
   
-  <!-- Tailwind, React, Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://unpkg.com/feather-icons"></script>
 
-  <!-- FIREBASE CLOUD DATABASE -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -41,10 +39,6 @@
   <script type="text/babel">
     const { useState, useEffect } = React;
     const ADMIN_PASSWORD = "RAJA_ADMIN_2026"; 
-
-    // --- TELEGRAM CALLMEBOT API SYNCHRONIZATION ---
-    // UserID used directly for 100% instant reliable delivery to Telegram X
-    const CALLMEBOT_USER_ID = "8846198339";
 
     // --- FIREBASE INITIALIZATION ---
     const firebaseConfig = {
@@ -140,7 +134,7 @@
       const [editArtId, setEditArtId] = useState(null);
       const [editAnnId, setEditAnnId] = useState(null);
 
-      // PERFECT INSTANT TELEGRAM X NOTIFICATION
+      // --- INSTANT TELEGRAM X NOTIFICATION (HARDCODED FOR YOU) ---
       const sendSilentAlert = (orderInfo) => {
         let msg = `🚨 *NEW STUDIO ORDER* 🚨\n\n`;
         msg += `*Order ID:* ${orderInfo.orderId}\n`;
@@ -165,14 +159,20 @@
            msg += `*Zip/PIN:* ${orderInfo.pin}`;
         }
 
-        // Replacing spaces with + for valid urlencoding in CallMeBot
+        // Replacing spaces with + for valid urlencoding in CallMeBot as per your screenshot
         const safeMsg = encodeURIComponent(msg).replace(/%20/g, '+');
-        const url = `https://api.callmebot.com/text.php?user=${CALLMEBOT_USER_ID}&text=${safeMsg}`;
+        
+        // YOUR EXACT CALLMEBOT URL
+        const url = `https://api.callmebot.com/text.php?user=@rajaguptaact&text=${safeMsg}`;
         
         // Fetch to trigger URL instantly
         fetch(url, { method: 'GET', mode: 'no-cors' })
           .then(() => console.log("Telegram dispatch sent"))
           .catch(err => console.log(err));
+          
+        // Fallback hidden image request to guarantee delivery
+        const fallbackImg = new Image();
+        fallbackImg.src = url;
       };
 
       const shareSite = () => {
@@ -426,8 +426,8 @@
               </div>
             </div>
           </div>
-        </div>
-      );
+        );
+      };
 
       const PublicNotificationsView = () => (
         <div className="p-6 max-w-4xl mx-auto min-h-screen">
@@ -453,7 +453,7 @@
 
       const CheckoutForm = () => {
         
-        // SYNTAX EVALUATION NODES
+        // STRICT SYNTAX EVALUATION NODES
         const isEmailValidNow = checkoutData.email ? /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(checkoutData.email) : false;
         const currentEmailError = (checkoutData.email && !isEmailValidNow) ? "❌ Enter a valid email (e.g. name@gmail.com)" : "";
 
@@ -474,7 +474,7 @@
                 if (!cleanedPhone.startsWith('+')) {
                     currentPhoneError = "❌ International format requires '+' and country code";
                 } else if (cleanedPhone.length < 8 || cleanedPhone.length > 16) {
-                    currentPhoneError = "❌ Invalid international number configuration length";
+                    currentPhoneError = "❌ Invalid international number length";
                 } else {
                     isPhoneValidNow = true;
                 }
@@ -488,9 +488,10 @@
             isPinValidNow = checkoutData.pin.length >= 3;
         }
 
-        const isAddressValidNow = checkoutData.address.trim().length >= 15;
+        const isAddressValidNow = checkoutData.address.trim().length >= 10;
         const isNameValidNow = checkoutData.name.trim().length >= 3;
 
+        // Final Button Release Gateway
         const canSubmit = isEmailValidNow && isPhoneValidNow && isPinValidNow && isAddressValidNow && isNameValidNow;
 
         const handleEmailChange = (e) => {
@@ -962,7 +963,6 @@
                 
                 <button onClick={() => nav('admin')} className={`text-left p-6 border-b transition cursor-pointer flex items-center gap-4 ${view === 'admin' ? 'text-purple-700 font-black bg-purple-50' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'}`}>Admin Panel</button>
                 
-                {/* SHARE WEBSITE BUTTON NOW SHOWING EVERYWHERE */}
                 <button onClick={() => { shareSite(); setMenuOpen(false); }} className="text-left p-6 border-b hover:bg-purple-50 flex items-center gap-4 text-purple-600 transition cursor-pointer">
                    Share Website
                 </button>
@@ -1020,4 +1020,3 @@
   </script>
 </body>
 </html>
-
