@@ -107,7 +107,8 @@
       const [orders, setOrders] = useState([]);
       const [announcements, setAnnouncements] = useState([]);
       const [cart, setCart] = useState(() => safeParse('raja_cart', []));
-      const [checkoutData, setCheckoutData] = useState({ name: '', phone: '', address: '', pin: '', type: '', itemDetails: null, amount: 0 });
+      
+      const [checkoutData, setCheckoutData] = useState({ name: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0 });
       
       const [uploadData, setUploadData] = useState({ title: '', desc: '', image: '', priceOriginal: '', priceA3: '', priceA4: '', priceA5: '' });
       const [annTitle, setAnnTitle] = useState('');
@@ -125,7 +126,8 @@
         msg += `*Order ID:* ${orderInfo.orderId}\n`;
         msg += `*Date:* ${orderInfo.date} | *Time:* ${orderInfo.time}\n`;
         msg += `*Name:* ${orderInfo.name}\n`;
-        msg += `*Type:* ${orderInfo.type}\n`;
+        msg += `*Country:* ${orderInfo.country}\n`;
+        msg += `*Type:* ${orderInfo.type}\n\n`;
         
         if (orderInfo.itemDetails && orderInfo.itemDetails.length > 0) {
            msg += `*Items:*\n`;
@@ -134,9 +136,15 @@
            });
         }
 
-        msg += `*Amount:* Rs.${orderInfo.amount}\n`;
+        msg += `\n*Amount Paid/Budget:* Rs.${orderInfo.amount}\n`;
         msg += `*Contact:* ${orderInfo.phone}\n`;
-        msg += `*Address:* ${orderInfo.address}, PIN: ${orderInfo.pin}\n\n`;
+        msg += `*Address:* ${orderInfo.address}\n`;
+        if (orderInfo.city) {
+           msg += `*Location:* ${orderInfo.city}, ${orderInfo.state} - ${orderInfo.pin}\n\n`;
+        } else {
+           msg += `*Zip/PIN:* ${orderInfo.pin}\n\n`;
+        }
+        
         msg += `_Check Admin Panel for full details._`;
 
         const safeMsg = encodeURIComponent(msg);
@@ -327,7 +335,7 @@
                   </div>
                   <div>
                     <label className="font-black text-sm text-gray-800 uppercase tracking-wide">Estimated Budget (₹)</label>
-                    <input required name="budget" type="number" min="500" placeholder="Enter amount..." className="w-full border-2 border-gray-200 p-4 rounded-xl bg-white focus:border-purple-500 outline-none transition font-medium mt-2" />
+                    <input required name="budget" type="number" min="1500" placeholder="Starting at ₹1500..." className="w-full border-2 border-gray-200 p-4 rounded-xl bg-white focus:border-purple-500 outline-none transition font-medium mt-2" />
                   </div>
                   <button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-black text-lg shadow-lg hover:shadow-xl transition-all mt-4 cursor-pointer">Proceed to Details</button>
                 </form>
@@ -357,16 +365,24 @@
                 </h3>
                 <div className="space-y-5">
                     <div>
-                        <p className="font-black text-gray-900">Q. Kitna time lagta hai banne mein?</p>
-                        <p className="text-sm text-gray-600 mt-1 font-medium bg-white p-3 rounded-xl border border-gray-100">A. Detail aur size ke hisaab se lagbhag 7 se 15 din ka waqt lagta hai.</p>
+                        <p className="font-black text-gray-900">Q. How long does it take to complete a commissioned artwork?</p>
+                        <p className="text-sm text-gray-600 mt-1 font-medium bg-white p-3 rounded-xl border border-gray-100">A. Depending on the level of detail and the size of the portrait, it usually takes about 7 to 15 days to complete.</p>
                     </div>
                     <div>
-                        <p className="font-black text-gray-900">Q. Artwork kaise deliver hoga?</p>
-                        <p className="text-sm text-gray-600 mt-1 font-medium bg-white p-3 rounded-xl border border-gray-100">A. Artwork ko bahut safely hard-packaging mein courier ke through aapke address par bheja jayega.</p>
+                        <p className="font-black text-gray-900">Q. How will the artwork be delivered safely?</p>
+                        <p className="text-sm text-gray-600 mt-1 font-medium bg-white p-3 rounded-xl border border-gray-100">A. The artwork is carefully secured in hard, damage-proof packaging and shipped directly to your address via a trusted courier service.</p>
                     </div>
                     <div>
-                        <p className="font-black text-gray-900">Q. Kya artwork frame ke sath milega?</p>
-                        <p className="text-sm text-gray-600 mt-1 font-medium bg-white p-3 rounded-xl border border-gray-100">A. Damage se bachane ke liye usually artwork bina frame ke safely pack karke bheja jata hai. Framing aap local shop se apni pasand ka karwa sakte hain.</p>
+                        <p className="font-black text-gray-900">Q. Does the artwork come with a frame?</p>
+                        <p className="text-sm text-gray-600 mt-1 font-medium bg-white p-3 rounded-xl border border-gray-100">A. To ensure maximum safety during transit, artworks are shipped securely without a frame. You can easily get it framed locally according to your preference.</p>
+                    </div>
+                    <div>
+                        <p className="font-black text-gray-900">Q. Do you ship outside India (International Orders)?</p>
+                        <p className="text-sm text-gray-600 mt-1 font-medium bg-white p-3 rounded-xl border border-gray-100">A. Yes, we ship worldwide! International clients can place an order, and we will securely process the payment via PayPal or Bank Transfer.</p>
+                    </div>
+                    <div>
+                        <p className="font-black text-gray-900">Q. Have more questions or a different doubt?</p>
+                        <p className="text-sm text-gray-600 mt-1 font-medium bg-white p-3 rounded-xl border border-gray-100">A. Feel free to reach out directly! You can drop a message on WhatsApp or DM me on Instagram for any other queries or custom requests.</p>
                     </div>
                 </div>
               </div>
@@ -398,19 +414,64 @@
       );
 
       const CheckoutForm = () => {
+        const [pinError, setPinError] = useState('');
+        const [isValidating, setIsValidating] = useState(false);
+
+        const handlePinChange = async (e) => {
+          const val = e.target.value.replace(/[^0-9A-Za-z\s-]/g, '');
+          setCheckoutData(prev => ({...prev, pin: val, city: '', state: ''}));
+          setPinError('');
+
+          if (checkoutData.country === 'India') {
+            if (val.length === 6 && /^\d+$/.test(val)) {
+              setIsValidating(true);
+              try {
+                const res = await fetch(`https://api.postalpincode.in/pincode/${val}`);
+                const data = await res.json();
+                if (data[0].Status === "Success") {
+                  const details = data[0].PostOffice[0];
+                  setCheckoutData(prev => ({...prev, pin: val, city: details.District, state: details.State}));
+                } else {
+                  setPinError("❌ Invalid Indian PIN Code. Please check again.");
+                }
+              } catch (err) {
+                setPinError("⚠️ Network error while verifying PIN.");
+              }
+              setIsValidating(false);
+            } else if (val.length > 6) {
+               setPinError("❌ Indian PIN must be exactly 6 digits.");
+            }
+          }
+        };
+
+        const shippingFee = checkoutData.country === 'International' ? 100 : 0;
+        const finalAmount = checkoutData.amount + shippingFee;
+
         const handleShippingSubmit = (e) => {
           e.preventDefault();
+          
+          if(checkoutData.address.length < 15) {
+             alert("Address is too short. Please enter your complete delivery address (House No, Street, Landmark).");
+             return;
+          }
+
+          if (checkoutData.country === 'India' && !checkoutData.city) {
+             alert("Please enter a valid 6-digit Indian PIN Code before proceeding.");
+             return;
+          }
+
           if (checkoutData.type === 'Commission') {
              const finalPayload = {
                  orderId: 'ORD-' + Math.floor(Math.random()*10000), 
                  date: new Date().toLocaleDateString('en-IN'), 
                  time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
                  createdAt: Date.now(),
-                 ...checkoutData 
+                 ...checkoutData,
+                 amount: finalAmount
              };
              db.collection('orders').add(finalPayload);
              sendSilentAlert(finalPayload); 
-             setCheckoutData({ name: '', phone: '', address: '', pin: '', type: '', itemDetails: null, amount: 0 });
+             setCheckoutData({ name: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0 });
              alert("Commission Request Sent Successfully! I will contact you via WhatsApp.");
              nav('gallery');
           } else {
@@ -423,12 +484,50 @@
             <h2 className="text-3xl font-black mb-6 text-purple-800 text-center">Shipping & Contact Details</h2>
             <form className="glass-panel p-8 rounded-3xl shadow-xl space-y-5" onSubmit={handleShippingSubmit}>
               <input required value={checkoutData.name} placeholder="Full Name" className="w-full border-2 border-gray-200 p-4 rounded-xl font-medium focus:border-purple-500 outline-none" onChange={e => setCheckoutData({...checkoutData, name: e.target.value})} />
-              <input required value={checkoutData.phone} type="tel" placeholder="WhatsApp Number" className="w-full border-2 border-gray-200 p-4 rounded-xl font-medium focus:border-purple-500 outline-none" onChange={e => setCheckoutData({...checkoutData, phone: e.target.value})} />
-              <textarea required value={checkoutData.address} placeholder="Full Delivery Address" className="w-full border-2 border-gray-200 p-4 rounded-xl font-medium focus:border-purple-500 outline-none" rows="3" onChange={e => setCheckoutData({...checkoutData, address: e.target.value})}></textarea>
-              <input required value={checkoutData.pin} placeholder="PIN Code" className="w-full border-2 border-gray-200 p-4 rounded-xl font-medium focus:border-purple-500 outline-none" onChange={e => setCheckoutData({...checkoutData, pin: e.target.value})} />
               
-              <button type="submit" className="w-full bg-gray-900 text-white py-4 rounded-xl font-black text-lg shadow-lg hover:bg-gray-800 transition-colors cursor-pointer">
-                {checkoutData.type === 'Commission' ? "Submit Commission Request" : "Proceed to Secure Payment"}
+              <input required value={checkoutData.phone} type="tel" placeholder="WhatsApp Number (with Country Code)" className="w-full border-2 border-gray-200 p-4 rounded-xl font-medium focus:border-purple-500 outline-none" onChange={e => setCheckoutData({...checkoutData, phone: e.target.value})} />
+              
+              <div className="grid grid-cols-1 gap-2">
+                 <select required value={checkoutData.country} onChange={e => { setCheckoutData({...checkoutData, country: e.target.value, city: '', state: '', pin: ''}); setPinError(''); }} className="w-full border-2 border-gray-200 p-4 rounded-xl bg-white focus:border-purple-500 outline-none font-black text-gray-800">
+                    <option value="India">🇮🇳 India (₹)</option>
+                    <option value="International">🌍 International ($)</option>
+                 </select>
+              </div>
+
+              <div>
+                 <input required value={checkoutData.pin} placeholder={checkoutData.country === "India" ? "6-Digit Indian PIN Code" : "Zip Code / Postal Code"} className={`w-full border-2 p-4 rounded-xl font-medium outline-none ${pinError ? 'border-red-400 focus:border-red-500 bg-red-50' : 'border-gray-200 focus:border-purple-500 bg-white'}`} onChange={handlePinChange} />
+                 {isValidating && <p className="text-xs text-blue-500 font-bold mt-2 ml-2">⏳ Verifying Postal Code...</p>}
+                 {pinError && <p className="text-xs text-red-500 font-bold mt-2 ml-2">{pinError}</p>}
+              </div>
+
+              {checkoutData.country === 'India' && checkoutData.city && (
+                <div className="grid grid-cols-2 gap-4 text-sm font-black text-emerald-800 bg-emerald-50 p-4 rounded-xl border border-emerald-200 shadow-inner">
+                   <p className="truncate">City: {checkoutData.city}</p>
+                   <p className="truncate">State: {checkoutData.state}</p>
+                </div>
+              )}
+              
+              <textarea required value={checkoutData.address} placeholder="Complete Delivery Address (House No, Street Area, Landmark)" className="w-full border-2 border-gray-200 p-4 rounded-xl font-medium focus:border-purple-500 outline-none" rows="3" onChange={e => setCheckoutData({...checkoutData, address: e.target.value})}></textarea>
+              
+              <div className="bg-purple-50 p-5 rounded-xl border border-purple-100 shadow-inner">
+                 <div className="flex justify-between text-sm font-bold text-gray-600 mb-1">
+                   <span>Artwork Total:</span>
+                   <span>₹{checkoutData.amount}</span>
+                 </div>
+                 <div className="flex justify-between text-sm font-bold text-gray-600 mb-3 border-b border-purple-200 pb-3">
+                   <span>Shipping Charge:</span>
+                   <span className={checkoutData.country === 'India' ? "text-green-600" : "text-rose-600"}>
+                     {checkoutData.country === 'India' ? "Free (₹0)" : `₹${shippingFee}`}
+                   </span>
+                 </div>
+                 <div className="flex justify-between text-lg font-black text-purple-900">
+                   <span>Final Payable:</span>
+                   <span>₹{finalAmount}</span>
+                 </div>
+              </div>
+
+              <button type="submit" disabled={isValidating || !!pinError || (checkoutData.country === 'India' && !checkoutData.city)} className={`w-full text-white py-4 rounded-xl font-black text-lg shadow-lg transition-colors ${isValidating || !!pinError || (checkoutData.country === 'India' && !checkoutData.city) ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-900 hover:bg-gray-800 cursor-pointer'}`}>
+                {checkoutData.type === 'Commission' ? "Submit Commission Request" : "Proceed to Payment"}
               </button>
             </form>
           </div>
@@ -436,9 +535,8 @@
       };
 
       const PaymentView = () => {
-        const upiID = "7281074416@ybl";
-        const upiLink = `upi://pay?pa=${upiID}&pn=Raja%20Gupta&am=${checkoutData.amount}&cu=INR`;
-        const qrURL = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiLink)}&color=000000&bgcolor=ffffff`;
+        const shippingFee = checkoutData.country === 'International' ? 100 : 0;
+        const finalAmount = checkoutData.amount + shippingFee;
 
         const finalizeOrder = () => {
           const finalPayload = {
@@ -446,20 +544,46 @@
               date: new Date().toLocaleDateString('en-IN'),
               time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }), 
               createdAt: Date.now(),
-              ...checkoutData 
+              ...checkoutData,
+              amount: finalAmount
           };
           db.collection('orders').add(finalPayload);
           sendSilentAlert(finalPayload); 
           setCart([]); 
-          setCheckoutData({ name: '', phone: '', address: '', pin: '', type: '', itemDetails: null, amount: 0 });
-          alert("Payment Confirmed! Your order has been securely sent to my Admin Notifications.");
+          setCheckoutData({ name: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0 });
+          alert("Order Sent! Your request has been securely forwarded to Raja Gupta.");
           nav('gallery');
         };
+
+        if (checkoutData.country === 'International') {
+          const approxUSD = (finalAmount / 83.5).toFixed(2);
+          return (
+            <div className="p-6 max-w-md mx-auto text-center min-h-screen">
+              <h2 className="text-3xl font-black mb-2 text-purple-800">International Order</h2>
+              <p className="text-gray-600 mb-6 font-bold text-lg">Approx Total: <span className="text-pink-600 font-black text-2xl ml-2">${approxUSD} USD</span></p>
+              
+              <div className="bg-white p-8 rounded-3xl shadow-2xl border-2 border-purple-100 mb-8 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 to-indigo-500"></div>
+                <div className="bg-blue-50 text-blue-700 p-4 rounded-xl mb-4 font-black flex items-center justify-center gap-2">
+                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> Worldwide Shipping
+                </div>
+                <p className="font-bold text-gray-700 text-sm mb-4">For clients outside India, we process payments securely via <strong>PayPal</strong> or <strong>Bank Transfer</strong>.</p>
+                <p className="text-xs text-gray-500 font-medium">Click the button below to confirm your order. Raja Gupta will personally contact you via WhatsApp or Email with the final PayPal invoice including exact shipping costs to your country.</p>
+              </div>
+              
+              <button onClick={finalizeOrder} className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-4 rounded-xl font-black text-lg shadow-xl hover:shadow-2xl transition-all cursor-pointer">Confirm International Order</button>
+            </div>
+          );
+        }
+
+        const upiID = "7281074416@ybl";
+        const upiLink = `upi://pay?pa=${upiID}&pn=Raja%20Gupta&am=${finalAmount}&cu=INR`;
+        const qrURL = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiLink)}&color=000000&bgcolor=ffffff`;
 
         return (
           <div className="p-6 max-w-md mx-auto text-center min-h-screen">
             <h2 className="text-3xl font-black mb-2 text-purple-800">Scan & Pay</h2>
-            <p className="text-gray-600 mb-8 font-bold text-lg">Total Payable: <span className="text-pink-600 font-black text-2xl ml-2">₹{checkoutData.amount}</span></p>
+            <p className="text-gray-600 mb-8 font-bold text-lg">Total Payable: <span className="text-pink-600 font-black text-2xl ml-2">₹{finalAmount}</span></p>
             
             <div className="bg-white p-8 rounded-3xl shadow-2xl border-2 border-purple-100 mb-8 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 to-pink-500"></div>
@@ -568,10 +692,10 @@
                     {uploadData.image ? <img src={uploadData.image} className="mt-4 h-40 mx-auto rounded-lg shadow-md object-contain border-2 border-white pointer-events-none" /> : null}
 
                     <div className="grid grid-cols-2 gap-4 mt-6">
-                      <div><label className="text-xs font-black text-gray-500 uppercase">Original A4 Price</label><input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceOriginal} onChange={e => setUploadData({...uploadData, priceOriginal: e.target.value})} /></div>
-                      <div><label className="text-xs font-black text-gray-500 uppercase">Print A3 Price</label><input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceA3} onChange={e => setUploadData({...uploadData, priceA3: e.target.value})} /></div>
-                      <div><label className="text-xs font-black text-gray-500 uppercase">Print A4 Price</label><input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceA4} onChange={e => setUploadData({...uploadData, priceA4: e.target.value})} /></div>
-                      <div><label className="text-xs font-black text-gray-500 uppercase">Print A5 Price</label><input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceA5} onChange={e => setUploadData({...uploadData, priceA5: e.target.value})} /></div>
+                      <div><label className="text-xs font-black text-gray-500 uppercase">Original A4 Price (₹)</label><input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceOriginal} onChange={e => setUploadData({...uploadData, priceOriginal: e.target.value})} /></div>
+                      <div><label className="text-xs font-black text-gray-500 uppercase">Print A3 Price (₹)</label><input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceA3} onChange={e => setUploadData({...uploadData, priceA3: e.target.value})} /></div>
+                      <div><label className="text-xs font-black text-gray-500 uppercase">Print A4 Price (₹)</label><input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceA4} onChange={e => setUploadData({...uploadData, priceA4: e.target.value})} /></div>
+                      <div><label className="text-xs font-black text-gray-500 uppercase">Print A5 Price (₹)</label><input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceA5} onChange={e => setUploadData({...uploadData, priceA5: e.target.value})} /></div>
                     </div>
                     <button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white py-4 rounded-xl font-black text-lg mt-6 shadow-lg cursor-pointer">
                       {editArtId ? "Update Artwork" : "Publish to Live Gallery"}
@@ -651,8 +775,10 @@
                             <span className="bg-pink-100 text-pink-800 text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-wider">{o.type}</span>
                           </div>
                           <div className="mb-4">
-                            <p className="font-black text-lg text-gray-800">{o.name} <span className="text-green-500 mx-2">|</span> WA: {o.phone}</p>
-                            <p className="text-sm font-bold text-gray-600 mt-1">{o.address}, PIN: {o.pin}</p>
+                            <p className="font-black text-lg text-gray-800">{o.name} <span className="text-green-500 mx-2">|</span> {o.country}</p>
+                            <p className="text-sm font-bold text-gray-600 mt-1">WA: {o.phone}</p>
+                            <p className="text-sm font-bold text-gray-600 mt-1">{o.address}</p>
+                            {o.city ? <p className="text-sm font-bold text-emerald-600 mt-1">✓ Verified Location: {o.city}, {o.state} - {o.pin}</p> : <p className="text-sm font-bold text-gray-600 mt-1">PIN/ZIP: {o.pin}</p>}
                           </div>
                           <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
                             {o.itemDetails ? o.itemDetails.map((item, i) => (
@@ -683,7 +809,6 @@
           <header className="glass-panel sticky top-0 z-40 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 md:px-8 h-20 flex items-center justify-between">
               
-              {/* NEW PREMIUM LOGO */}
               <div className="text-2xl md:text-3xl cursor-pointer flex items-center gap-1.5" onClick={() => nav('gallery')}>
                 <span className="font-black text-gray-900 tracking-tighter">RAJA</span>
                 <span className="font-light text-gray-900 tracking-widest">GUPTA</span>
@@ -710,7 +835,6 @@
               <div className="bg-white w-full md:w-96 absolute right-0 shadow-2xl flex flex-col font-black text-lg border-l border-gray-100 h-full transform transition-transform" onClick={e => e.stopPropagation()}>
                 <div className="p-4 bg-gray-50 border-b text-xs text-gray-500 uppercase tracking-widest text-center">Navigation Menu</div>
                 
-                {/* ACTIVE MENU HIGHLIGHT LOGIC */}
                 <button onClick={() => nav('gallery')} className={`text-left p-6 border-b transition cursor-pointer flex items-center gap-4 ${view === 'gallery' ? 'text-purple-700 font-black bg-purple-50' : 'text-gray-800 hover:text-purple-700 hover:bg-purple-50'}`}>Gallery</button>
                 
                 <button onClick={() => nav('cart')} className={`text-left p-6 border-b transition cursor-pointer flex items-center justify-between ${view === 'cart' ? 'text-purple-700 font-black bg-purple-50' : 'text-gray-800 hover:text-purple-700 hover:bg-purple-50'}`}>
@@ -761,7 +885,7 @@
                 <a href="https://wa.me/917281074416" target="_blank" rel="noopener noreferrer" className="p-4 bg-white text-green-500 rounded-full hover:bg-green-500 hover:text-white transition-all shadow-md hover:shadow-xl transform hover:-translate-y-1 block cursor-pointer">
                   <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
                 </a>
-                <a href="https://www.instagram.com/rajaguptaact?igsh=NGg5bmJuczJlNnM1" target="_blank" rel="noopener noreferrer" className="p-4 bg-white text-pink-600 rounded-full shadow-md block cursor-pointer hover:bg-gradient-to-tr hover:from-yellow-400 hover:via-pink-500 hover:to-purple-600 hover:text-white transition-all transform hover:-translate-y-1">
+                <a href="https://www.instagram.com/Itzz_rx" target="_blank" rel="noopener noreferrer" className="p-4 bg-white text-pink-600 rounded-full shadow-md block cursor-pointer hover:bg-gradient-to-tr hover:from-yellow-400 hover:via-pink-500 hover:to-purple-600 hover:text-white transition-all transform hover:-translate-y-1">
                    <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 1 0 0-2.881z"/></svg>
                 </a>
               </div>
@@ -780,3 +904,4 @@
   </script>
 </body>
 </html>
+
