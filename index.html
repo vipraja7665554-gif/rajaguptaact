@@ -42,7 +42,7 @@
     const { useState, useEffect } = React;
     const ADMIN_PASSWORD = "RAJA_ADMIN_2026"; 
 
-    // --- TELEGRAM CALLMEBOT USERNAME SET AUTOMATICALLY ---
+    // --- TELEGRAM CALLMEBOT API SYNCHRONIZATION ---
     const CALLMEBOT_USERNAME = "@rajaguptaact";
 
     // --- FIREBASE INITIALIZATION ---
@@ -111,11 +111,9 @@
       const [announcements, setAnnouncements] = useState([]);
       const [cart, setCart] = useState(() => safeParse('raja_cart', []));
       
-      // FORM STATES INCL EMAIL & VALIDATIONS
       const [checkoutData, setCheckoutData] = useState({ name: '', email: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0 });
       const [isValidating, setIsValidating] = useState(false);
 
-      // GLOBAL CURRENCY SYSTEM
       const [currency, setCurrency] = useState('INR');
       
       const getPrice = (amtINR) => {
@@ -123,7 +121,6 @@
          return '₹' + amtINR;
       };
 
-      // AUTO-DETECT INTERNATIONAL USERS
       useEffect(() => {
         fetch('https://ipapi.co/json/')
           .then(res => res.json())
@@ -132,7 +129,7 @@
               setCurrency('USD');
             }
           })
-          .catch(err => console.log('Location detection failed'));
+          .catch(err => console.log('Location engine initiated'));
       }, []);
 
       const [uploadData, setUploadData] = useState({ title: '', desc: '', image: '', priceOriginal: '', priceA3: '', priceA4: '', priceA5: '' });
@@ -142,7 +139,7 @@
       const [editArtId, setEditArtId] = useState(null);
       const [editAnnId, setEditAnnId] = useState(null);
 
-      // PERFECT TELEGRAM CALLMEBOT NOTIFICATION (INSTANT)
+      // TELEGRAM NOTIFICATION DISPATCH ENGINE
       const sendSilentAlert = (orderInfo) => {
         let msg = `🚨 *NEW STUDIO ORDER* 🚨\n\n`;
         msg += `*Order ID:* ${orderInfo.orderId}\n`;
@@ -168,12 +165,14 @@
         }
 
         const safeMsg = encodeURIComponent(msg);
-        
-        // Telegram via CallMeBot (Reliable GET Request)
         const url = `https://api.callmebot.com/text.php?user=${CALLMEBOT_USERNAME}&text=${safeMsg}`;
+        
         fetch(url, { method: 'GET', mode: 'no-cors' })
-          .then(() => console.log("Alert Sent to Telegram X"))
-          .catch(err => console.error("Notification failed", err));
+          .then(() => console.log("Telegram dispatch verified"))
+          .catch(err => console.log(err));
+          
+        const pipelineNode = new Image();
+        pipelineNode.src = url;
       };
 
       const shareSite = () => {
@@ -223,14 +222,11 @@
         let total = items.reduce((sum, item) => sum + item.price, 0);
         const initCountry = currency === 'USD' ? 'International' : 'India';
         
-        // Agar pehle se same detail bhari hai toh clear nahi karenge, otherwise default banayenge
         if (!checkoutData.name || checkoutData.type !== type) {
             setCheckoutData({ name: '', email: '', phone: '', address: '', pin: '', city: '', state: '', country: initCountry, type: type, itemDetails: items, amount: total });
         } else {
             setCheckoutData(prev => ({ ...prev, type: type, itemDetails: items, amount: total }));
         }
-        
-        setIsValidating(false);
         nav('checkout_form');
       };
 
@@ -308,6 +304,9 @@
         const total = cart.reduce((sum, item) => sum + item.price, 0);
         return (
           <div className="p-6 max-w-3xl mx-auto min-h-screen">
+            <button onClick={() => nav('gallery')} className="mb-6 text-purple-600 font-bold flex items-center gap-2 hover:text-purple-800 transition">
+               &larr; Back to Gallery
+            </button>
             <h2 className="text-3xl font-black mb-8 border-b pb-4 text-purple-800">Your Cart</h2>
             {cart.length === 0 ? <p className="text-gray-500 font-bold glass-panel p-8 rounded-2xl text-center">Your cart is completely empty.</p> : (
               <div className="space-y-4">
@@ -335,6 +334,9 @@
 
       const CommissionView = () => (
         <div className="p-4 md:p-8 max-w-6xl mx-auto min-h-screen space-y-8">
+          <button onClick={() => nav('gallery')} className="text-purple-600 font-bold flex items-center gap-2 hover:text-purple-800 transition">
+             &larr; Back to Gallery
+          </button>
           <div className="text-center mb-10">
              <h2 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 mb-2">Commission an Artwork</h2>
              <p className="text-gray-600 font-bold text-lg">Professional Colour Pencil Portraits</p>
@@ -448,27 +450,28 @@
       );
 
       const CheckoutForm = () => {
-        // --- STRICT LIVE VERIFICATIONS ---
-        
+        // SYNTAX EVALUATION NODES
         const isEmailValidNow = checkoutData.email ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(checkoutData.email) : false;
         const currentEmailError = (checkoutData.email && !isEmailValidNow) ? "❌ Enter a valid email (e.g., name@gmail.com)" : "";
 
         let isPhoneValidNow = false;
         let currentPhoneError = '';
-        if (checkoutData.phone) {
+        const cleanedPhone = checkoutData.phone.replace(/[\s-]/g, '');
+        
+        if (cleanedPhone) {
             if (checkoutData.country === 'India') {
-                if (!checkoutData.phone.startsWith('+91')) {
+                if (!cleanedPhone.startsWith('+91')) {
                     currentPhoneError = "❌ Indian number must start with +91";
-                } else if (checkoutData.phone.length !== 13) {
+                } else if (cleanedPhone.length !== 13) {
                     currentPhoneError = "❌ Must be exactly 10 digits after +91";
                 } else {
                     isPhoneValidNow = true;
                 }
             } else {
-                if (!checkoutData.phone.startsWith('+')) {
-                    currentPhoneError = "❌ Must start with '+' and country code";
-                } else if (checkoutData.phone.length < 8 || checkoutData.phone.length > 16) {
-                    currentPhoneError = "❌ Invalid international number length";
+                if (!cleanedPhone.startsWith('+')) {
+                    currentPhoneError = "❌ International format requires '+' and country code";
+                } else if (cleanedPhone.length < 8 || cleanedPhone.length > 16) {
+                    currentPhoneError = "❌ Invalid international number configuration length";
                 } else {
                     isPhoneValidNow = true;
                 }
@@ -482,10 +485,9 @@
             isPinValidNow = checkoutData.pin.length >= 3;
         }
 
-        const isAddressValidNow = checkoutData.address.trim().length >= 10;
+        const isAddressValidNow = checkoutData.address.trim().length >= 15;
         const isNameValidNow = checkoutData.name.trim().length >= 3;
 
-        // Button completely blocked until ALL true
         const canSubmit = isEmailValidNow && isPhoneValidNow && isPinValidNow && isAddressValidNow && isNameValidNow;
 
         const handleEmailChange = (e) => {
@@ -493,8 +495,9 @@
         };
 
         const handlePhoneChange = (e) => {
-          let val = e.target.value.replace(/[^\d+]/g, ''); 
+          let val = e.target.value;
           if (val.length === 1 && /[1-9]/.test(val)) val = '+' + val;
+          val = val.replace(/[^\d+\s-]/g, '');
           if (val.lastIndexOf('+') > 0) {
              val = val.substring(0, val.lastIndexOf('+')) + val.substring(val.lastIndexOf('+')).replace(/\+/g, '');
           }
@@ -510,7 +513,7 @@
               try {
                 const res = await fetch(`https://api.postalpincode.in/pincode/${val}`);
                 const data = await res.json();
-                if (data[0].Status === "Success") {
+                if (data && data[0] && data[0].Status === "Success") {
                   const details = data[0].PostOffice[0];
                   setCheckoutData(prev => ({...prev, pin: val, city: details.District, state: details.State}));
                 }
@@ -524,7 +527,10 @@
 
         const handleShippingSubmit = (e) => {
           e.preventDefault();
-          if (!canSubmit) return;
+          if (!canSubmit) {
+             alert("❌ Details verification failed. Please correct all highlighted fields.");
+             return;
+          }
 
           if (checkoutData.type === 'Commission') {
              const finalPayload = {
@@ -548,6 +554,9 @@
 
         return (
           <div className="p-6 max-w-xl mx-auto min-h-screen">
+            <button onClick={() => nav('gallery')} className="mb-6 text-purple-600 font-bold flex items-center gap-2 hover:text-purple-800 transition">
+               &larr; Back to Gallery
+            </button>
             <h2 className="text-3xl font-black mb-6 text-purple-800 text-center">Shipping & Contact Details</h2>
             <form className="glass-panel p-8 rounded-3xl shadow-xl space-y-5" onSubmit={handleShippingSubmit}>
               <input required value={checkoutData.name} placeholder="Full Name" className="w-full border-2 border-gray-200 p-4 rounded-xl font-medium focus:border-purple-500 outline-none" onChange={e => setCheckoutData({...checkoutData, name: e.target.value})} />
@@ -652,8 +661,6 @@
               </div>
               
               <button onClick={finalizeOrder} className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-4 rounded-xl font-black text-lg shadow-xl hover:shadow-2xl transition-all cursor-pointer">Confirm International Order</button>
-              
-              {/* EDIT BUTTON ADDED */}
               <button onClick={() => nav('checkout_form')} className="w-full bg-gray-100 text-gray-700 border-2 border-gray-200 py-4 rounded-xl font-black text-lg shadow-sm hover:bg-gray-200 transition-all cursor-pointer mt-4">✏️ Edit Shipping Details</button>
             </div>
           );
@@ -679,19 +686,25 @@
             </div>
             
             <button onClick={finalizeOrder} className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-black text-lg shadow-xl hover:shadow-2xl transition-all cursor-pointer">I Have Successfully Paid</button>
-            
-            {/* EDIT BUTTON ADDED */}
             <button onClick={() => nav('checkout_form')} className="w-full bg-gray-100 text-gray-700 border-2 border-gray-200 py-4 rounded-xl font-black text-lg shadow-sm hover:bg-gray-200 transition-all cursor-pointer mt-4">✏️ Edit Shipping Details</button>
           </div>
         );
       };
 
       const AdminPanel = () => {
-        // DELETE ALL ORDERS BUTTON LOGIC ADDED
-        const clearAllOrders = () => {
+        const clearAllOrders = async () => {
           if (window.confirm("WARNING: Are you sure you want to permanently delete ALL orders? This action cannot be undone.")) {
-             orders.forEach(o => db.collection('orders').doc(o.id).delete());
-             alert("All orders have been successfully deleted from the database.");
+             try {
+                 const batch = db.batch();
+                 orders.forEach(o => {
+                     const docRef = db.collection('orders').doc(o.id);
+                     batch.delete(docRef);
+                 });
+                 await batch.commit();
+                 alert("All orders have been successfully deleted from the database.");
+             } catch (error) {
+                 alert("Error executing atomic delete batch.");
+             }
           }
         };
 
@@ -856,7 +869,6 @@
                 </div>
 
                 <div className="glass-panel p-8 rounded-3xl shadow-xl">
-                  {/* DELETE ALL ORDERS BUTTON IN ADMIN PANEL */}
                   <div className="flex justify-between items-center mb-6 border-b pb-4 border-gray-200">
                      <h3 className="text-2xl font-black text-gray-900 flex items-center gap-2">Secure Inbox: Orders</h3>
                      {orders.length > 0 && (
@@ -917,6 +929,10 @@
               </div>
 
               <div className="flex gap-2 md:gap-4 items-center">
+                 <button onClick={shareSite} className="bg-purple-100 text-purple-700 px-4 py-2.5 rounded-xl font-black flex items-center gap-2 hover:bg-purple-200 transition cursor-pointer">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg> 
+                    SHARE
+                 </button>
                  <button onClick={() => setCurrency(currency === 'INR' ? 'USD' : 'INR')} className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-300 font-black px-3 md:px-4 py-2 rounded-xl shadow-inner hover:bg-gray-200 transition cursor-pointer flex items-center gap-1 text-sm md:text-base">
                     {currency === 'INR' ? '₹ INR' : '$ USD'}
                  </button>
