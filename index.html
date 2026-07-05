@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Raja Gupta Act | Professional Colour Pencil Studio</title>
   
+  <!-- Tailwind, React, Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://unpkg.com/feather-icons"></script>
 
+  <!-- FIREBASE CLOUD DATABASE -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -39,6 +41,9 @@
   <script type="text/babel">
     const { useState, useEffect } = React;
     const ADMIN_PASSWORD = "RAJA_ADMIN_2026"; 
+
+    // --- TELEGRAM CALLMEBOT API SYNCHRONIZATION ---
+    const CALLMEBOT_USER = "@rajaguptaact";
 
     // --- FIREBASE INITIALIZATION ---
     const firebaseConfig = {
@@ -95,6 +100,43 @@
       </div>
     );
 
+    const FAQItem = ({ question, answer }) => {
+      const [isOpen, setIsOpen] = useState(false);
+      return (
+        <div className="border border-gray-200 rounded-2xl overflow-hidden mb-4 bg-white shadow-sm hover:border-pink-300 transition-colors">
+          <button type="button" onClick={() => setIsOpen(!isOpen)} className="w-full text-left p-5 font-black text-gray-900 flex justify-between items-center hover:bg-pink-50 focus:outline-none cursor-pointer">
+            <span className="pr-4">{question}</span>
+            <svg className={`w-5 h-5 text-pink-500 transform transition-transform duration-300 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+          <div className={`px-5 pb-5 text-sm font-medium text-gray-600 bg-white ${isOpen ? 'block' : 'hidden'}`}>
+            <div className="pt-2 border-t border-gray-100 mt-2">{answer}</div>
+          </div>
+        </div>
+      );
+    };
+
+    const ExpandablePolicy = () => {
+      const [isOpen, setIsOpen] = useState(false);
+      return (
+        <div className="glass-panel rounded-3xl shadow-lg border-t-4 border-t-purple-500 relative overflow-hidden mb-6">
+          <button type="button" onClick={() => setIsOpen(!isOpen)} className="w-full text-left p-6 md:p-8 focus:outline-none flex justify-between items-center cursor-pointer hover:bg-purple-50/50 transition">
+            <h3 className="text-xl md:text-2xl font-black text-gray-900 flex items-center gap-3 relative z-10">
+               <svg className="w-6 h-6 text-purple-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+               Payment & Refund Policy
+            </h3>
+            <svg className={`w-6 h-6 text-purple-600 transform transition-transform duration-300 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+          <div className={`px-6 md:px-8 pb-8 pt-2 ${isOpen ? 'block' : 'hidden'}`}>
+            <ul className="text-gray-700 space-y-4 font-medium relative z-10">
+                <li className="flex gap-3"><span className="text-pink-500 font-black text-lg">1.</span> <span><strong>50% Advance Payment:</strong> Half payment is strictly required to confirm your booking and begin the drawing process.</span></li>
+                <li className="flex gap-3"><span className="text-pink-500 font-black text-lg">2.</span> <span><strong>50% On Completion:</strong> The remaining half balance must be cleared once you approve the final completed artwork, right before shipping.</span></li>
+                <li className="flex gap-3"><span className="text-pink-500 font-black text-lg">3.</span> <span><strong>No Refunds:</strong> Due to the highly customized nature of these artworks and the time invested, advance payments are non-refundable once the drawing begins.</span></li>
+            </ul>
+          </div>
+        </div>
+      );
+    };
+
     function App() {
       const [view, setView] = useState('gallery');
       const [menuOpen, setMenuOpen] = useState(false);
@@ -134,7 +176,7 @@
       const [editArtId, setEditArtId] = useState(null);
       const [editAnnId, setEditAnnId] = useState(null);
 
-      // --- PERFECT INSTANT TELEGRAM X NOTIFICATION ---
+      // --- INSTANT TELEGRAM X NOTIFICATION ---
       const sendSilentAlert = (orderInfo) => {
         let msg = `🚨 *NEW STUDIO ORDER* 🚨\n\n`;
         msg += `*Order ID:* ${orderInfo.orderId}\n`;
@@ -159,11 +201,15 @@
            msg += `*Zip/PIN:* ${orderInfo.pin}`;
         }
 
-        const safeMsg = encodeURIComponent(msg);
+        const safeMsg = encodeURIComponent(msg).replace(/%20/g, '+');
+        const url = `https://api.callmebot.com/text.php?user=${CALLMEBOT_USER}&text=${safeMsg}`;
         
-        // Image Trigger ensures the request is sent instantly bypassing CORS restrictions
-        const notificationTrigger = new Image();
-        notificationTrigger.src = `https://api.callmebot.com/text.php?user=@rajaguptaact&text=${safeMsg}`;
+        fetch(url, { method: 'GET', mode: 'no-cors' })
+          .then(() => console.log("Telegram dispatch sent"))
+          .catch(err => console.log(err));
+          
+        const fallbackImg = new Image();
+        fallbackImg.src = url;
       };
 
       const shareSite = () => {
@@ -337,13 +383,18 @@
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             <div className="space-y-6">
-              <div className="bg-rose-50 border-l-4 border-rose-500 p-5 rounded-r-2xl shadow-sm">
-                 <p className="font-black text-rose-700 flex items-center gap-2">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                    STRICTLY COLOUR PENCIL ONLY
+              
+              <div className="bg-indigo-50 border border-indigo-100 p-6 rounded-2xl shadow-sm relative overflow-hidden">
+                 <div className="absolute top-0 left-0 w-2 h-full bg-indigo-500"></div>
+                 <p className="font-black text-indigo-900 flex items-center gap-2 text-lg">
+                    <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Important Studio Note
                  </p>
-                 <p className="text-sm text-rose-600 mt-2 font-medium">I do not accept orders for watercolor, oil, or digital mediums. All commissioned requests must be for highly detailed colour pencil artworks.</p>
+                 <p className="text-sm text-gray-700 mt-2 font-medium">
+                   <span className="font-bold text-indigo-800">Strictly Colour Pencil Only:</span> I do not accept orders for watercolor, oil, or digital mediums. All commissioned requests are strictly handcrafted with highly detailed colour pencils.
+                 </p>
               </div>
+
               <div className="glass-panel p-8 rounded-3xl shadow-xl">
                 <form onSubmit={(e) => { 
                     e.preventDefault(); 
@@ -372,49 +423,23 @@
             </div>
 
             <div className="space-y-6">
-              <div className="glass-panel p-8 rounded-3xl shadow-lg border-t-4 border-t-purple-500 relative overflow-hidden">
-                <div className="absolute -right-6 -top-6 text-purple-100 opacity-50">
-                   <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12zm0-9a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z"></path></svg>
-                </div>
-                <h3 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-3 relative z-10">
-                   <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                   Payment & Refund Policy
-                </h3>
-                <ul className="text-gray-700 space-y-4 font-medium relative z-10">
-                    <li className="flex gap-3"><span className="text-pink-500 font-black text-lg">1.</span> <span><strong>50% Advance Payment:</strong> Half payment is strictly required to confirm your booking and begin the drawing process.</span></li>
-                    <li className="flex gap-3"><span className="text-pink-500 font-black text-lg">2.</span> <span><strong>50% On Completion:</strong> The remaining half balance must be cleared once you approve the final completed artwork, right before shipping.</span></li>
-                    <li className="flex gap-3"><span className="text-pink-500 font-black text-lg">3.</span> <span><strong>No Refunds:</strong> Due to the highly customized nature of these artworks and the time invested, advance payments are non-refundable once the drawing begins.</span></li>
-                </ul>
-              </div>
+              
+              <ExpandablePolicy />
 
-              <div className="glass-panel p-8 rounded-3xl shadow-lg border-t-4 border-t-pink-500">
-                <h3 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-3">
+              <div className="glass-panel p-6 md:p-8 rounded-3xl shadow-lg border-t-4 border-t-pink-500">
+                <h3 className="text-xl md:text-2xl font-black text-gray-900 mb-6 flex items-center gap-3">
                    <svg className="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                    Frequently Asked Questions
                 </h3>
-                <div className="space-y-5">
-                    <div>
-                        <p className="font-black text-gray-900">Q. How long does it take to complete a commissioned artwork?</p>
-                        <p className="text-sm text-gray-600 mt-1 font-medium bg-white p-3 rounded-xl border border-gray-100">A. Depending on the level of detail and the size of the portrait, it usually takes about 7 to 15 days to complete.</p>
-                    </div>
-                    <div>
-                        <p className="font-black text-gray-900">Q. How will the artwork be delivered safely?</p>
-                        <p className="text-sm text-gray-600 mt-1 font-medium bg-white p-3 rounded-xl border border-gray-100">A. The artwork is carefully secured in hard, damage-proof packaging and shipped directly to your address via a trusted courier service.</p>
-                    </div>
-                    <div>
-                        <p className="font-black text-gray-900">Q. Does the artwork come with a frame?</p>
-                        <p className="text-sm text-gray-600 mt-1 font-medium bg-white p-3 rounded-xl border border-gray-100">A. To ensure maximum safety during transit, artworks are shipped securely without a frame. You can easily get it framed locally according to your preference.</p>
-                    </div>
-                    <div>
-                        <p className="font-black text-gray-900">Q. Do you ship outside India (International Orders)?</p>
-                        <p className="text-sm text-gray-600 mt-1 font-medium bg-white p-3 rounded-xl border border-gray-100">A. Yes, we ship worldwide! International clients can place an order, and we will securely process the payment via PayPal or Bank Transfer.</p>
-                    </div>
-                    <div>
-                        <p className="font-black text-gray-900">Q. Have more questions or a different doubt?</p>
-                        <p className="text-sm text-gray-600 mt-1 font-medium bg-white p-3 rounded-xl border border-gray-100">A. Feel free to reach out directly! You can drop a message on WhatsApp or DM me on Instagram for any other queries or custom requests.</p>
-                    </div>
+                <div className="space-y-0">
+                    <FAQItem question="Q. How long does it take to complete a commissioned artwork?" answer="A. Depending on the level of detail and the size of the portrait, it usually takes about 7 to 15 days to complete." />
+                    <FAQItem question="Q. How will the artwork be delivered safely?" answer="A. The artwork is carefully secured in hard, damage-proof packaging and shipped directly to your address via a trusted courier service." />
+                    <FAQItem question="Q. Does the artwork come with a frame?" answer="A. To ensure maximum safety during transit, artworks are shipped securely without a frame. You can easily get it framed locally according to your preference." />
+                    <FAQItem question="Q. Do you ship outside India (International Orders)?" answer="A. Yes, we ship worldwide! International clients can place an order, and we will securely process the payment via PayPal or Bank Transfer." />
+                    <FAQItem question="Q. Have more questions or a different doubt?" answer="A. Feel free to reach out directly! You can drop a message on WhatsApp or DM me on Instagram for any other queries or custom requests." />
                 </div>
               </div>
+
             </div>
           </div>
         </div>
@@ -444,7 +469,6 @@
 
       const CheckoutForm = () => {
         
-        // STRICT SYNTAX EVALUATION NODES
         const isEmailValidNow = checkoutData.email ? /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(checkoutData.email) : false;
         const currentEmailError = (checkoutData.email && !isEmailValidNow) ? "❌ Enter a valid email (e.g. name@gmail.com)" : "";
 
@@ -516,7 +540,7 @@
           }
         };
 
-        const shippingFeeBase = checkoutData.country === 'International' ? 100 : 0;
+        const shippingFeeBase = checkoutData.country === 'International' ? 700 : 100;
         const finalAmountBase = checkoutData.amount + shippingFeeBase;
 
         const handleShippingSubmit = (e) => {
@@ -548,8 +572,8 @@
 
         return (
           <div className="p-6 max-w-xl mx-auto min-h-screen">
-            <button onClick={() => nav('gallery')} className="mb-6 text-purple-600 font-bold flex items-center gap-2 hover:text-purple-800 transition">
-               &larr; Back to Gallery
+            <button onClick={() => nav(checkoutData.type === 'Commission' ? 'commission' : 'cart')} className="mb-6 text-purple-600 font-bold flex items-center gap-2 hover:text-purple-800 transition">
+               &larr; Back
             </button>
             <h2 className="text-3xl font-black mb-6 text-purple-800 text-center">Shipping & Contact Details</h2>
             <form className="glass-panel p-8 rounded-3xl shadow-xl space-y-5" onSubmit={handleShippingSubmit}>
@@ -599,8 +623,8 @@
                  </div>
                  <div className="flex justify-between text-sm font-bold text-gray-600 mb-3 border-b border-purple-200 pb-3">
                    <span>Shipping Charge:</span>
-                   <span className={checkoutData.country === 'India' ? "text-green-600" : "text-rose-600"}>
-                     {checkoutData.country === 'India' ? "Free" : getPrice(shippingFeeBase)}
+                   <span className="text-rose-600">
+                     +{getPrice(shippingFeeBase)}
                    </span>
                  </div>
                  <div className="flex justify-between text-lg font-black text-purple-900">
@@ -618,7 +642,7 @@
       };
 
       const PaymentView = () => {
-        const shippingFeeBase = checkoutData.country === 'International' ? 100 : 0;
+        const shippingFeeBase = checkoutData.country === 'International' ? 700 : 100;
         const finalAmountBase = checkoutData.amount + shippingFeeBase;
 
         const finalizeOrder = () => {
@@ -642,8 +666,8 @@
         if (checkoutData.country === 'International' || currency === 'USD') {
           return (
             <div className="p-6 max-w-md mx-auto text-center min-h-screen">
-              <button onClick={() => nav('gallery')} className="mb-6 text-purple-600 font-bold flex items-center gap-2 hover:text-purple-800 transition">
-                 &larr; Back to Gallery
+              <button onClick={() => nav('checkout_form')} className="mb-6 text-purple-600 font-bold flex items-center gap-2 hover:text-purple-800 transition">
+                 &larr; Back
               </button>
               <h2 className="text-3xl font-black mb-2 text-purple-800">International Order</h2>
               <p className="text-gray-600 mb-6 font-bold text-lg">Total Amount: <span className="text-pink-600 font-black text-2xl ml-2">{getPrice(finalAmountBase)}</span></p>
@@ -658,7 +682,6 @@
               </div>
               
               <button onClick={finalizeOrder} className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-4 rounded-xl font-black text-lg shadow-xl hover:shadow-2xl transition-all cursor-pointer">Confirm International Order</button>
-              
               <button onClick={() => nav('checkout_form')} className="w-full bg-gray-100 text-gray-700 border-2 border-gray-200 py-4 rounded-xl font-black text-lg shadow-sm hover:bg-gray-200 transition-all cursor-pointer mt-4">✏️ Edit Shipping Details</button>
             </div>
           );
@@ -670,8 +693,8 @@
 
         return (
           <div className="p-6 max-w-md mx-auto text-center min-h-screen">
-            <button onClick={() => nav('gallery')} className="mb-6 text-purple-600 font-bold flex items-center gap-2 hover:text-purple-800 transition">
-               &larr; Back to Gallery
+            <button onClick={() => nav('checkout_form')} className="mb-6 text-purple-600 font-bold flex items-center gap-2 hover:text-purple-800 transition">
+               &larr; Back
             </button>
             <h2 className="text-3xl font-black mb-2 text-purple-800">Scan & Pay</h2>
             <p className="text-gray-600 mb-8 font-bold text-lg">Total Payable: <span className="text-pink-600 font-black text-2xl ml-2">{getPrice(finalAmountBase)}</span></p>
@@ -687,14 +710,12 @@
             </div>
             
             <button onClick={finalizeOrder} className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-black text-lg shadow-xl hover:shadow-2xl transition-all cursor-pointer">I Have Successfully Paid</button>
-            
             <button onClick={() => nav('checkout_form')} className="w-full bg-gray-100 text-gray-700 border-2 border-gray-200 py-4 rounded-xl font-black text-lg shadow-sm hover:bg-gray-200 transition-all cursor-pointer mt-4">✏️ Edit Shipping Details</button>
           </div>
         );
       };
 
       const AdminPanel = () => {
-        // DELETE ALL ORDERS - BATCH PROCESS FIX
         const clearAllOrders = async () => {
           if (window.confirm("WARNING: Are you sure you want to permanently delete ALL orders? This action cannot be undone.")) {
              try {
@@ -920,13 +941,12 @@
 
       return (
         <div className="min-h-screen flex flex-col relative">
+          {/* HEADER: CLEAN LOOK (NO SHARE BUTTON HERE) */}
           <header className="glass-panel sticky top-0 z-40 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 md:px-8 h-20 flex items-center justify-between">
-              
               <div className="text-xl md:text-3xl font-black text-gray-900 tracking-tighter cursor-pointer flex items-center gap-1.5" onClick={() => nav('gallery')}>
                 <span className="uppercase">RAJA GUPTA ACT</span>
               </div>
-
               <div className="flex gap-2 md:gap-4 items-center">
                  <button onClick={() => setCurrency(currency === 'INR' ? 'USD' : 'INR')} className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-300 font-black px-3 md:px-4 py-2 rounded-xl shadow-inner hover:bg-gray-200 transition cursor-pointer flex items-center gap-1 text-sm md:text-base">
                     {currency === 'INR' ? '₹ INR' : '$ USD'}
@@ -938,6 +958,7 @@
             </div>
           </header>
 
+          {/* MENU: SHARE OPTION VISIBLE ON BOTH MOBILE & DESKTOP NOW */}
           {menuOpen ? (
             <div className="fixed inset-0 top-20 z-50 bg-gray-900/40 backdrop-blur-sm" onClick={() => setMenuOpen(false)}>
               <div className="bg-white w-full md:w-96 absolute right-0 shadow-2xl flex flex-col font-black text-lg border-l border-gray-100 h-full transform transition-transform" onClick={e => e.stopPropagation()}>
