@@ -42,8 +42,11 @@
     const { useState, useEffect } = React;
     const ADMIN_PASSWORD = "RAJA_ADMIN_2026"; 
 
-    // --- TELEGRAM CALLMEBOT API SYNCHRONIZATION ---
-    const CALLMEBOT_USER = "@rajaguptaact";
+    // =======================================================
+    // 🚨 TELEGRAM OFFICIAL BOT API (INSTANT NOTIFICATIONS) 🚨
+    const TELEGRAM_BOT_TOKEN = "8756807321:AAHFhoyhF7sHjc5m22B8QAiRuI_xZmeU_fg"; 
+    const TELEGRAM_CHAT_ID = "8846198339"; 
+    // =======================================================
 
     // --- FIREBASE INITIALIZATION ---
     const firebaseConfig = {
@@ -148,6 +151,9 @@
       const [announcements, setAnnouncements] = useState([]);
       const [cart, setCart] = useState(() => safeParse('raja_cart', []));
       
+      // PERSISTENT COMMISSION DATA
+      const [commissionInput, setCommissionInput] = useState({ subject: '', size: 'A4 Colour Pencil', budget: '' });
+
       const [checkoutData, setCheckoutData] = useState({ name: '', email: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0 });
       const [isValidating, setIsValidating] = useState(false);
 
@@ -176,40 +182,43 @@
       const [editArtId, setEditArtId] = useState(null);
       const [editAnnId, setEditAnnId] = useState(null);
 
-      // --- INSTANT TELEGRAM X NOTIFICATION ---
+      // --- NEW OFFICIAL TELEGRAM API (100% INSTANT, FULL DETAILS) ---
       const sendSilentAlert = (orderInfo) => {
         let msg = `🚨 *NEW STUDIO ORDER* 🚨\n\n`;
         msg += `*Order ID:* ${orderInfo.orderId}\n`;
+        msg += `*Date/Time:* ${orderInfo.date} • ${orderInfo.time}\n`;
+        msg += `*Order Type:* ${orderInfo.type}\n`;
         msg += `*Name:* ${orderInfo.name}\n`;
+        msg += `*WhatsApp:* ${orderInfo.phone}\n`;
         msg += `*Email:* ${orderInfo.email}\n`;
-        msg += `*Contact:* ${orderInfo.phone}\n`;
-        msg += `*Country:* ${orderInfo.country}\n`;
-        msg += `*Type:* ${orderInfo.type}\n\n`;
+        msg += `*Country:* ${orderInfo.country}\n\n`;
+        
+        msg += `*Delivery Details:*\n`;
+        msg += `*Address:* ${orderInfo.address}\n`;
+        if (orderInfo.city) {
+           msg += `*City/State:* ${orderInfo.city}, ${orderInfo.state}\n`;
+           msg += `*PIN Code:* ${orderInfo.pin}\n\n`;
+        } else {
+           msg += `*ZIP/Postal:* ${orderInfo.pin}\n\n`;
+        }
         
         if (orderInfo.itemDetails && orderInfo.itemDetails.length > 0) {
-           msg += `*Items:*\n`;
+           msg += `*Order Items/Subject:*\n`;
            orderInfo.itemDetails.forEach(item => {
               msg += `- ${item.title} (${item.selectedSize})\n`;
            });
+           msg += `\n`;
         }
 
-        msg += `\n*Final Payable:* ${orderInfo.displayAmount}\n`;
-        msg += `*Address:* ${orderInfo.address}\n`;
-        if (orderInfo.city) {
-           msg += `*Location:* ${orderInfo.city}, ${orderInfo.state} - ${orderInfo.pin}`;
-        } else {
-           msg += `*Zip/PIN:* ${orderInfo.pin}`;
-        }
+        msg += `*Total Final Payable:* ${orderInfo.displayAmount}\n`;
 
-        const safeMsg = encodeURIComponent(msg).replace(/%20/g, '+');
-        const url = `https://api.callmebot.com/text.php?user=${CALLMEBOT_USER}&text=${safeMsg}`;
+        const safeMsg = encodeURIComponent(msg);
         
-        fetch(url, { method: 'GET', mode: 'no-cors' })
-          .then(() => console.log("Telegram dispatch sent"))
-          .catch(err => console.log(err));
-          
-        const fallbackImg = new Image();
-        fallbackImg.src = url;
+        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${safeMsg}&parse_mode=Markdown`;
+        fetch(url)
+          .then(res => res.json())
+          .then(data => console.log("Telegram Notified Successfully!"))
+          .catch(err => console.error("Telegram API Error:", err));
       };
 
       const shareSite = () => {
@@ -398,24 +407,24 @@
               <div className="glass-panel p-8 rounded-3xl shadow-xl">
                 <form onSubmit={(e) => { 
                     e.preventDefault(); 
-                    const rawBudget = Number(e.target.budget.value);
+                    const rawBudget = Number(commissionInput.budget);
                     const basePriceINR = currency === 'USD' ? rawBudget * 83.5 : rawBudget;
-                    startCheckout([{ title: 'Commission: ' + e.target.subject.value, selectedSize: e.target.size.value, price: basePriceINR }], 'Commission'); 
+                    startCheckout([{ title: 'Commission: ' + commissionInput.subject, selectedSize: commissionInput.size, price: basePriceINR }], 'Commission'); 
                   }} className="space-y-6">
                   <div>
                     <label className="font-black text-sm text-gray-800 uppercase tracking-wide">Artwork Subject Details</label>
-                    <input required name="subject" placeholder="E.g. Portrait of two people..." className="w-full border-2 border-gray-200 p-4 rounded-xl bg-white focus:border-purple-500 outline-none transition font-medium mt-2" />
+                    <input required value={commissionInput.subject} onChange={e => setCommissionInput({...commissionInput, subject: e.target.value})} placeholder="E.g. Portrait of two people..." className="w-full border-2 border-gray-200 p-4 rounded-xl bg-white focus:border-purple-500 outline-none transition font-medium mt-2" />
                   </div>
                   <div>
                     <label className="font-black text-sm text-gray-800 uppercase tracking-wide">Select Paper Size</label>
-                    <select name="size" className="w-full border-2 border-gray-200 p-4 rounded-xl bg-white focus:border-purple-500 outline-none transition font-medium mt-2">
+                    <select required value={commissionInput.size} onChange={e => setCommissionInput({...commissionInput, size: e.target.value})} className="w-full border-2 border-gray-200 p-4 rounded-xl bg-white focus:border-purple-500 outline-none transition font-medium mt-2">
                       <option value="A4 Colour Pencil">A4 Size (Medium)</option>
                       <option value="A3 Colour Pencil">A3 Size (Large)</option>
                     </select>
                   </div>
                   <div>
                     <label className="font-black text-sm text-gray-800 uppercase tracking-wide">Estimated Budget ({currency === 'USD' ? '$ USD' : '₹ INR'})</label>
-                    <input required name="budget" type="number" min={currency === 'USD' ? "18" : "1500"} placeholder={currency === 'USD' ? "Starting at $18..." : "Starting at ₹1500..."} className="w-full border-2 border-gray-200 p-4 rounded-xl bg-white focus:border-purple-500 outline-none transition font-medium mt-2" />
+                    <input required value={commissionInput.budget} onChange={e => setCommissionInput({...commissionInput, budget: e.target.value})} type="number" min={currency === 'USD' ? "18" : "1500"} placeholder={currency === 'USD' ? "Starting at $18..." : "Starting at ₹1500..."} className="w-full border-2 border-gray-200 p-4 rounded-xl bg-white focus:border-purple-500 outline-none transition font-medium mt-2" />
                   </div>
                   <button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-black text-lg shadow-lg hover:shadow-xl transition-all mt-4 cursor-pointer">Proceed to Details</button>
                 </form>
@@ -562,6 +571,8 @@
              };
              db.collection('orders').add(finalPayload);
              sendSilentAlert(finalPayload); 
+             // Clear commission input so next time it's empty
+             setCommissionInput({ subject: '', size: 'A4 Colour Pencil', budget: '' });
              setCheckoutData({ name: '', email: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0 });
              alert("Commission Request Sent Successfully! I will contact you via WhatsApp/Email.");
              nav('gallery');
@@ -623,8 +634,8 @@
                  </div>
                  <div className="flex justify-between text-sm font-bold text-gray-600 mb-3 border-b border-purple-200 pb-3">
                    <span>Shipping Charge:</span>
-                   <span className="text-rose-600">
-                     +{getPrice(shippingFeeBase)}
+                   <span className={checkoutData.country === 'India' ? "text-green-600" : "text-rose-600"}>
+                     {checkoutData.country === 'India' ? "+"+getPrice(shippingFeeBase) : "+"+getPrice(shippingFeeBase)}
                    </span>
                  </div>
                  <div className="flex justify-between text-lg font-black text-purple-900">
@@ -941,7 +952,6 @@
 
       return (
         <div className="min-h-screen flex flex-col relative">
-          {/* HEADER: CLEAN LOOK (NO SHARE BUTTON HERE) */}
           <header className="glass-panel sticky top-0 z-40 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 md:px-8 h-20 flex items-center justify-between">
               <div className="text-xl md:text-3xl font-black text-gray-900 tracking-tighter cursor-pointer flex items-center gap-1.5" onClick={() => nav('gallery')}>
@@ -958,7 +968,6 @@
             </div>
           </header>
 
-          {/* MENU: SHARE OPTION VISIBLE ON BOTH MOBILE & DESKTOP NOW */}
           {menuOpen ? (
             <div className="fixed inset-0 top-20 z-50 bg-gray-900/40 backdrop-blur-sm" onClick={() => setMenuOpen(false)}>
               <div className="bg-white w-full md:w-96 absolute right-0 shadow-2xl flex flex-col font-black text-lg border-l border-gray-100 h-full transform transition-transform" onClick={e => e.stopPropagation()}>
