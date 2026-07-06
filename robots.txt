@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Sitemap: https://vipraja7665554-gif.github.io/rajaguptaact/sitemap.xml
+
