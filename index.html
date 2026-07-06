@@ -182,7 +182,7 @@
           .catch(err => console.log('Location engine fallback'));
       }, []);
 
-      const [uploadData, setUploadData] = useState({ title: '', desc: '', image: '', priceOriginal: '', priceA3: '', priceA4: '', priceA5: '', isSold: false });
+      const [uploadData, setUploadData] = useState({ title: '', desc: '', image: '', priceOriginal: '', priceOriginalOld: '', priceA3: '', priceA4: '', priceA5: '', isSold: false });
       const [annTitle, setAnnTitle] = useState('');
       const [annMsg, setAnnMsg] = useState('');
 
@@ -374,7 +374,19 @@
                     <div>
                       <p className="font-bold text-purple-100 text-[10px] md:text-sm uppercase">Original Artwork</p>
                       <p className="font-black text-sm md:text-lg mb-1">A4 Size</p>
-                      <p className="text-lg md:text-2xl font-black my-2">{getPrice(art.priceOriginal)}</p>
+                      
+                      <div className="flex flex-col items-center justify-center my-1 min-h-[50px]">
+                        {art.priceOriginalOld && Number(art.priceOriginalOld) > Number(art.priceOriginal) && (
+                          <span className="line-through text-purple-300 text-xs">{getPrice(art.priceOriginalOld)}</span>
+                        )}
+                        <p className="text-lg md:text-2xl font-black">{getPrice(art.priceOriginal)}</p>
+                      </div>
+                      {art.priceOriginalOld && Number(art.priceOriginalOld) > Number(art.priceOriginal) && (
+                        <span className="inline-block bg-yellow-400 text-gray-900 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide animate-pulse mt-1">
+                          {Math.round(((Number(art.priceOriginalOld) - Number(art.priceOriginal)) / Number(art.priceOriginalOld)) * 100)}% OFF
+                        </span>
+                      )}
+
                     </div>
                     {art.isSold ? (
                         <button disabled className="w-full bg-gray-400 text-gray-200 py-2 md:py-3 rounded-xl font-bold text-xs md:text-sm shadow-md cursor-not-allowed mt-2">SOLD OUT</button>
@@ -827,7 +839,6 @@
                 </button>
                 <a href={`https://wa.me/917281074416?text=${waText}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 w-full bg-[#25D366] text-white py-4 rounded-xl font-black text-lg shadow-xl hover:bg-green-600 transition-all cursor-pointer">
                   <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
-                  Send Screenshot on WhatsApp
                 </a>
             </div>
 
@@ -879,17 +890,17 @@
           e.preventDefault();
           if(editArtId) {
              db.collection('RajaStudio').doc(editArtId).update({ ...uploadData })
-               .then(() => { alert("Artwork Updated Successfully!"); setEditArtId(null); setUploadData({ title: '', desc: '', image: '', priceOriginal: '', priceA3: '', priceA4: '', priceA5: '', isSold: false }); });
+               .then(() => { alert("Artwork Updated Successfully!"); setEditArtId(null); setUploadData({ title: '', desc: '', image: '', priceOriginal: '', priceOriginalOld: '', priceA3: '', priceA4: '', priceA5: '', isSold: false }); });
           } else {
              db.collection('RajaStudio').add({ ...uploadData, createdAt: Date.now() })
                .then(() => alert("Artwork Uploaded Globally!"));
-             setUploadData({ title: '', desc: '', image: '', priceOriginal: '', priceA3: '', priceA4: '', priceA5: '', isSold: false });
+             setUploadData({ title: '', desc: '', image: '', priceOriginal: '', priceOriginalOld: '', priceA3: '', priceA4: '', priceA5: '', isSold: false });
           }
         };
 
         const startEditArt = (art) => {
           setEditArtId(art.id);
-          setUploadData({ title: art.title, desc: art.desc, image: art.image, priceOriginal: art.priceOriginal, priceA3: art.priceA3, priceA4: art.priceA4, priceA5: art.priceA5, isSold: art.isSold || false });
+          setUploadData({ title: art.title, desc: art.desc, image: art.image, priceOriginal: art.priceOriginal, priceOriginalOld: art.priceOriginalOld || '', priceA3: art.priceA3, priceA4: art.priceA4, priceA5: art.priceA5, isSold: art.isSold || false });
           window.scrollTo(0, 0);
         };
 
@@ -925,7 +936,7 @@
                 <div className="glass-panel p-8 rounded-3xl shadow-xl border-t-4 border-t-purple-500">
                   <h3 className="text-2xl font-black mb-6 text-gray-900 flex justify-between items-center">
                     {editArtId ? "✏️ Edit Artwork" : "Upload Artwork"}
-                    {editArtId ? <button onClick={() => { setEditArtId(null); setUploadData({title:'',desc:'',image:'',priceOriginal:'',priceA3:'',priceA4:'',priceA5:'', isSold: false}); }} className="text-xs text-red-500 underline font-bold cursor-pointer">Cancel Edit</button> : null}
+                    {editArtId ? <button onClick={() => { setEditArtId(null); setUploadData({title:'',desc:'',image:'',priceOriginal:'',priceOriginalOld:'',priceA3:'',priceA4:'',priceA5:'', isSold: false}); }} className="text-xs text-red-500 underline font-bold cursor-pointer">Cancel Edit</button> : null}
                   </h3>
                   <form onSubmit={saveArtwork} className="space-y-4">
                     <input required placeholder="Artwork Title" className="w-full border-2 p-4 rounded-xl bg-white font-bold" value={uploadData.title} onChange={e => setUploadData({...uploadData, title: e.target.value})} />
@@ -939,11 +950,12 @@
                     </div>
                     {uploadData.image ? <img src={uploadData.image} className="mt-4 h-40 mx-auto rounded-lg shadow-md object-contain border-2 border-white pointer-events-none" /> : null}
 
-                    <div className="grid grid-cols-2 gap-4 mt-6">
-                      <div><label className="text-xs font-black text-gray-500 uppercase">Original A4 Price (Base ₹)</label><input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceOriginal} onChange={e => setUploadData({...uploadData, priceOriginal: e.target.value})} /></div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                      <div><label className="text-xs font-black text-gray-500 uppercase">Original A4 Price (Nayi Price ₹)</label><input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceOriginal} onChange={e => setUploadData({...uploadData, priceOriginal: e.target.value})} /></div>
+                      <div><label className="text-xs font-black text-gray-500 uppercase">Original A4 Old Price (Kata Hua ₹ - Optional)</label><input type="number" placeholder="Leave empty if no discount" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceOriginalOld} onChange={e => setUploadData({...uploadData, priceOriginalOld: e.target.value})} /></div>
                       <div><label className="text-xs font-black text-gray-500 uppercase">Print A3 Price (Base ₹)</label><input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceA3} onChange={e => setUploadData({...uploadData, priceA3: e.target.value})} /></div>
                       <div><label className="text-xs font-black text-gray-500 uppercase">Print A4 Price (Base ₹)</label><input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceA4} onChange={e => setUploadData({...uploadData, priceA4: e.target.value})} /></div>
-                      <div><label className="text-xs font-black text-gray-500 uppercase">Print A5 Price (Base ₹)</label><input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceA5} onChange={e => setUploadData({...uploadData, priceA5: e.target.value})} /></div>
+                      <div className="md:col-span-2"><label className="text-xs font-black text-gray-500 uppercase">Print A5 Price (Base ₹)</label><input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceA5} onChange={e => setUploadData({...uploadData, priceA5: e.target.value})} /></div>
                     </div>
 
                     <label className="flex items-center gap-3 font-black text-red-600 bg-red-50 p-4 rounded-xl border border-red-200 cursor-pointer mt-4">
