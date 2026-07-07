@@ -348,7 +348,10 @@
           </div>
           
           {artworks.length === 0 ? (
-            <div className="text-center p-12 glass-panel rounded-3xl shadow-xl font-bold text-purple-600 text-xl">Loading Gallery from Studio Database...</div>
+            <div className="text-center p-12 glass-panel rounded-3xl shadow-xl font-bold text-purple-600 text-xl flex flex-col items-center justify-center gap-4">
+              <svg className="animate-spin h-10 w-10 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              <span>Please Wait Loading....</span>
+            </div>
           ) : (
             artworks.map(art => (
               <div key={art.id} className="glass-panel rounded-3xl shadow-xl overflow-hidden p-6 md:p-10 mb-10">
@@ -356,7 +359,7 @@
                   <div>
                     <h2 className="text-3xl font-black text-gray-900 flex items-center gap-3">
                         {art.title}
-                        {art.isSold && <span className="bg-red-500 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-md">Sold Out</span>}
+                        {art.isSold && <span className="bg-red-500 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-md">Sold Out</span>}
                     </h2>
                     <span className="inline-block mt-2 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 text-xs font-black px-3 py-1 rounded-full border border-purple-200">100% COLOUR PENCIL</span>
                   </div>
@@ -370,7 +373,13 @@
                 </div>
                 
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 pb-4">
-                  <div className="bg-gradient-to-br from-purple-600 to-indigo-600 p-4 rounded-2xl shadow-lg text-center flex flex-col justify-between text-white transform hover:-translate-y-1 transition">
+                  <div className="bg-gradient-to-br from-purple-600 to-indigo-600 p-4 rounded-2xl shadow-lg text-center flex flex-col justify-between text-white transform hover:-translate-y-1 transition relative">
+                    {/* AUTOMATIC DISCOUNT LOGIC & OFF BADGE (Calculates based on Old Price being larger) */}
+                    {art.priceOriginalOld && Number(art.priceOriginalOld) > Number(art.priceOriginal) && (
+                      <span className="absolute top-2 right-2 bg-yellow-400 text-gray-900 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide animate-pulse shadow-md">
+                        {Math.round(((Number(art.priceOriginalOld) - Number(art.priceOriginal)) / Number(art.priceOriginalOld)) * 100)}% OFF
+                      </span>
+                    )}
                     <div>
                       <p className="font-bold text-purple-100 text-[10px] md:text-sm uppercase">Original Artwork</p>
                       <p className="font-black text-sm md:text-lg mb-1">A4 Size</p>
@@ -381,11 +390,6 @@
                         )}
                         <p className="text-lg md:text-2xl font-black">{getPrice(art.priceOriginal)}</p>
                       </div>
-                      {art.priceOriginalOld && Number(art.priceOriginalOld) > Number(art.priceOriginal) && (
-                        <span className="inline-block bg-yellow-400 text-gray-900 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide animate-pulse mt-1">
-                          {Math.round(((Number(art.priceOriginalOld) - Number(art.priceOriginal)) / Number(art.priceOriginalOld)) * 100)}% OFF
-                        </span>
-                      )}
 
                     </div>
                     {art.isSold ? (
@@ -951,8 +955,8 @@
                     {uploadData.image ? <img src={uploadData.image} className="mt-4 h-40 mx-auto rounded-lg shadow-md object-contain border-2 border-white pointer-events-none" /> : null}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                      <div><label className="text-xs font-black text-gray-500 uppercase">Original A4 Price (Nayi Price ₹)</label><input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceOriginal} onChange={e => setUploadData({...uploadData, priceOriginal: e.target.value})} /></div>
-                      <div><label className="text-xs font-black text-gray-500 uppercase">Original A4 Old Price (Kata Hua ₹ - Optional)</label><input type="number" placeholder="Leave empty if no discount" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceOriginalOld} onChange={e => setUploadData({...uploadData, priceOriginalOld: e.target.value})} /></div>
+                      <div><label className="text-xs font-black text-gray-500 uppercase">Current Price (₹)</label><input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceOriginal} onChange={e => setUploadData({...uploadData, priceOriginal: e.target.value})} /></div>
+                      <div><label className="text-xs font-black text-gray-500 uppercase">Old Price (Optional - ₹)</label><input type="number" placeholder="Leave empty if no discount" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceOriginalOld} onChange={e => setUploadData({...uploadData, priceOriginalOld: e.target.value})} /></div>
                       <div><label className="text-xs font-black text-gray-500 uppercase">Print A3 Price (Base ₹)</label><input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceA3} onChange={e => setUploadData({...uploadData, priceA3: e.target.value})} /></div>
                       <div><label className="text-xs font-black text-gray-500 uppercase">Print A4 Price (Base ₹)</label><input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceA4} onChange={e => setUploadData({...uploadData, priceA4: e.target.value})} /></div>
                       <div className="md:col-span-2"><label className="text-xs font-black text-gray-500 uppercase">Print A5 Price (Base ₹)</label><input required type="number" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={uploadData.priceA5} onChange={e => setUploadData({...uploadData, priceA5: e.target.value})} /></div>
