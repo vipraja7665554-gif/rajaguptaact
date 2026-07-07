@@ -5,14 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Raja Gupta Act | Professional Colour Pencil Studio</title>
   <meta name="google-site-verification" content="dN1MbPiHaOubD3Qf6umJDnE0mQOXjQUr4g7Cc2xNolw" />
-  <!-- Tailwind, React, Icons -->
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://unpkg.com/feather-icons"></script>
 
-  <!-- FIREBASE CLOUD DATABASE -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -36,22 +35,17 @@
   </style>
 </head>
 <body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-gray-900 font-sans antialiased selection:bg-purple-300" onContextMenu="return false;">
+  
   <div id="root"></div>
 
   <script type="text/babel">
     const { useState, useEffect } = React;
     
-    // --- SECURITY CREDENTIALS ---
     const ADMIN_PASSWORD = "RAJA_ADMIN_2026"; 
-    // PIN ab hat gaya hai. Ab Live OTP aayega!
 
-    // =======================================================
-    // 🚨 TELEGRAM OFFICIAL BOT API (INSTANT NOTIFICATIONS) 🚨
     const TELEGRAM_BOT_TOKEN = "8756807321:AAHFhoyhF7sHjc5m22B8QAiRuI_xZmeU_fg"; 
     const TELEGRAM_CHAT_ID = "8846198339"; 
-    // =======================================================
 
-    // --- FIREBASE INITIALIZATION ---
     const firebaseConfig = {
       apiKey: "AIzaSyBCX9rALYZSxzYvawPexwXIHTSA3uhU24E",
       authDomain: "rajaguptaact.firebaseapp.com",
@@ -64,7 +58,13 @@
     const db = firebase.firestore();
 
     const safeParse = (key, defaultVal) => {
-      try { const val = localStorage.getItem(key); return val ? JSON.parse(val) : defaultVal; } 
+      try { 
+        const val = localStorage.getItem(key); 
+        if (!val) return defaultVal;
+        const parsed = JSON.parse(val);
+        if (Array.isArray(defaultVal) && !Array.isArray(parsed)) return defaultVal;
+        return parsed;
+      } 
       catch (e) { return defaultVal; }
     };
 
@@ -147,12 +147,11 @@
       const [view, setView] = useState('gallery');
       const [menuOpen, setMenuOpen] = useState(false);
       
-      // Admin Login States
       const [isAdmin, setIsAdmin] = useState(false);
-      const [adminStep, setAdminStep] = useState(1); // 1: Password, 2: OTP
+      const [adminStep, setAdminStep] = useState(1); 
       const [password, setPassword] = useState('');
       const [otpInput, setOtpInput] = useState('');
-      const [liveOTP, setLiveOTP] = useState(''); // Secret OTP generated live
+      const [liveOTP, setLiveOTP] = useState(''); 
 
       const [artworks, setArtworks] = useState([]);
       const [orders, setOrders] = useState([]);
@@ -163,7 +162,7 @@
 
       const [checkoutData, setCheckoutData] = useState({ name: '', email: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0 });
       const [isValidating, setIsValidating] = useState(false);
-
+      
       const [isUploading, setIsUploading] = useState(false);
 
       const [currency, setCurrency] = useState('INR');
@@ -191,7 +190,6 @@
       const [editArtId, setEditArtId] = useState(null);
       const [editAnnId, setEditAnnId] = useState(null);
 
-      // --- ADVANCED SECURITY: ADMIN LOGIN ALERTS WITH LIVE OTP ---
       const sendLoginAlert = async (status, attemptedData) => {
         try {
             let ip = "Unknown";
@@ -243,7 +241,6 @@
         } catch(e) { console.error(e); }
       };
 
-      // --- ORDER NOTIFICATIONS ---
       const sendSilentAlert = (orderInfo) => {
         let msg = `🚨 *NEW STUDIO ORDER* 🚨\n\n`;
         msg += `*Order ID:* ${orderInfo.orderId}\n`;
@@ -309,7 +306,12 @@
       }, []);
 
       useEffect(() => localStorage.setItem('raja_cart', JSON.stringify(cart)), [cart]);
-      useEffect(() => { feather.replace(); }, [view, menuOpen, currency]);
+      
+      useEffect(() => { 
+        if (window.feather) {
+            window.feather.replace(); 
+        }
+      }, [view, menuOpen, currency]);
 
       useEffect(() => {
         const handleContext = (e) => e.preventDefault();
@@ -381,7 +383,7 @@
                         {Math.round(((Number(art.priceOriginalOld) - Number(art.priceOriginal)) / Number(art.priceOriginalOld)) * 100)}% OFF
                       </span>
                     )}
-
+                    
                     <div>
                       <p className="font-bold text-purple-100 text-[10px] md:text-sm uppercase">Original Artwork</p>
                       <p className="font-black text-sm md:text-lg mb-1">A4 Size</p>
@@ -656,7 +658,7 @@
              const finalPayload = {
                  orderId: 'ORD-' + Math.floor(Math.random()*10000), 
                  date: new Date().toLocaleDateString('en-IN'), 
-                 time: new Date().toLocaleTimeString('en-IN', {  hour: '2-digit', minute: '2-digit' }),
+                 time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
                  createdAt: Date.now(),
                  ...checkoutData,
                  amount: finalAmountBase,
