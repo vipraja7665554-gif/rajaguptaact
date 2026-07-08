@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Raja Gupta Act | Professional Colour Pencil Studio</title>
   <meta name="google-site-verification" content="dN1MbPiHaOubD3Qf6umJDnE0mQOXjQUr4g7Cc2xNolw" />
-  <!-- Tailwind, React, Icons -->
+  
+  <!-- ORIGINAL FAST LINKS (Jisse site turant load hogi) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://unpkg.com/feather-icons"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.22.20/babel.min.js" crossorigin="anonymous"></script>
 
   <!-- FIREBASE CLOUD DATABASE -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -37,6 +37,7 @@
 </head>
 <body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-gray-900 font-sans antialiased selection:bg-purple-300" onContextMenu="return false;">
   
+  <!-- EKDUM KHALI ROOT DIV (No outer loading text) -->
   <div id="root"></div>
 
   <script type="text/babel">
@@ -153,7 +154,6 @@
       const [view, setView] = useState('gallery');
       const [menuOpen, setMenuOpen] = useState(false);
       
-      // Admin Login States
       const [isAdmin, setIsAdmin] = useState(false);
       const [adminStep, setAdminStep] = useState(1); 
       const [password, setPassword] = useState('');
@@ -197,7 +197,6 @@
       const [editArtId, setEditArtId] = useState(null);
       const [editAnnId, setEditAnnId] = useState(null);
 
-      // --- ADVANCED SECURITY: ADMIN LOGIN ALERTS WITH LIVE OTP ---
       const sendLoginAlert = async (status, attemptedData) => {
         try {
             let ip = "Unknown";
@@ -249,7 +248,6 @@
         } catch(e) { console.error(e); }
       };
 
-      // --- ORDER NOTIFICATIONS ---
       const sendSilentAlert = (orderInfo) => {
         let msg = `🚨 *NEW STUDIO ORDER* 🚨\n\n`;
         msg += `*Order ID:* ${orderInfo.orderId}\n`;
@@ -315,12 +313,6 @@
       }, []);
 
       useEffect(() => localStorage.setItem('raja_cart', JSON.stringify(cart)), [cart]);
-      
-      useEffect(() => { 
-        if (window.feather) {
-            window.feather.replace(); 
-        }
-      }, [view, menuOpen, currency]);
 
       useEffect(() => {
         const handleContext = (e) => e.preventDefault();
@@ -387,7 +379,6 @@
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 pb-4">
                   <div className="bg-gradient-to-br from-purple-600 to-indigo-600 p-4 rounded-2xl shadow-lg text-center flex flex-col justify-between text-white transform hover:-translate-y-1 transition relative">
                     
-                    {/* AUTOMATIC DISCOUNT LOGIC & OFF BADGE */}
                     {art.priceOriginalOld && Number(art.priceOriginalOld) > Number(art.priceOriginal) && (
                       <span className="absolute top-2 right-2 bg-yellow-400 text-gray-900 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide animate-pulse shadow-md">
                         {Math.round(((Number(art.priceOriginalOld) - Number(art.priceOriginal)) / Number(art.priceOriginalOld)) * 100)}% OFF
@@ -460,7 +451,6 @@
                       <div><h4 className="font-black text-lg text-gray-900">{item.title}</h4><p className="text-sm font-bold text-purple-600">{item.selectedSize}</p></div>
                     </div>
                     
-                    {/* CART DISCOUNT FIX: Show % OFF and Strikethrough price in Cart */}
                     <div className="text-right flex flex-col items-end">
                       {item.priceOriginalOld && Number(item.priceOriginalOld) > Number(item.price) && item.selectedSize && item.selectedSize.includes('Original') ? (
                         <div className="flex items-center gap-1.5 mb-0.5">
