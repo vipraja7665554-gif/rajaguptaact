@@ -151,26 +151,25 @@
       const [orders, setOrders] = useState([]);
       const [announcements, setAnnouncements] = useState([]);
       
-      // ✅ ZERO LOCAL STORAGE - SAFE COOKIE SYSTEM (Crash-Proof)
+      // ✅ 100% CRASH-PROOF CART SYSTEM
       const [cart, setCart] = useState(() => {
         try {
-          const nameEQ = "raja_cart_safe=";
-          const ca = document.cookie.split(';');
-          for(let i=0; i < ca.length; i++) {
-              let c = ca[i];
-              while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-              if (c.indexOf(nameEQ) === 0) {
-                  return JSON.parse(decodeURIComponent(c.substring(nameEQ.length, c.length)));
-              }
+          const savedCart = window.localStorage.getItem('raja_cart_live_v1');
+          if (savedCart) {
+            const parsed = JSON.parse(savedCart);
+            if (Array.isArray(parsed)) {
+              return parsed;
+            }
           }
-        } catch(e){}
+        } catch(e) {}
         return [];
       });
 
       useEffect(() => {
         try {
-          const jsonStr = JSON.stringify(cart);
-          document.cookie = "raja_cart_safe=" + encodeURIComponent(jsonStr) + "; path=/; max-age=" + (60*60*24*7);
+          if (cart && Array.isArray(cart)) {
+             window.localStorage.setItem('raja_cart_live_v1', JSON.stringify(cart));
+          }
         } catch(e) {}
       }, [cart]);
       
@@ -524,6 +523,7 @@
                     <input required value={commissionInput.subject} onChange={e => setCommissionInput({...commissionInput, subject: e.target.value})} placeholder="E.g. Portrait of two people..." className="w-full border-2 border-gray-200 p-4 rounded-xl bg-white focus:border-purple-500 outline-none transition font-medium mt-2" />
                   </div>
                   
+                  {/* INSTAGRAM FIELD */}
                   <div>
                     <label className="font-black text-sm text-gray-800 uppercase tracking-wide">Instagram ID (Required)</label>
                     <input required value={commissionInput.instagram} onChange={e => setCommissionInput({...commissionInput, instagram: e.target.value})} placeholder="E.g. @your_username" className="w-full border-2 border-gray-200 p-4 rounded-xl bg-white focus:border-purple-500 outline-none transition font-medium mt-2" />
@@ -791,7 +791,7 @@
           db.collection('orders').add(finalPayload);
           sendSilentAlert(finalPayload); 
           setCart([]); 
-          try { document.cookie = "raja_cart_safe=; path=/; max-age=0"; } catch(e){}
+          try { window.localStorage.removeItem('raja_cart_v3'); } catch(e){}
           setCheckoutData({ name: '', email: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0, instagram: '' });
           alert("Order Sent! Your request has been securely forwarded to Raja Gupta.");
           nav('gallery');
@@ -1010,7 +1010,7 @@
                 <div className="glass-panel p-8 rounded-3xl shadow-xl border-t-4 border-t-purple-500">
                   <h3 className="text-2xl font-black mb-6 text-gray-900 flex justify-between items-center">
                     {editArtId ? "✏️ Edit Artwork" : "Upload Artwork"}
-                    {editArtId ? <button onClick={() => { setEditArtId(null); setUploadData({title:'',desc:'',image:'',priceOriginal:'',priceOriginalOld:'',priceA3:'',priceA4:'',priceA5:'', isSold: false}); }} className="text-xs text-red-500 underline font-bold cursor-pointer">Cancel Edit</button> : null}
+                    {editArtId ? <button type="button" onClick={() => { setEditArtId(null); setUploadData({title:'',desc:'',image:'',priceOriginal:'',priceOriginalOld:'',priceA3:'',priceA4:'',priceA5:'', isSold: false}); }} className="text-xs text-red-500 underline font-bold cursor-pointer">Cancel Edit</button> : null}
                   </h3>
                   <form onSubmit={saveArtwork} className="space-y-4">
                     <input required placeholder="Artwork Title" className="w-full border-2 p-4 rounded-xl bg-white font-bold" value={uploadData.title} onChange={e => setUploadData({...uploadData, title: e.target.value})} />
@@ -1083,7 +1083,7 @@
                 <div className="glass-panel p-8 rounded-3xl shadow-xl border-t-4 border-t-pink-500">
                   <h3 className="text-2xl font-black text-gray-900 mb-6 flex items-center justify-between">
                     <span>{editAnnId ? "Edit Announcement" : "Post Announcement"}</span>
-                    {editAnnId ? <button onClick={() => { setEditAnnId(null); setAnnTitle(''); setAnnMsg(''); }} className="text-xs text-red-500 underline font-bold cursor-pointer">Cancel</button> : null}
+                    {editAnnId ? <button type="button" onClick={() => { setEditAnnId(null); setAnnTitle(''); setAnnMsg(''); }} className="text-xs text-red-500 underline font-bold cursor-pointer">Cancel</button> : null}
                   </h3>
                   <form onSubmit={postAnnouncement} className="space-y-4">
                      <input required placeholder="Announcement Title" value={annTitle} onChange={e=>setAnnTitle(e.target.value)} className="w-full border-2 p-4 rounded-xl bg-white font-bold"/>
@@ -1168,9 +1168,7 @@
         if (password === ADMIN_PASSWORD) {
           let isTrusted = 'NO';
           try { 
-            if (document.cookie.indexOf("raja_trusted_device=YES") !== -1) {
-              isTrusted = 'YES';
-            }
+            isTrusted = window.localStorage.getItem('raja_trusted_device_live') || 'NO';
           } catch(err){}
           
           if (isTrusted === 'YES') {
@@ -1192,7 +1190,7 @@
 
       const handlePinSubmit = async () => {
         if (otpInput === liveOTP && liveOTP !== '') {
-           try { document.cookie = "raja_trusted_device=YES; path=/; max-age=" + (60*60*24*365); } catch(err){}
+           try { window.localStorage.setItem('raja_trusted_device_live', 'YES'); } catch(err){}
            setIsAdmin(true);
            setOtpInput('');
            setPassword('');
