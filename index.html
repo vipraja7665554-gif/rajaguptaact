@@ -36,16 +36,26 @@
 </head>
 <body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-gray-900 font-sans antialiased selection:bg-purple-300" onContextMenu="return false;">
   
-  <div id="root"></div>
+  <div id="root">
+    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif;">
+      <h2 style="color: #9333ea; font-weight: 900; font-size: 24px; letter-spacing: 1px;">Loading Gallery....</h2>
+      <p style="color: #6b7280; font-weight: bold; margin-top: 8px;">Please Wait</p>
+    </div>
+  </div>
 
   <script type="text/babel">
     const { useState, useEffect } = React;
     
+    // --- SECURITY CREDENTIALS ---
     const ADMIN_PASSWORD = "RAJA_ADMIN_2026"; 
 
+    // =======================================================
+    // 🚨 TELEGRAM OFFICIAL BOT API (INSTANT NOTIFICATIONS) 🚨
     const TELEGRAM_BOT_TOKEN = "8756807321:AAHFhoyhF7sHjc5m22B8QAiRuI_xZmeU_fg"; 
     const TELEGRAM_CHAT_ID = "8846198339"; 
+    // =======================================================
 
+    // --- FIREBASE INITIALIZATION ---
     const firebaseConfig = {
       apiKey: "AIzaSyBCX9rALYZSxzYvawPexwXIHTSA3uhU24E",
       authDomain: "rajaguptaact.firebaseapp.com",
@@ -56,17 +66,6 @@
     };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-
-    const safeParse = (key, defaultVal) => {
-      try { 
-        const val = localStorage.getItem(key); 
-        if (!val) return defaultVal;
-        const parsed = JSON.parse(val);
-        if (Array.isArray(defaultVal) && !Array.isArray(parsed)) return defaultVal;
-        return parsed;
-      } 
-      catch (e) { return defaultVal; }
-    };
 
     const A4Frame = ({ src, className }) => (
       <div className={`bg-white p-1.5 md:p-2 border-[8px] md:border-[12px] border-gray-900 z-10 flex items-center justify-center w-[52%] aspect-[1/1.414] relative ${className}`}>
@@ -156,7 +155,15 @@
       const [artworks, setArtworks] = useState([]);
       const [orders, setOrders] = useState([]);
       const [announcements, setAnnouncements] = useState([]);
-      const [cart, setCart] = useState(() => safeParse('raja_cart', []));
+      
+      const [cart, setCart] = useState(() => {
+        try {
+          const val = localStorage.getItem('raja_cart');
+          if (!val) return [];
+          const parsed = JSON.parse(val);
+          return Array.isArray(parsed) ? parsed.filter(i => i) : [];
+        } catch (e) { return []; }
+      });
       
       const [commissionInput, setCommissionInput] = useState({ subject: '', size: 'A4 Colour Pencil', budget: '' });
 
@@ -327,7 +334,7 @@
       };
 
       const startCheckout = (items, type) => {
-        let total = items.reduce((sum, item) => sum + item.price, 0);
+        let total = items.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
         const initCountry = currency === 'USD' ? 'International' : 'India';
         
         if (!checkoutData.name || checkoutData.type !== type) {
@@ -434,7 +441,7 @@
       );
 
       const CartView = () => {
-        const total = cart.reduce((sum, item) => sum + item.price, 0);
+        const total = cart.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
         return (
           <div className="p-6 max-w-3xl mx-auto min-h-screen">
             <button onClick={() => nav('gallery')} className="mb-6 text-purple-600 font-bold flex items-center gap-2 hover:text-purple-800 transition">
