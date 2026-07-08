@@ -41,7 +41,6 @@
     
     // --- SECURITY CREDENTIALS ---
     const ADMIN_PASSWORD = "RAJA_ADMIN_2026"; 
-    // PIN ab hat gaya hai. Ab Live OTP aayega!
 
     // =======================================================
     // 🚨 TELEGRAM OFFICIAL BOT API (INSTANT NOTIFICATIONS) 🚨
@@ -60,11 +59,6 @@
     };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-
-    const safeParse = (key, defaultVal) => {
-      try { const val = localStorage.getItem(key); return val ? JSON.parse(val) : defaultVal; } 
-      catch (e) { return defaultVal; }
-    };
 
     const A4Frame = ({ src, className }) => (
       <div className={`bg-white p-1.5 md:p-2 border-[8px] md:border-[12px] border-gray-900 z-10 flex items-center justify-center w-[52%] aspect-[1/1.414] relative ${className}`}>
@@ -145,17 +139,18 @@
       const [view, setView] = useState('gallery');
       const [menuOpen, setMenuOpen] = useState(false);
       
-      // Admin Login States
       const [isAdmin, setIsAdmin] = useState(false);
-      const [adminStep, setAdminStep] = useState(1); // 1: Password, 2: OTP
+      const [adminStep, setAdminStep] = useState(1); 
       const [password, setPassword] = useState('');
       const [otpInput, setOtpInput] = useState('');
-      const [liveOTP, setLiveOTP] = useState(''); // Secret OTP generated live
+      const [liveOTP, setLiveOTP] = useState(''); 
 
       const [artworks, setArtworks] = useState([]);
       const [orders, setOrders] = useState([]);
       const [announcements, setAnnouncements] = useState([]);
-      const [cart, setCart] = useState(() => safeParse('raja_cart', []));
+      
+      // 100% ONLINE AND LIVE. ZERO LOCAL STORAGE.
+      const [cart, setCart] = useState([]);
       
       const [commissionInput, setCommissionInput] = useState({ subject: '', size: 'A4 Colour Pencil', budget: '' });
 
@@ -187,7 +182,6 @@
       const [editArtId, setEditArtId] = useState(null);
       const [editAnnId, setEditAnnId] = useState(null);
 
-      // --- ADVANCED SECURITY: ADMIN LOGIN ALERTS WITH LIVE OTP ---
       const sendLoginAlert = async (status, attemptedData) => {
         try {
             let ip = "Unknown";
@@ -214,14 +208,12 @@
 
             let msg = `🛡️ *SECURITY ALERT: ADMIN LOGIN* 🛡️\n\n`;
             
-            if (status === 'SUCCESS_TRUSTED') {
-                msg += `*Status:* ✅ SUCCESSFUL LOGIN (Trusted Device)\n`;
-            } else if (status === 'SEND_OTP') {
-                msg += `*Status:* ⚠️ NEW DEVICE DETECTED\nSomeone is trying to login. If it's you, use this OTP:\n\n🔑 *YOUR SECRET OTP:* \`${attemptedData}\`\n\n`;
+            if (status === 'SEND_OTP') {
+                msg += `*Status:* ⚠️ NEW LOGIN ATTEMPT\nUse this OTP to verify:\n\n🔑 *YOUR SECRET OTP:* \`${attemptedData}\`\n\n`;
             } else if (status === 'NEW_DEVICE_VERIFIED') {
-                msg += `*Status:* 🟢 NEW DEVICE VERIFIED & SAVED\n`;
+                msg += `*Status:* 🟢 DEVICE VERIFIED SUCCESSFULLY\n`;
             } else if (status === 'OTP_FAILED') {
-                msg += `*Status:* ❌ DEVICE BLOCKED\n(Wrong OTP entered: ${attemptedData})\n`;
+                msg += `*Status:* ❌ LOGIN BLOCKED\n(Wrong OTP entered: ${attemptedData})\n`;
             } else if (status === 'FAILED') {
                 msg += `*Status:* ❌ FAILED LOGIN ATTEMPT\n*Wrong Password:* \`${attemptedData}\`\n`;
             }
@@ -239,7 +231,6 @@
         } catch(e) { console.error(e); }
       };
 
-      // --- ORDER NOTIFICATIONS ---
       const sendSilentAlert = (orderInfo) => {
         let msg = `🚨 *NEW STUDIO ORDER* 🚨\n\n`;
         msg += `*Order ID:* ${orderInfo.orderId}\n`;
@@ -304,8 +295,11 @@
         return () => { unsubArt(); unsubOrd(); unsubAnn(); };
       }, []);
 
-      useEffect(() => localStorage.setItem('raja_cart', JSON.stringify(cart)), [cart]);
-      useEffect(() => { feather.replace(); }, [view, menuOpen, currency]);
+      useEffect(() => { 
+        if (window.feather) {
+            window.feather.replace(); 
+        }
+      }, [view, menuOpen, currency]);
 
       useEffect(() => {
         const handleContext = (e) => e.preventDefault();
@@ -321,7 +315,7 @@
       };
 
       const startCheckout = (items, type) => {
-        let total = items.reduce((sum, item) => sum + item.price, 0);
+        let total = items.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
         const initCountry = currency === 'USD' ? 'International' : 'India';
         
         if (!checkoutData.name || checkoutData.type !== type) {
@@ -372,8 +366,8 @@
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 pb-4">
                   <div className="bg-gradient-to-br from-purple-600 to-indigo-600 p-4 rounded-2xl shadow-lg text-center flex flex-col justify-between text-white transform hover:-translate-y-1 transition relative">
                     
-                    {art.priceOriginalOld && Number(art.priceOriginalOld) > Number(art.priceOriginal) && (
-                      <span className="absolute top-2 right-2 bg-yellow-400 text-gray-900 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide shadow-md animate-pulse">
+                    {art.priceOriginalOld && art.priceOriginal && Number(art.priceOriginalOld) > Number(art.priceOriginal) && (
+                      <span className="absolute top-2 right-2 bg-yellow-400 text-gray-900 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide animate-pulse shadow-md">
                         {Math.round(((Number(art.priceOriginalOld) - Number(art.priceOriginal)) / Number(art.priceOriginalOld)) * 100)}% OFF
                       </span>
                     )}
@@ -383,17 +377,16 @@
                       <p className="font-black text-sm md:text-lg mb-1">A4 Size</p>
                       
                       <div className="flex flex-col items-center justify-center my-1 min-h-[50px]">
-                        {art.priceOriginalOld && Number(art.priceOriginalOld) > Number(art.priceOriginal) && (
+                        {art.priceOriginalOld && art.priceOriginal && Number(art.priceOriginalOld) > Number(art.priceOriginal) && (
                           <span className="line-through text-purple-300 text-xs">{getPrice(art.priceOriginalOld)}</span>
                         )}
-                        <p className="text-lg md:text-2xl font-black">{getPrice(art.priceOriginal)}</p>
+                        <p className="text-lg md:text-2xl font-black">{getPrice(art.priceOriginal || art.priceOriginalOld)}</p>
                       </div>
-
                     </div>
                     {art.isSold ? (
                         <button disabled className="w-full bg-gray-400 text-gray-200 py-2 md:py-3 rounded-xl font-bold text-xs md:text-sm shadow-md cursor-not-allowed mt-2">SOLD OUT</button>
                     ) : (
-                        <button onClick={() => addToCart(art, 'Original A4 Colour Pencil', art.priceOriginal, art.priceOriginalOld)} className="w-full bg-white text-purple-700 py-2 md:py-3 rounded-xl font-bold text-xs md:text-sm shadow-md hover:bg-gray-50 cursor-pointer mt-2">Add to Cart</button>
+                        <button onClick={() => addToCart(art, 'Original A4 Colour Pencil', art.priceOriginal || art.priceOriginalOld, art.priceOriginal ? art.priceOriginalOld : null)} className="w-full bg-white text-purple-700 py-2 md:py-3 rounded-xl font-bold text-xs md:text-sm shadow-md hover:bg-gray-50 cursor-pointer mt-2">Add to Cart</button>
                     )}
                   </div>
                   <div className="bg-white p-4 rounded-2xl shadow-md text-center border-2 border-gray-100 flex flex-col justify-between hover:border-pink-400 transition">
@@ -402,7 +395,7 @@
                       <p className="font-black text-gray-800 text-sm md:text-lg mb-1">A3 Size</p>
                       <p className="text-lg md:text-2xl font-black text-pink-600 my-2">{getPrice(art.priceA3)}</p>
                     </div>
-                    <button onClick={() => addToCart(art, 'Print A3', art.priceA3)} className="w-full bg-gray-100 text-gray-900 border border-gray-200 py-2 md:py-3 rounded-xl font-bold text-xs md:text-sm hover:bg-pink-50 hover:text-pink-600 transition cursor-pointer mt-2">Add to Cart</button>
+                    <button onClick={() => addToCart(art, 'Print A3', art.priceA3, null)} className="w-full bg-gray-100 text-gray-900 border border-gray-200 py-2 md:py-3 rounded-xl font-bold text-xs md:text-sm hover:bg-pink-50 hover:text-pink-600 transition cursor-pointer mt-2">Add to Cart</button>
                   </div>
                   <div className="bg-white p-4 rounded-2xl shadow-md text-center border-2 border-gray-100 flex flex-col justify-between hover:border-pink-400 transition">
                     <div>
@@ -410,7 +403,7 @@
                       <p className="font-black text-gray-800 text-sm md:text-lg mb-1">A4 Size</p>
                       <p className="text-lg md:text-2xl font-black text-pink-600 my-2">{getPrice(art.priceA4)}</p>
                     </div>
-                    <button onClick={() => addToCart(art, 'Print A4', art.priceA4)} className="w-full bg-gray-100 text-gray-900 border border-gray-200 py-2 md:py-3 rounded-xl font-bold text-xs md:text-sm hover:bg-pink-50 hover:text-pink-600 transition cursor-pointer mt-2">Add to Cart</button>
+                    <button onClick={() => addToCart(art, 'Print A4', art.priceA4, null)} className="w-full bg-gray-100 text-gray-900 border border-gray-200 py-2 md:py-3 rounded-xl font-bold text-xs md:text-sm hover:bg-pink-50 hover:text-pink-600 transition cursor-pointer mt-2">Add to Cart</button>
                   </div>
                   <div className="bg-white p-4 rounded-2xl shadow-md text-center border-2 border-gray-100 flex flex-col justify-between hover:border-pink-400 transition">
                     <div>
@@ -418,7 +411,7 @@
                       <p className="font-black text-gray-800 text-sm md:text-lg mb-1">A5 Size</p>
                       <p className="text-lg md:text-2xl font-black text-pink-600 my-2">{getPrice(art.priceA5)}</p>
                     </div>
-                    <button onClick={() => addToCart(art, 'Print A5', art.priceA5)} className="w-full bg-gray-100 text-gray-900 border border-gray-200 py-2 md:py-3 rounded-xl font-bold text-xs md:text-sm hover:bg-pink-50 hover:text-pink-600 transition cursor-pointer mt-2">Add to Cart</button>
+                    <button onClick={() => addToCart(art, 'Print A5', art.priceA5, null)} className="w-full bg-gray-100 text-gray-900 border border-gray-200 py-2 md:py-3 rounded-xl font-bold text-xs md:text-sm hover:bg-pink-50 hover:text-pink-600 transition cursor-pointer mt-2">Add to Cart</button>
                   </div>
                 </div>
               </div>
@@ -428,7 +421,7 @@
       );
 
       const CartView = () => {
-        const total = cart.reduce((sum, item) => sum + item.price, 0);
+        const total = cart.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
         return (
           <div className="p-6 max-w-3xl mx-auto min-h-screen">
             <button onClick={() => nav('gallery')} className="mb-6 text-purple-600 font-bold flex items-center gap-2 hover:text-purple-800 transition">
@@ -443,8 +436,9 @@
                       <img src={item.image} className="w-20 h-20 object-cover rounded-xl shadow-md border-2 border-white pointer-events-none" />
                       <div><h4 className="font-black text-lg text-gray-900">{item.title}</h4><p className="text-sm font-bold text-purple-600">{item.selectedSize}</p></div>
                     </div>
+                    
                     <div className="text-right flex flex-col items-end">
-                      {item.priceOriginalOld && item.price && Number(item.priceOriginalOld) > Number(item.price) && item.selectedSize && item.selectedSize.indexOf('Original') !== -1 ? (
+                      {item.priceOriginalOld && item.price && Number(item.priceOriginalOld) > Number(item.price) && typeof item.selectedSize === 'string' && item.selectedSize.indexOf('Original') !== -1 ? (
                         <div className="flex items-center gap-1.5 mb-0.5">
                           <span className="bg-yellow-400 text-gray-900 text-[10px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wide">
                             {Math.round(((Number(item.priceOriginalOld) - Number(item.price)) / Number(item.priceOriginalOld)) * 100)}% OFF
@@ -865,3 +859,4 @@
   </script>
 </body>
 </html>
+
