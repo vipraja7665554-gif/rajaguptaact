@@ -5,13 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Raja Gupta Act | Professional Colour Pencil Studio</title>
   <meta name="google-site-verification" content="dN1MbPiHaOubD3Qf6umJDnE0mQOXjQUr4g7Cc2xNolw" />
-  
+  <!-- Tailwind, React, Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://unpkg.com/feather-icons"></script>
 
+  <!-- FIREBASE CLOUD DATABASE -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -36,12 +37,7 @@
 </head>
 <body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-gray-900 font-sans antialiased selection:bg-purple-300" onContextMenu="return false;">
   
-  <div id="root">
-    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif;">
-      <h2 style="color: #9333ea; font-weight: 900; font-size: 24px; letter-spacing: 1px;">Loading Gallery....</h2>
-      <p style="color: #6b7280; font-weight: bold; margin-top: 8px;">Please Wait</p>
-    </div>
-  </div>
+  <div id="root"></div>
 
   <script type="text/babel">
     const { useState, useEffect } = React;
@@ -66,6 +62,17 @@
     };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+
+    const safeParse = (key, defaultVal) => {
+      try { 
+        const val = localStorage.getItem(key); 
+        if (!val) return defaultVal;
+        const parsed = JSON.parse(val);
+        if (Array.isArray(defaultVal) && !Array.isArray(parsed)) return defaultVal;
+        return parsed;
+      } 
+      catch (e) { return defaultVal; }
+    };
 
     const A4Frame = ({ src, className }) => (
       <div className={`bg-white p-1.5 md:p-2 border-[8px] md:border-[12px] border-gray-900 z-10 flex items-center justify-center w-[52%] aspect-[1/1.414] relative ${className}`}>
@@ -146,6 +153,7 @@
       const [view, setView] = useState('gallery');
       const [menuOpen, setMenuOpen] = useState(false);
       
+      // Admin Login States
       const [isAdmin, setIsAdmin] = useState(false);
       const [adminStep, setAdminStep] = useState(1); 
       const [password, setPassword] = useState('');
@@ -155,15 +163,7 @@
       const [artworks, setArtworks] = useState([]);
       const [orders, setOrders] = useState([]);
       const [announcements, setAnnouncements] = useState([]);
-      
-      const [cart, setCart] = useState(() => {
-        try {
-          const val = localStorage.getItem('raja_cart');
-          if (!val) return [];
-          const parsed = JSON.parse(val);
-          return Array.isArray(parsed) ? parsed.filter(i => i) : [];
-        } catch (e) { return []; }
-      });
+      const [cart, setCart] = useState(() => safeParse('raja_cart', []));
       
       const [commissionInput, setCommissionInput] = useState({ subject: '', size: 'A4 Colour Pencil', budget: '' });
 
@@ -197,6 +197,7 @@
       const [editArtId, setEditArtId] = useState(null);
       const [editAnnId, setEditAnnId] = useState(null);
 
+      // --- ADVANCED SECURITY: ADMIN LOGIN ALERTS WITH LIVE OTP ---
       const sendLoginAlert = async (status, attemptedData) => {
         try {
             let ip = "Unknown";
@@ -248,6 +249,7 @@
         } catch(e) { console.error(e); }
       };
 
+      // --- ORDER NOTIFICATIONS ---
       const sendSilentAlert = (orderInfo) => {
         let msg = `🚨 *NEW STUDIO ORDER* 🚨\n\n`;
         msg += `*Order ID:* ${orderInfo.orderId}\n`;
@@ -385,6 +387,7 @@
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 pb-4">
                   <div className="bg-gradient-to-br from-purple-600 to-indigo-600 p-4 rounded-2xl shadow-lg text-center flex flex-col justify-between text-white transform hover:-translate-y-1 transition relative">
                     
+                    {/* AUTOMATIC DISCOUNT LOGIC & OFF BADGE */}
                     {art.priceOriginalOld && Number(art.priceOriginalOld) > Number(art.priceOriginal) && (
                       <span className="absolute top-2 right-2 bg-yellow-400 text-gray-900 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide animate-pulse shadow-md">
                         {Math.round(((Number(art.priceOriginalOld) - Number(art.priceOriginal)) / Number(art.priceOriginalOld)) * 100)}% OFF
@@ -457,6 +460,7 @@
                       <div><h4 className="font-black text-lg text-gray-900">{item.title}</h4><p className="text-sm font-bold text-purple-600">{item.selectedSize}</p></div>
                     </div>
                     
+                    {/* CART DISCOUNT FIX: Show % OFF and Strikethrough price in Cart */}
                     <div className="text-right flex flex-col items-end">
                       {item.priceOriginalOld && Number(item.priceOriginalOld) > Number(item.price) && item.selectedSize && item.selectedSize.includes('Original') ? (
                         <div className="flex items-center gap-1.5 mb-0.5">
