@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Raja Gupta Act | Professional Colour Pencil Studio</title>
   <meta name="google-site-verification" content="dN1MbPiHaOubD3Qf6umJDnE0mQOXjQUr4g7Cc2xNolw" />
+  <!-- Tailwind, React, Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://unpkg.com/feather-icons"></script>
 
+  <!-- FIREBASE CLOUD DATABASE -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -114,14 +116,14 @@
       );
     };
 
-    // ✅ VIP MOCKUP 3: PREMIUM LEANING TABLE DESK (STRAIGHT)
+    // ✅ VIP MOCKUP 3: PREMIUM LEANING TABLE DESK (STRAIGHT) - WALLPAPER FIXED
     const TableMockup = ({ src }) => (
-      <div className="w-full aspect-square rounded-2xl relative overflow-hidden shadow-inner flex justify-center items-end pb-[12%] select-none bg-slate-50">
-        <div className="absolute top-0 left-0 w-full h-[70%] bg-gradient-to-b from-[#eef2f3] to-[#8e9eab] opacity-50"></div>
+      <div className="w-full aspect-square rounded-2xl relative overflow-hidden shadow-inner flex justify-center items-end pb-[12%] select-none bg-slate-100">
+        <div className="absolute top-0 left-0 w-full h-[70%] bg-[#d3dce6]" style={{ backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.4) 0px, rgba(255,255,255,0.4) 2px, transparent 2px, transparent 8px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.4) 0px, rgba(255,255,255,0.4) 2px, transparent 2px, transparent 8px)' }}></div>
         <div className="absolute bottom-0 left-0 w-full h-[30%] bg-[#b08d6a] border-t-[8px] border-[#8a684a] shadow-[inset_0_10px_20px_rgba(0,0,0,0.2)]">
             <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 15px, rgba(0,0,0,0.1) 15px, rgba(0,0,0,0.1) 17px)' }}></div>
         </div>
-        <div className="absolute bottom-[10%] left-1/2 -translate-x-1/2 w-[60%] h-[15%] bg-black/30 blur-md rounded-[100%]"></div>
+        <div className="absolute bottom-[10%] left-1/2 -translate-x-1/2 w-[60%] h-[15%] bg-black/40 blur-md rounded-[100%]"></div>
         <A4Frame src={src} className="relative z-10 hover:-translate-y-2 shadow-[0_20px_25px_rgba(0,0,0,0.5)] transition-all duration-500" />
       </div>
     );
@@ -465,7 +467,7 @@
             } else if (status === 'BLOCKED') {
                 msg += `*Status:* ⛔ IP/DEVICE BLOCKED FOR 15 MINS\n(Too many failed attempts/spams)\n`;
             } else if (status === 'SECURE_LOGOUT') {
-                msg += `*Status:* 🔓 SECURE LOGOUT (Device Untrusted)\n`;
+                msg += `*Status:* 🔓 SECURE LOGOUT (Device Saved)\n`;
             }
 
             msg += `*Time:* ${date} • ${time}\n\n`;
@@ -547,10 +549,10 @@
         return () => { unsubArt(); unsubOrd(); unsubAnn(); };
       }, []);
       
-      // ✅ FETCH SESSIONS WHEN ADMIN
+      // ✅ FETCH SESSIONS WHEN ADMIN (Now fetches ALL Trusted Devices, online & offline)
       useEffect(() => {
         if (isAdmin) {
-           const unsubSess = db.collection("adminSessions").onSnapshot(snap => {
+           const unsubSess = db.collection("trustedDevices").onSnapshot(snap => {
                setActiveSessions(snap.docs.map(doc => doc.data()).sort((a,b) => b.createdAt - a.createdAt));
            });
            return () => unsubSess();
@@ -567,7 +569,16 @@
 
       const nav = (v) => { setView(v); setMenuOpen(false); window.scrollTo(0,0); };
 
+      // ✅ FIX 1: 5-SEC COOLDOWN TIMER STATE
+      const [lastAddedTime, setLastAddedTime] = useState(0);
+
       const addToCart = (art, size, price, oldPrice) => {
+        const now = Date.now();
+        if (now - lastAddedTime < 5000) {
+            showToast("⏳ Please wait 5 seconds before adding another item.");
+            return;
+        }
+
         // ✅ NEW LOGIC: PREVENT ADDING THE SAME ORIGINAL ARTWORK TWICE
         if (size && size.includes('Original')) {
             const alreadyInCart = cart.some(c => c.id === art.id && c.selectedSize.includes('Original'));
@@ -578,6 +589,7 @@
         }
         
         setCart([...cart, { ...art, selectedSize: size, price: Number(price), priceOriginalOld: oldPrice ? Number(oldPrice) : null, cartId: Date.now() }]);
+        setLastAddedTime(now); // Set the time of last successful add
         showToast("Artwork added to your Cart!");
       };
 
@@ -1248,9 +1260,9 @@
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 glass-panel p-6 rounded-3xl shadow-sm">
               <h2 className="text-2xl md:text-3xl font-black text-purple-900 flex items-center gap-3">Admin Security Portal</h2>
               <div className="flex gap-4">
-                {/* ✅ SECURE LOGOUT BUTTON */}
+                {/* ✅ TOP BUTTON: OWNER SECURE LOGOUT (KEEPS TRUST) */}
                 <button onClick={async () => { 
-                    if(window.confirm("SECURE LOGOUT: Are you sure you want to completely log out from this device? (You will need both Password and OTP for the next login.)")) {
+                    if(window.confirm("SECURE LOGOUT: Are you sure you want to log out? (Your device remains trusted, so next time you only need your password.)")) {
                         const devId = window.localStorage.getItem('raja_device_id');
                         if(devId) {
                             await db.collection('adminSessions').doc(devId).delete().catch(e=>console.log(e));
@@ -1267,12 +1279,12 @@
               </div>
             </div>
             
-            {/* ✅ LIVE TRUSTED DEVICES SECTION (COLLAPSIBLE ACCORDION) */}
+            {/* ✅ TRUSTED DEVICES SECTION (SHOWS BOTH LIVE AND OFFLINE BYPASSED HACKERS) */}
             <div className="glass-panel rounded-3xl shadow-xl border-t-4 border-t-blue-500 mb-10 overflow-hidden relative">
                <button type="button" onClick={() => setIsDevicesOpen(!isDevicesOpen)} className="w-full text-left p-6 md:p-8 focus:outline-none flex justify-between items-center cursor-pointer hover:bg-blue-50/50 transition">
                   <h3 className="text-xl md:text-2xl font-black text-gray-900 flex items-center gap-3">
                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                     Trusted Devices (Live)
+                     Trusted Devices (Access Control)
                   </h3>
                   <svg className={`w-6 h-6 text-blue-600 transform transition-transform duration-300 flex-shrink-0 ${isDevicesOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                </button>
@@ -1281,7 +1293,7 @@
                    {activeSessions.length === 0 ? <p className="text-gray-500 font-bold">No active sessions found.</p> : (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                          {activeSessions.map(session => {
-                            const isCurrentDev = session.id === window.localStorage.getItem('raja_device_id');
+                            const isCurrentDev = session.id === window.localStorage.getItem('raja_permanent_device_id');
                             return (
                               <div key={session.id} className={`p-5 rounded-2xl border flex flex-col justify-between ${isCurrentDev ? 'bg-blue-50 border-blue-200 shadow-sm' : 'bg-white border-gray-200 shadow-md'}`}>
                                  <div>
@@ -1293,22 +1305,29 @@
                                        {isCurrentDev && <span className="bg-blue-600 text-white text-[10px] font-black px-2 py-1 rounded uppercase tracking-wider">Current</span>}
                                     </div>
                                     <p className="text-sm font-bold text-gray-600">IP: <span className="font-medium text-gray-800">{session.ip}</span></p>
-                                    <p className="text-sm font-bold text-gray-600">Loc: <span className="font-medium text-gray-800">{session.location}</span></p>
-                                    <p className="text-xs font-medium text-gray-400 mt-2">Logged in: {new Date(session.createdAt).toLocaleString('en-IN')}</p>
+                                    <p className="text-sm font-bold text-gray-600">Loc: <span className="font-medium text-gray-800">{session.location || "Unknown"}</span></p>
+                                    <p className="text-xs font-medium text-gray-400 mt-2">Saved Since: {new Date(session.createdAt).toLocaleString('en-IN')}</p>
                                  </div>
                                  
-                                 {/* ✅ REVOKE/LOGOUT BUTTON FOR ALL DEVICES */}
+                                 {/* ✅ ACCORDION BUTTON: COMPLETELY DESTROYS TRUST */}
                                  <button onClick={() => {
-                                     if(window.confirm(isCurrentDev ? "LOGOUT: Are you sure you want to log out of your current device?" : "REVOKE ACCESS: Are you sure you want to instantly log out and block this device?")) {
-                                         db.collection('adminSessions').doc(session.id).delete();
+                                     if(window.confirm(isCurrentDev ? "LOGOUT & REMOVE TRUST: Are you sure you want to log out and remove your own device from Trusted List?" : "REVOKE HACKER: Are you sure you want to instantly log out and DESTROY this device's trust? (Will need OTP again)")) {
+                                         
+                                         // Permanently Destroy Trust
+                                         db.collection('trustedDevices').doc(session.id).delete().catch(e=>console.log(e));
+                                         
+                                         // If online, kick out session instantly
+                                         db.collection('adminSessions').doc(session.id).delete().catch(e=>console.log(e));
+                                         
                                          if(isCurrentDev) {
                                             window.localStorage.removeItem('raja_device_id');
+                                            window.localStorage.removeItem('raja_permanent_device_id');
                                             setIsAdmin(false);
                                             setAdminStep(1);
                                          }
                                      }
                                  }} className={`mt-4 w-full py-2 rounded-xl font-black text-sm transition-all cursor-pointer ${isCurrentDev ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-300' : 'bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-200'}`}>
-                                    {isCurrentDev ? "Logout Current Device" : "Revoke Access (Logout)"}
+                                    {isCurrentDev ? "Logout & Remove Trust" : "Revoke Access (Destroy Trust)"}
                                  </button>
                               </div>
                             )
@@ -1529,12 +1548,42 @@
             setPassword('');
             await sendLoginAlert('SUCCESS_TRUSTED', password);
           } else {
-            // Generate Random 6-Digit OTP
-            const newOTP = Math.floor(100000 + Math.random() * 900000).toString();
-            setLiveOTP(newOTP);
-            setAdminStep(2); 
-            setResendTimer(30); // Start 30sec timer
-            await sendLoginAlert('SEND_OTP', newOTP);
+            // ✅ Check if this device is permanently trusted to bypass OTP
+            let isPermanentlyTrusted = false;
+            let permDevId = window.localStorage.getItem('raja_permanent_device_id');
+            if (permDevId) {
+                try {
+                    const pDoc = await db.collection('trustedDevices').doc(permDevId).get();
+                    if (pDoc.exists) isPermanentlyTrusted = true;
+                } catch(e) {}
+            }
+
+            if (isPermanentlyTrusted) {
+                // Bypass OTP, Create new active session instantly
+                const devDetails = await fetchDeviceDetails();
+                try { 
+                   await db.collection('adminSessions').doc(permDevId).set({
+                       id: permDevId,
+                       ip: devDetails.ip,
+                       location: devDetails.location,
+                       deviceModel: devDetails.deviceModel,
+                       createdAt: Date.now()
+                   });
+                   window.localStorage.setItem('raja_device_id', permDevId); 
+                   window.localStorage.setItem('raja_admin_fails', '0'); 
+                } catch(err){}
+                
+                setIsAdmin(true);
+                setPassword('');
+                await sendLoginAlert('SUCCESS_TRUSTED', 'Logged in via saved trusted device (Bypassed OTP)', devDetails);
+            } else {
+                // Not trusted yet or revoked. Generate Random 6-Digit OTP.
+                const newOTP = Math.floor(100000 + Math.random() * 900000).toString();
+                setLiveOTP(newOTP);
+                setAdminStep(2); 
+                setResendTimer(30); // Start 30sec timer
+                await sendLoginAlert('SEND_OTP', newOTP);
+            }
           }
         } else {
           await registerFail('FAILED', password);
@@ -1546,20 +1595,35 @@
 
         if (otpInput === liveOTP && liveOTP !== '') {
            
-           // Generate New Device Session ID
-           const newDevId = 'DEV-' + Date.now();
            const devDetails = await fetchDeviceDetails();
            
+           // ✅ Save permanent trusted device ID in database
+           let permDevId = window.localStorage.getItem('raja_permanent_device_id');
+           if (!permDevId) {
+               permDevId = 'TRUSTED-' + Date.now() + '-' + Math.floor(Math.random()*1000);
+               window.localStorage.setItem('raja_permanent_device_id', permDevId);
+           }
+           
            try { 
-               db.collection('adminSessions').doc(newDevId).set({
-                   id: newDevId,
+               // Save to trusted permanent database
+               await db.collection('trustedDevices').doc(permDevId).set({
+                   id: permDevId,
                    ip: devDetails.ip,
                    location: devDetails.location,
                    deviceModel: devDetails.deviceModel,
                    createdAt: Date.now()
                });
-               window.localStorage.setItem('raja_device_id', newDevId); 
-               window.localStorage.setItem('raja_admin_fails', '0'); // reset fails on success
+
+               // Save temporary active session
+               await db.collection('adminSessions').doc(permDevId).set({
+                   id: permDevId,
+                   ip: devDetails.ip,
+                   location: devDetails.location,
+                   deviceModel: devDetails.deviceModel,
+                   createdAt: Date.now()
+               });
+               window.localStorage.setItem('raja_device_id', permDevId); 
+               window.localStorage.setItem('raja_admin_fails', '0'); 
            } catch(err){}
            
            setIsAdmin(true);
