@@ -97,46 +97,29 @@
       </div>
     );
 
-    // ✅ INSTANT BACKGROUND FIX 1: Premium Dark Studio (Zero Load Time, 100% Device Support)
+    // ✅ 10000% UNIVERSAL REALISTIC FIX 1: Dark Studio (Native img tag + Cinematic Blur)
     const FrameMockup = ({ src }) => (
-      <div className="w-full aspect-square rounded-2xl flex items-center justify-center p-4 relative overflow-hidden select-none" 
-           style={{ 
-               background: 'radial-gradient(circle at center, #374151 0%, #111827 60%, #030712 100%)',
-               boxShadow: 'inset 0 0 50px rgba(0,0,0,0.9)'
-           }}>
-        <A4Frame src={src} className="transition-transform hover:scale-105 duration-700 relative z-10" style={{ boxShadow: '0 30px 50px -10px rgba(0,0,0,0.9), 0 0 20px rgba(255,255,255,0.05)' }} />
+      <div className="w-full aspect-square rounded-2xl flex items-center justify-center p-4 relative overflow-hidden select-none bg-gray-900">
+        <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=400&auto=format&fit=crop" loading="eager" className="absolute inset-0 w-full h-full object-cover blur-[4px] opacity-50 pointer-events-none" alt="studio-bg" />
+        <A4Frame src={src} className="transition-transform hover:scale-105 duration-700 relative z-10 shadow-[0_25px_50px_rgba(0,0,0,0.9)]" />
       </div>
     );
 
-    // ✅ INSTANT BACKGROUND FIX 2: Bright Premium Home Wall (Zero Load Time, 100% Device Support)
+    // ✅ 10000% UNIVERSAL REALISTIC FIX 2: Home Wall (Native img tag + Cinematic Blur)
     const WallMockup = ({ src }) => (
-      <div className="w-full aspect-square rounded-2xl flex items-center justify-center p-4 relative overflow-hidden select-none" 
-           style={{ 
-               background: 'radial-gradient(circle at top, #ffffff 0%, #f1f5f9 60%, #e2e8f0 100%)',
-           }}>
-        <A4Frame src={src} className="transition-transform hover:scale-105 duration-700 relative z-10" style={{ boxShadow: '0 25px 50px -12px rgba(0,0,0,0.35), 0 0 15px rgba(0,0,0,0.05)' }} />
+      <div className="w-full aspect-square rounded-2xl flex items-center justify-center p-4 relative overflow-hidden select-none bg-gray-100">
+        <img src="https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=400&auto=format&fit=crop" loading="eager" className="absolute inset-0 w-full h-full object-cover blur-[3px] opacity-80 pointer-events-none" alt="wall-bg" />
+        <A4Frame src={src} className="transition-transform hover:scale-105 duration-700 relative z-10 shadow-[0_20px_40px_rgba(0,0,0,0.3)]" />
       </div>
     );
 
-    // ✅ INSTANT BACKGROUND FIX 3: Rich Wood Table Desk (Zero Load Time, 100% Device Support)
+    // ✅ 10000% UNIVERSAL REALISTIC FIX 3: Wood Table Desk (Native img tag + Cinematic Blur)
     const TableMockup = ({ src }) => (
-      <div className="w-full aspect-square rounded-2xl relative overflow-hidden flex justify-center items-end pb-[12%] select-none" 
-           style={{ background: 'linear-gradient(to bottom, #f3f4f6 0%, #e5e7eb 100%)' }}>
-        
-        {/* Universal Pure CSS Wood Table Surface */}
-        <div className="absolute bottom-0 left-0 w-full h-[38%]" 
-             style={{ 
-                 background: 'linear-gradient(to bottom, #6d4c41 0%, #3e2723 100%)', 
-                 borderTop: '3px solid #8d6e63',
-                 boxShadow: 'inset 0 20px 40px -10px rgba(0,0,0,0.8)' 
-             }}>
-        </div>
-        
-        {/* Soft shadow instantly rendered by CSS */}
-        <div className="absolute bottom-[7%] left-1/2 w-[70%] h-[15px] rounded-[100%]" 
-             style={{ transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.5)', filter: 'blur(6px)' }}></div>
-        
-        <A4Frame src={src} className="relative z-10 transition-transform duration-700 transform -rotate-2 hover:-translate-y-2" style={{ boxShadow: '0 25px 35px -5px rgba(0,0,0,0.7), 5px 5px 15px rgba(0,0,0,0.4)' }} />
+      <div className="w-full aspect-square rounded-2xl relative overflow-hidden flex justify-center items-end pb-[12%] select-none bg-gray-300">
+        <img src="https://images.unsplash.com/photo-1533090161767-e6ffed986c88?q=80&w=400&auto=format&fit=crop" loading="eager" className="absolute inset-0 w-full h-full object-cover blur-[4px] opacity-90 pointer-events-none" alt="table-bg" />
+        {/* Soft shadow instantly rendered below the artwork */}
+        <div className="absolute bottom-[6%] left-1/2 w-[75%] h-[15px] rounded-[100%] bg-black/60 blur-md transform -translate-x-1/2 z-0"></div>
+        <A4Frame src={src} className="relative z-10 transition-transform duration-700 transform -rotate-2 hover:-translate-y-2 shadow-[0_25px_45px_rgba(0,0,0,0.5)]" />
       </div>
     );
 
