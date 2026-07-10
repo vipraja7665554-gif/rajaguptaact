@@ -89,53 +89,44 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // ✅ FIXED: Standard border class aur Inline CSS style se 100% Guaranteed Black Frame
+    // ✅ FIXED: Original Premium Black Border restored with 100% device support
     const A4Frame = ({ src, className, style }) => (
-      <div className={`bg-white p-2 md:p-3 border-gray-900 z-10 flex items-center justify-center w-[52%] relative ${className}`} style={{ aspectRatio: '1 / 1.414', borderWidth: '14px', ...style }}>
+      <div className={`bg-white p-1.5 md:p-2 border-[8px] md:border-[12px] border-gray-900 z-10 flex items-center justify-center w-[55%] relative ${className}`} style={{ aspectRatio: '1 / 1.414', ...style }}>
         <div className="img-protect-overlay"></div> 
-        <img src={src} loading="eager" decoding="sync" alt="Artwork" className="w-full h-full object-cover pointer-events-none border border-gray-200" onContextMenu={(e) => e.preventDefault()} onDragStart={(e) => e.preventDefault()} />
+        <img src={src} loading="eager" decoding="sync" alt="Artwork" className="w-full h-full object-cover pointer-events-none" onContextMenu={(e) => e.preventDefault()} onDragStart={(e) => e.preventDefault()} />
       </div>
     );
 
-    // ✅ INSTANT BACKGROUND UPDATE: Inline Styles bypass Tailwind bug
+    // ✅ INSTANT BACKGROUND FIX 1: Premium Dark Studio (Inline CSS for 100% Support)
     const FrameMockup = ({ src }) => (
-      <div className="w-full aspect-square rounded-2xl flex items-center justify-center p-4 relative overflow-hidden select-none" style={{ background: 'linear-gradient(to top right, #111827, #374151, #1f2937)' }}>
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 50% 0%, rgba(255,255,255,0.15) 0%, transparent 60%)' }}></div>
-        <A4Frame src={src} className="transition-transform hover:scale-105 duration-500 relative z-10" style={{ boxShadow: '0 30px 60px -15px rgba(0,0,0,0.8)' }} />
+      <div className="w-full aspect-square rounded-2xl flex items-center justify-center p-4 relative overflow-hidden select-none" style={{ backgroundColor: '#111827', backgroundImage: 'radial-gradient(circle at center, #374151 0%, #111827 70%)', border: '1px solid #374151' }}>
+        <A4Frame src={src} className="transition-transform hover:scale-105 duration-700 relative z-10" style={{ boxShadow: '0 25px 50px -12px rgba(0,0,0,0.8)' }} />
       </div>
     );
 
-    // ✅ INSTANT BACKGROUND UPDATE: 100% Solid Wall Rendering
-    const WallMockup = ({ src }) => {
-      return (
-        <div className="w-full aspect-square rounded-2xl flex items-center justify-center p-4 relative overflow-hidden select-none" style={{ backgroundColor: '#ece9e6' }}>
-          {/* Subtle elegant wall lines */}
-          <div className="absolute inset-0 opacity-30" style={{ backgroundImage: "repeating-linear-gradient(to right, transparent, transparent 40px, rgba(0,0,0,0.05) 40px, rgba(0,0,0,0.05) 42px)" }}></div>
-          {/* Natural wall spotlight */}
-          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-[80%] h-[80%] bg-white opacity-70 rounded-full" style={{ filter: 'blur(50px)' }}></div>
-          
-          <A4Frame src={src} className="mt-[-2%] transition-transform hover:scale-105 duration-500 relative z-10" style={{ boxShadow: '0 35px 60px -15px rgba(0,0,0,0.4)' }} />
-        </div>
-      );
-    };
+    // ✅ INSTANT BACKGROUND FIX 2: Bright Premium Home Wall (Inline CSS)
+    const WallMockup = ({ src }) => (
+      <div className="w-full aspect-square rounded-2xl flex items-center justify-center p-4 relative overflow-hidden select-none" style={{ backgroundColor: '#f8fafc', backgroundImage: 'linear-gradient(to bottom, #ffffff, #f1f5f9)', border: '1px solid #e2e8f0' }}>
+        {/* Soft shadow directly under frame for wow 3D effect */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[60%] h-[75%] bg-black rounded-lg" style={{ filter: 'blur(20px)', opacity: 0.15 }}></div>
+        <A4Frame src={src} className="transition-transform hover:scale-105 duration-700 relative z-10" style={{ boxShadow: '0 20px 40px -8px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.05)' }} />
+      </div>
+    );
 
-    // ✅ INSTANT BACKGROUND UPDATE: Wood Table Guaranteed View
+    // ✅ INSTANT BACKGROUND FIX 3: Rich Wood Table Desk (Inline CSS + Tilted Realistic view)
     const TableMockup = ({ src }) => (
-      <div className="w-full aspect-square rounded-2xl relative overflow-hidden flex justify-center items-end pb-[15%] select-none bg-gray-100">
-        {/* Soft Wall Background */}
-        <div className="absolute top-0 left-0 w-full h-[65%]" style={{ background: 'linear-gradient(to bottom, #e5e7eb, #d1d5db)' }}></div>
+      <div className="w-full aspect-square rounded-2xl relative overflow-hidden flex justify-center items-end pb-[12%] select-none" style={{ backgroundColor: '#f3f4f6', border: '1px solid #e2e8f0' }}>
+        {/* Wall Background */}
+        <div className="absolute top-0 left-0 w-full h-[60%]" style={{ backgroundColor: '#e5e7eb', backgroundImage: 'linear-gradient(to bottom, #f3f4f6, #d1d5db)' }}></div>
         {/* Premium Wood Table */}
-        <div className="absolute bottom-0 left-0 w-full h-[35%]" style={{ background: 'linear-gradient(to bottom, #8B5A2B, #5C3A21)', boxShadow: 'inset 0 10px 20px rgba(0,0,0,0.3)' }}>
-            <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.2) 2px, rgba(0,0,0,0.2) 4px)' }}></div>
+        <div className="absolute bottom-0 left-0 w-full h-[40%]" style={{ backgroundColor: '#78350f', backgroundImage: 'linear-gradient(to bottom, #92400e, #451a03)' }}>
+           {/* Subtle realistic table lines */}
+           <div className="absolute inset-0" style={{ opacity: 0.1, backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 20px, #000 20px, #000 22px)' }}></div>
         </div>
-        {/* Dark edge of the table */}
-        <div className="absolute bottom-[35%] left-0 w-full h-[4px]" style={{ backgroundColor: '#3e2723' }}></div>
-        
-        {/* Realistic drop shadow of the frame */}
-        <div className="absolute bottom-[13%] left-1/2 transform -translate-x-1/2 w-[55%] h-[20%] bg-black opacity-60 rounded-[100%]" style={{ filter: 'blur(15px)' }}></div>
-        
-        {/* Tilted realistic frame */}
-        <A4Frame src={src} className="relative z-10 hover:-translate-y-3 transition-all duration-500 transform -rotate-2" style={{ boxShadow: '0 30px 40px -10px rgba(0,0,0,0.6)' }} />
+        {/* Realistic drop shadow on table */}
+        <div className="absolute bottom-[10%] left-1/2 transform -translate-x-1/2 w-[65%] h-[15%] bg-black rounded-[50%]" style={{ filter: 'blur(12px)', opacity: 0.5 }}></div>
+        {/* Tilted frame for WOW factor */}
+        <A4Frame src={src} className="relative z-10 transition-transform duration-700 transform -rotate-2 hover:-translate-y-2 hover:-rotate-1" style={{ boxShadow: '10px 20px 30px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.1)' }} />
       </div>
     );
 
