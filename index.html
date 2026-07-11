@@ -26,9 +26,7 @@
 
   <style>
     /* 🚨 ANTI-THEFT & ANTI-PRINT SECURITY 🚨 */
-    @media print {
-      body { display: none !important; }
-    }
+    @media print { body { display: none !important; } }
     img { 
       image-rendering: -webkit-optimize-contrast; 
       image-rendering: crisp-edges; 
@@ -40,23 +38,20 @@
       -ms-user-select: none; 
       user-select: none;
       -webkit-user-drag: none; 
-      pointer-events: none; /* Prevents long-press save on mobile */
+      pointer-events: none; 
     }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
     .img-protect-overlay { position: absolute; inset: 0; z-index: 20; }
     
-    /* VIP TOAST ANIMATION */
     @keyframes popupToast {
       0% { transform: translate(-50%, 150%); opacity: 0; }
       10% { transform: translate(-50%, 0); opacity: 1; }
       90% { transform: translate(-50%, 0); opacity: 1; }
       100% { transform: translate(-50%, 150%); opacity: 0; }
     }
-    .animate-toast {
-      animation: popupToast 3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
+    .animate-toast { animation: popupToast 3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   </style>
 </head>
 <body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-gray-900 font-sans antialiased selection:bg-purple-300" onContextMenu="return false;">
@@ -65,7 +60,7 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
     
-    // --- SECURITY CREDENTIALS (OBFUSCATED HASH) ---
+    // --- SECURITY CREDENTIALS ---
     const verifyAdmin = (input) => {
         const secret = [87, 70, 79, 70, 100, 70, 73, 82, 78, 83, 100, 55, 53, 55, 59];
         if (!input || input.length !== secret.length) return false;
@@ -75,15 +70,10 @@
         return true;
     };
 
-    // =======================================================
-    // 🚨 TELEGRAM OFFICIAL BOT API (OLD - FOR ORDERS) 🚨
     const ORDER_BOT_TOKEN = "8756807321:AAHFhoyhF7sHjc5m22B8QAiRuI_xZmeU_fg"; 
     const ORDER_CHAT_ID = "8846198339"; 
-    
-    // 🚨 TELEGRAM SECURITY BOT API (NEW - FOR OTP/ALERTS) 🚨
     const SECURITY_BOT_TOKEN = "8948300649:AAFZ2vdLvEzWvLWUu9qkKQ8MXpKpSV30aVA"; 
     const SECURITY_CHAT_ID = "8846198339"; 
-    // =======================================================
 
     // --- FIREBASE INITIALIZATION ---
     const firebaseConfig = {
@@ -97,24 +87,30 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // ✅ EXACT FIT MOCKUP COMPONENT (NO CROP, NO LABELS, INSTANT LOAD)
+    // ✅ FIXED EXACT FIT MOCKUP COMPONENT
+    // Sirf Mota Black Frame diya gaya hai. White padding/background poori tarah hata diya gaya hai.
     const CustomFitMockup = ({ bgImage, artImage, frameStyle }) => (
-      <div className="flex-none w-[85vw] md:w-[340px] lg:w-[400px] aspect-[3/4] rounded-2xl relative overflow-hidden flex items-center justify-center select-none bg-gray-100 shadow-xl border border-gray-200 snap-center">
-        
-        {/* Background HD Image - Fetch priority high for instant load */}
-        <img src={bgImage} fetchpriority="high" loading="eager" decoding="sync" className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none" alt="Studio Mockup" />
-        
-        {/* Naya Black Frame */}
-        <div className="absolute z-10 bg-[#111111] p-[6px] md:p-[8px] shadow-[0_15px_35px_rgba(0,0,0,0.6)] border border-[#2a2a2a] transition-transform duration-700 hover:scale-[1.02]" style={frameStyle}>
-            <div className="img-protect-overlay"></div>
+      <div className="flex-none w-[85vw] md:w-[340px] lg:w-[400px] relative flex flex-col items-center justify-center select-none shadow-xl border border-gray-100 rounded-xl overflow-hidden snap-center bg-white transition-transform duration-500 hover:scale-[1.01]">
+        <div className="relative w-full leading-none text-[0px]">
             
-            {/* White matting and Artwork (NO CROP applied using object-contain) */}
-            <div className="w-full h-full bg-white flex items-center justify-center overflow-hidden">
-                <img src={artImage} fetchpriority="high" loading="eager" decoding="sync" alt="Artwork" className="w-full h-full object-contain" onContextMenu={(e) => e.preventDefault()} onDragStart={(e) => e.preventDefault()} />
+            {/* Background image */}
+            <img src={bgImage} className="w-full h-auto block z-0 pointer-events-none" alt="Studio Mockup" fetchpriority="high" loading="eager" />
+            
+            {/* The Custom Frame Overlay */}
+            <div className="absolute z-10 flex items-center justify-center" style={frameStyle}>
+                
+                {/* Sirf Black Frame: bg-white aur padding (p-2.5) hata di gayi hai */}
+                <div className="w-full h-full border-[8px] md:border-[12px] border-[#111111] shadow-[0_10px_25px_rgba(0,0,0,0.6)] flex items-center justify-center relative overflow-hidden bg-transparent">
+                    <div className="img-protect-overlay z-20"></div>
+                    
+                    {/* Artwork fitting exactly inside the black frame edge-to-edge */}
+                    <img src={artImage} className="absolute inset-0 w-full h-full object-fill" alt="Artwork" onContextMenu={(e) => e.preventDefault()} onDragStart={(e) => e.preventDefault()} />
+                    
+                    {/* Realistic faint light blend */}
+                    <div className="absolute inset-0 bg-black/5 mix-blend-multiply pointer-events-none z-10"></div>
+                </div>
+
             </div>
-            
-            {/* Realistic Light Reflection */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-black/10 via-transparent to-white/5 mix-blend-overlay pointer-events-none"></div>
         </div>
       </div>
     );
@@ -151,31 +147,31 @@
           <div className="relative">
             <div ref={scrollRef} className="flex overflow-x-auto gap-4 md:gap-6 mb-8 pb-4 hide-scrollbar snap-x snap-mandatory scroll-smooth">
               
-              {/* ✅ MOCKUPS SANS LABELS */}
+              {/* ✅ MOCKUPS: Frame size slightly increased to completely swallow the old blank frame */}
               <CustomFitMockup 
                 bgImage="https://i.postimg.cc/LXnJmf5s/Picsart-26-07-11-18-35-32-342.jpg" 
                 artImage={art.image} 
-                frameStyle={{ top: '4.5%', left: '30%', width: '43.5%', height: '56.5%' }} 
+                frameStyle={{ top: '4%', left: '29.5%', width: '46%', height: '49%' }} 
               />
               <CustomFitMockup 
                 bgImage="https://i.postimg.cc/bJsZqbry/Picsart-26-07-11-18-37-54-055.jpg" 
                 artImage={art.image} 
-                frameStyle={{ top: '6.5%', left: '28%', width: '44%', height: '55%' }} 
+                frameStyle={{ top: '5%', left: '26.5%', width: '47%', height: '48%' }} 
               />
               <CustomFitMockup 
                 bgImage="https://i.postimg.cc/XJprnFqW/Picsart-26-07-11-18-36-57-318.jpg" 
                 artImage={art.image} 
-                frameStyle={{ top: '14.5%', left: '16.5%', width: '62%', height: '53.5%' }} 
+                frameStyle={{ top: '13%', left: '15.5%', width: '64%', height: '55%' }} 
               />
               <CustomFitMockup 
                 bgImage="https://i.postimg.cc/434KFjT2/Picsart-26-07-11-18-34-14-020.jpg" 
                 artImage={art.image} 
-                frameStyle={{ top: '11%', left: '34.5%', width: '43%', height: '55.5%' }} 
+                frameStyle={{ top: '9.5%', left: '35.5%', width: '44%', height: '45%' }} 
               />
               <CustomFitMockup 
                 bgImage="https://i.postimg.cc/3Rdk3pNJ/Picsart-26-07-11-18-45-56-326.jpg" 
                 artImage={art.image} 
-                frameStyle={{ top: '28%', left: '33%', width: '34.5%', height: '43%' }} 
+                frameStyle={{ top: '26.5%', left: '31.5%', width: '37%', height: '37%' }} 
               />
 
             </div>
@@ -283,12 +279,10 @@
       const [otpInput, setOtpInput] = useState('');
       const [liveOTP, setLiveOTP] = useState(''); 
       
-      // ✅ LIVE TRUSTED SESSIONS & ACCORDION STATES
       const [activeSessions, setActiveSessions] = useState([]);
       const [isDevicesOpen, setIsDevicesOpen] = useState(false);
       const [isOrdersOpen, setIsOrdersOpen] = useState(false);
       
-      // ✅ 15 MINUTE BLOCKING & RESEND TIMER STATE
       const [blockUntil, setBlockUntil] = useState(() => Number(window.localStorage.getItem('raja_admin_block')) || 0);
       const [resendTimer, setResendTimer] = useState(0);
 
@@ -298,14 +292,12 @@
       
       const [isOrderPlaced, setIsOrderPlaced] = useState(false); 
       
-      // ✅ VIP TOAST STATE
       const [toastMessage, setToastMessage] = useState(null);
       const showToast = (msg) => {
         setToastMessage(msg);
         setTimeout(() => setToastMessage(null), 3000);
       };
 
-      // 🚨 ANTI-THEFT KEYBOARD LISTENER 🚨
       useEffect(() => {
         const handleContext = (e) => e.preventDefault();
         const handleKeyDown = (e) => {
@@ -324,7 +316,6 @@
         };
       }, []);
       
-      // ✅ GET DEVICE DETAILS HELPER
       const fetchDeviceDetails = async () => {
          let ip = "Unknown", location = "Unknown", org = "Unknown", deviceModel = "Unknown Device";
          let deviceType = "Desktop PC";
@@ -364,7 +355,6 @@
          return { ip, location, org, deviceModel, deviceType };
       };
 
-      // ✅ BLOCK TIMER INTERVAL
       useEffect(() => {
         const int = setInterval(() => {
             if (blockUntil > 0 && blockUntil < Date.now()) {
@@ -377,7 +367,6 @@
         return () => clearInterval(int);
       }, [blockUntil, resendTimer]);
       
-      // ✅ REMOTE LOGOUT TRACKER
       useEffect(() => {
          if (isAdmin) {
              const devId = window.localStorage.getItem('raja_device_id');
@@ -395,15 +384,12 @@
          }
       }, [isAdmin]);
       
-      // ✅ 100% CRASH-PROOF CART SYSTEM
       const [cart, setCart] = useState(() => {
         try {
           const savedCart = window.localStorage.getItem('raja_cart_live_v1');
           if (savedCart) {
             const parsed = JSON.parse(savedCart);
-            if (Array.isArray(parsed)) {
-              return parsed;
-            }
+            if (Array.isArray(parsed)) return parsed;
           }
         } catch(e) {}
         return [];
@@ -1627,3 +1613,4 @@
   </script>
 </body>
 </html>
+
