@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Raja Gupta Act | Professional Colour Pencil Studio</title>
   <meta name="google-site-verification" content="dN1MbPiHaOubD3Qf6umJDnE0mQOXjQUr4g7Cc2xNolw" />
+  
+  <!-- 🔥 INSTANT IMAGE LOADING (PRELOAD) 🔥 -->
+  <link rel="preload" href="https://i.postimg.cc/LXnJmf5s/Picsart-26-07-11-18-35-32-342.jpg" as="image" />
+  <link rel="preload" href="https://i.postimg.cc/bJsZqbry/Picsart-26-07-11-18-37-54-055.jpg" as="image" />
+  <link rel="preload" href="https://i.postimg.cc/XJprnFqW/Picsart-26-07-11-18-36-57-318.jpg" as="image" />
+  <link rel="preload" href="https://i.postimg.cc/434KFjT2/Picsart-26-07-11-18-34-14-020.jpg" as="image" />
+  <link rel="preload" href="https://i.postimg.cc/3Rdk3pNJ/Picsart-26-07-11-18-45-56-326.jpg" as="image" />
+
   <!-- Tailwind, React, Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -89,26 +97,24 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // ✅ EXACT FIT MOCKUP COMPONENT
-    // Artwork frame ke andar edge-to-edge fit hoga, koi white border ya khaali jagah nahi bachegi.
-    const CustomFitMockup = ({ bgImage, artImage, label, frameStyle }) => (
+    // ✅ EXACT FIT MOCKUP COMPONENT (NO CROP, NO LABELS, INSTANT LOAD)
+    const CustomFitMockup = ({ bgImage, artImage, frameStyle }) => (
       <div className="flex-none w-[85vw] md:w-[340px] lg:w-[400px] aspect-[3/4] rounded-2xl relative overflow-hidden flex items-center justify-center select-none bg-gray-100 shadow-xl border border-gray-200 snap-center">
         
-        {/* Background HD Image */}
-        <img src={bgImage} className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none" alt="Studio Mockup" />
+        {/* Background HD Image - Fetch priority high for instant load */}
+        <img src={bgImage} fetchpriority="high" loading="eager" decoding="sync" className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none" alt="Studio Mockup" />
         
-        {/* Artwork Container - 100% exactly positioned over the blank frame */}
-        <div className="absolute z-10 overflow-hidden" style={frameStyle}>
+        {/* Naya Black Frame */}
+        <div className="absolute z-10 bg-[#111111] p-[6px] md:p-[8px] shadow-[0_15px_35px_rgba(0,0,0,0.6)] border border-[#2a2a2a] transition-transform duration-700 hover:scale-[1.02]" style={frameStyle}>
             <div className="img-protect-overlay"></div>
-            {/* Artwork fits completely, hiding any white background */}
-            <img src={artImage} loading="lazy" decoding="async" alt="Artwork" className="w-full h-full object-cover pointer-events-none" style={{ objectPosition: 'center' }} onContextMenu={(e) => e.preventDefault()} onDragStart={(e) => e.preventDefault()} />
             
-            {/* Realistic Light reflection on the drawing so it blends perfectly */}
-            <div className="absolute inset-0 bg-black/5 mix-blend-multiply pointer-events-none"></div>
-        </div>
-        
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 pointer-events-none">
-           <span className="bg-black/60 backdrop-blur-md text-white text-[10px] font-black px-4 py-1.5 rounded-full tracking-widest uppercase shadow-md">{label}</span>
+            {/* White matting and Artwork (NO CROP applied using object-contain) */}
+            <div className="w-full h-full bg-white flex items-center justify-center overflow-hidden">
+                <img src={artImage} fetchpriority="high" loading="eager" decoding="sync" alt="Artwork" className="w-full h-full object-contain" onContextMenu={(e) => e.preventDefault()} onDragStart={(e) => e.preventDefault()} />
+            </div>
+            
+            {/* Realistic Light Reflection */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-black/10 via-transparent to-white/5 mix-blend-overlay pointer-events-none"></div>
         </div>
       </div>
     );
@@ -143,50 +149,33 @@
           </div>
           
           <div className="relative">
-            <p className="text-[10px] md:hidden text-gray-400 font-bold uppercase tracking-widest text-center mb-3 animate-pulse">
-              &larr; Swipe for more angles &rarr;
-            </p>
-            
             <div ref={scrollRef} className="flex overflow-x-auto gap-4 md:gap-6 mb-8 pb-4 hide-scrollbar snap-x snap-mandatory scroll-smooth">
               
-              {/* ✅ MOCKUP 1: Blue wall, Orange sofa */}
+              {/* ✅ MOCKUPS SANS LABELS */}
               <CustomFitMockup 
                 bgImage="https://i.postimg.cc/LXnJmf5s/Picsart-26-07-11-18-35-32-342.jpg" 
                 artImage={art.image} 
-                label="Style 1" 
-                frameStyle={{ top: '6.5%', left: '32.5%', width: '41.5%', height: '44.5%' }} 
+                frameStyle={{ top: '4.5%', left: '30%', width: '43.5%', height: '56.5%' }} 
               />
-
-              {/* ✅ MOCKUP 2: Beige wall, Clock */}
               <CustomFitMockup 
                 bgImage="https://i.postimg.cc/bJsZqbry/Picsart-26-07-11-18-37-54-055.jpg" 
                 artImage={art.image} 
-                label="Style 2" 
-                frameStyle={{ top: '7.2%', left: '29.3%', width: '41.3%', height: '43.5%' }} 
+                frameStyle={{ top: '6.5%', left: '28%', width: '44%', height: '55%' }} 
               />
-
-              {/* ✅ MOCKUP 3: Close up, Vase */}
               <CustomFitMockup 
                 bgImage="https://i.postimg.cc/XJprnFqW/Picsart-26-07-11-18-36-57-318.jpg" 
                 artImage={art.image} 
-                label="Style 3" 
-                frameStyle={{ top: '16%', left: '18.5%', width: '59.5%', height: '50.5%' }} 
+                frameStyle={{ top: '14.5%', left: '16.5%', width: '62%', height: '53.5%' }} 
               />
-
-              {/* ✅ MOCKUP 4: Green chair, Green wall */}
               <CustomFitMockup 
                 bgImage="https://i.postimg.cc/434KFjT2/Picsart-26-07-11-18-34-14-020.jpg" 
                 artImage={art.image} 
-                label="Style 4" 
-                frameStyle={{ top: '12.5%', left: '38.5%', width: '38%', height: '38.5%' }} 
+                frameStyle={{ top: '11%', left: '34.5%', width: '43%', height: '55.5%' }} 
               />
-
-              {/* ✅ MOCKUP 5: White cabinet, Lamp */}
               <CustomFitMockup 
                 bgImage="https://i.postimg.cc/3Rdk3pNJ/Picsart-26-07-11-18-45-56-326.jpg" 
                 artImage={art.image} 
-                label="Style 5" 
-                frameStyle={{ top: '29.5%', left: '34.5%', width: '31%', height: '31.5%' }} 
+                frameStyle={{ top: '28%', left: '33%', width: '34.5%', height: '43%' }} 
               />
 
             </div>
@@ -1637,4 +1626,4 @@
     root.render(<App />);
   </script>
 </body>
-  </html>
+</html>
