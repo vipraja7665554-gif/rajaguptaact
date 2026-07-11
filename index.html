@@ -60,7 +60,6 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
     
-    // --- SECURITY CREDENTIALS ---
     const verifyAdmin = (input) => {
         const secret = [87, 70, 79, 70, 100, 70, 73, 82, 78, 83, 100, 55, 53, 55, 59];
         if (!input || input.length !== secret.length) return false;
@@ -75,7 +74,6 @@
     const SECURITY_BOT_TOKEN = "8948300649:AAFZ2vdLvEzWvLWUu9qkKQ8MXpKpSV30aVA"; 
     const SECURITY_CHAT_ID = "8846198339"; 
 
-    // --- FIREBASE INITIALIZATION ---
     const firebaseConfig = {
       apiKey: "AIzaSyBCX9rALYZSxzYvawPexwXIHTSA3uhU24E",
       authDomain: "rajaguptaact.firebaseapp.com",
@@ -87,25 +85,19 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // ✅ FIXED EXACT FIT MOCKUP COMPONENT WITH UNIFORM ASPECT RATIO
     const CustomFitMockup = ({ bgImage, artImage, frameStyle }) => (
       <div className="flex-none w-[85vw] md:w-[340px] lg:w-[400px] aspect-[4/5] relative flex items-center justify-center select-none shadow-xl border border-gray-100 rounded-xl overflow-hidden snap-center bg-gray-50 transition-transform duration-500 hover:scale-[1.01]">
         <div className="relative w-full flex-shrink-0 leading-none text-[0px]">
             
-            {/* Background image */}
             <img src={bgImage} className="w-full h-auto block z-0 pointer-events-none" alt="Studio Mockup" fetchpriority="high" loading="eager" />
             
-            {/* The Custom Frame Overlay */}
             <div className="absolute z-10 flex items-center justify-center" style={frameStyle}>
                 
-                {/* Thin, Realistic Brown Frame with depth shadow */}
                 <div className="w-full h-full border-[5px] md:border-[7px] border-[#4a2e15] shadow-[0_15px_35px_rgba(0,0,0,0.6)] flex items-center justify-center relative overflow-hidden bg-white">
                     <div className="img-protect-overlay z-20"></div>
                     
-                    {/* Artwork fitting exactly inside the frame edge-to-edge */}
                     <img src={artImage} className="absolute inset-0 w-full h-full object-fill" alt="Artwork" onContextMenu={(e) => e.preventDefault()} onDragStart={(e) => e.preventDefault()} />
                     
-                    {/* Realistic frame inner shadow & glare for 3D realism */}
                     <div className="absolute inset-0 shadow-[inset_0_0_12px_rgba(0,0,0,0.5)] pointer-events-none z-10"></div>
                     <div className="absolute inset-0 bg-gradient-to-tr from-black/5 via-transparent to-white/10 pointer-events-none z-10"></div>
                 </div>
@@ -147,39 +139,34 @@
           <div className="relative">
             <div ref={scrollRef} className="flex overflow-x-auto gap-4 md:gap-6 mb-8 pb-4 hide-scrollbar snap-x snap-mandatory scroll-smooth">
               
-              {/* ✅ MOCKUP 1: Sofa - Exact fit, width increased to cover right edge, height normalized */}
               <CustomFitMockup 
                 bgImage="https://i.postimg.cc/LXnJmf5s/Picsart-26-07-11-18-35-32-342.jpg" 
                 artImage={art.image} 
-                frameStyle={{ top: '6%', left: '26%', width: '49.5%', height: '48.5%' }} 
+                frameStyle={{ top: '6%', left: '26.5%', width: '48.5%', height: '49%' }} 
               />
               
-              {/* MOCKUP 2: Untouched as requested */}
               <CustomFitMockup 
                 bgImage="https://i.postimg.cc/bJsZqbry/Picsart-26-07-11-18-37-54-055.jpg" 
                 artImage={art.image} 
                 frameStyle={{ top: '4.5%', left: '26%', width: '48%', height: '49%' }} 
               />
               
-              {/* ✅ MOCKUP 3: Table - Moved UP above table, width adjusted, height completely normalized */}
               <CustomFitMockup 
                 bgImage="https://i.postimg.cc/gJVv6Q8Q/Picsart-26-07-11-21-04-15-561.jpg" 
                 artImage={art.image} 
-                frameStyle={{ top: '6.5%', left: '26.5%', width: '47%', height: '49%' }} 
+                frameStyle={{ top: '6.5%', left: '27%', width: '46.5%', height: '48%' }} 
               />
               
-              {/* MOCKUP 4: Untouched as requested */}
               <CustomFitMockup 
                 bgImage="https://i.postimg.cc/434KFjT2/Picsart-26-07-11-18-34-14-020.jpg" 
                 artImage={art.image} 
                 frameStyle={{ top: '9%', left: '35%', width: '45%', height: '46%' }} 
               />
               
-              {/* ✅ MOCKUP 5: Cabinet - Resized carefully to not cover the vase/leaves */}
               <CustomFitMockup 
                 bgImage="https://i.postimg.cc/3Rdk3pNJ/Picsart-26-07-11-18-45-56-326.jpg" 
                 artImage={art.image} 
-                frameStyle={{ top: '23%', left: '31.5%', width: '37.5%', height: '41.5%' }} 
+                frameStyle={{ top: '23%', left: '31%', width: '38.5%', height: '41%' }} 
               />
 
             </div>
@@ -1040,6 +1027,562 @@
                 </button>
                 <a href={`https://wa.me/917281074416?text=${waText}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 w-full bg-[#25D366] text-white py-4 rounded-xl font-black text-lg shadow-xl hover:bg-green-600 active:scale-95 transition-all cursor-pointer">
                   <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+                  <span className="text-sm">Send Screenshot</span>
+                </a>
+            </div>
+          </div>
+        );
+      };
+
+      const AdminPanel = () => {
+        const clearAllOrders = async () => {
+          if (window.confirm("WARNING: Are you sure you want to permanently delete ALL orders? This action cannot be undone.")) {
+             try {
+                 const batch = db.batch();
+                 orders.forEach(o => {
+                     const docRef = db.collection('orders').doc(o.id);
+                     batch.delete(docRef);
+                 });
+                 await batch.commit();
+                 alert("All orders have been successfully deleted from the database.");
+             } catch (error) { alert("Error executing atomic delete batch."); }
+          }
+        };
+
+        const handleImage = (e) => {
+          const file = e.target.files[0];
+          if(file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              const img = new Image();
+              img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const MAX = 1200; let w = img.width; let h = img.height;
+                if (w > h && w > MAX) { h *= MAX / w; w = MAX; } 
+                else if (h > MAX) { w *= MAX / h; h = MAX; }
+                canvas.width = w; canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+                setUploadData({...uploadData, image: canvas.toDataURL('image/jpeg', 0.85)});
+              };
+              img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+          }
+        };
+
+        const formatAdminPrice = (val) => {
+            if (val === '' || val === null || val === undefined) return '';
+            const numStr = val.toString().replace(/[^\d]/g, '');
+            if (!numStr) return '';
+            return Number(numStr).toLocaleString('en-IN');
+        };
+
+        const saveArtwork = (e) => {
+          e.preventDefault();
+          setIsUploading(true);
+          
+          let finalPriceOld = uploadData.priceOriginalOld;
+          let finalPriceCurrent = uploadData.priceOriginal;
+
+          if (!finalPriceCurrent || finalPriceCurrent === "") {
+              finalPriceCurrent = finalPriceOld;
+              finalPriceOld = ""; 
+          }
+
+          const dataToSave = { 
+              ...uploadData, 
+              priceOriginal: finalPriceCurrent, 
+              priceOriginalOld: finalPriceOld 
+          };
+
+          if(editArtId) {
+             db.collection('RajaStudio').doc(editArtId).update(dataToSave)
+               .then(() => { 
+                   alert("Artwork Updated Successfully!"); 
+                   setEditArtId(null); 
+                   setUploadData({ title: '', desc: '', image: '', priceOriginal: '', priceOriginalOld: '', priceA3: '', priceA4: '', priceA5: '', isSold: false }); 
+                   setIsUploading(false); 
+               });
+          } else {
+             db.collection('RajaStudio').add({ ...dataToSave, createdAt: Date.now() })
+               .then(() => { 
+                   alert("Artwork Uploaded Globally!"); 
+                   setUploadData({ title: '', desc: '', image: '', priceOriginal: '', priceOriginalOld: '', priceA3: '', priceA4: '', priceA5: '', isSold: false }); 
+                   setIsUploading(false); 
+               });
+          }
+        };
+
+        const startEditArt = (art) => {
+          setEditArtId(art.id);
+          let showOld = art.priceOriginalOld || '';
+          let showCurrent = art.priceOriginal || '';
+          if (!art.priceOriginalOld) { showOld = art.priceOriginal; showCurrent = ''; }
+          setUploadData({ 
+              title: art.title, desc: art.desc, image: art.image, 
+              priceOriginal: showCurrent, priceOriginalOld: showOld, 
+              priceA3: art.priceA3, priceA4: art.priceA4, priceA5: art.priceA5, isSold: art.isSold || false 
+          });
+          window.scrollTo(0, 0);
+        };
+
+        const postAnnouncement = (e) => {
+          e.preventDefault();
+          if(editAnnId) {
+             db.collection('announcements').doc(editAnnId).update({ title: annTitle, message: annMsg })
+               .then(() => { alert("Announcement Updated Successfully!"); setEditAnnId(null); setAnnTitle(''); setAnnMsg(''); });
+          } else {
+             db.collection('announcements').add({ title: annTitle, message: annMsg, date: new Date().toLocaleDateString(), createdAt: Date.now() })
+               .then(() => alert("Announcement Posted Globally!"));
+             setAnnTitle(''); setAnnMsg('');
+          }
+        };
+
+        const startEditAnn = (ann) => {
+          setEditAnnId(ann.id);
+          setAnnTitle(ann.title);
+          setAnnMsg(ann.message);
+        };
+
+        return (
+          <div className="p-6 max-w-7xl mx-auto space-y-10 min-h-screen">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 glass-panel p-6 rounded-3xl shadow-sm">
+              <h2 className="text-2xl md:text-3xl font-black text-purple-900 flex items-center gap-3">Admin Security Portal</h2>
+              <div className="flex gap-4">
+                <button onClick={async () => { 
+                    if(window.confirm("SECURE LOGOUT: Are you sure you want to log out? (Your device remains trusted, so next time you only need your password.)")) {
+                        const devId = window.localStorage.getItem('raja_device_id');
+                        if(devId) db.collection('adminSessions').doc(devId).delete().catch(e=>console.log(e));
+                        try { window.localStorage.removeItem('raja_device_id'); } catch(e){}
+                        sendLoginAlert('SECURE_LOGOUT', '', { deviceModel: "Current Device", ip: "", location: "", org: ""});
+                        setIsAdmin(false); 
+                        setAdminStep(1); 
+                    }
+                }} className="bg-rose-100 text-rose-700 px-6 py-2.5 rounded-xl font-black hover:bg-rose-200 active:scale-95 transition-all cursor-pointer shadow-sm border border-rose-200 flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    Secure Logout
+                </button>
+              </div>
+            </div>
+            
+            <div className="glass-panel rounded-3xl shadow-xl border-t-4 border-t-blue-500 mb-10 overflow-hidden relative">
+               <button type="button" onClick={() => setIsDevicesOpen(!isDevicesOpen)} className="w-full text-left p-6 md:p-8 focus:outline-none flex justify-between items-center cursor-pointer hover:bg-blue-50/50 transition">
+                  <h3 className="text-xl md:text-2xl font-black text-gray-900 flex items-center gap-3">
+                     <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                     Trusted Devices (Access Control)
+                  </h3>
+                  <svg className={`w-6 h-6 text-blue-600 transform transition-transform duration-300 flex-shrink-0 ${isDevicesOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+               </button>
+               
+               <div className={`px-6 md:px-8 pb-8 pt-2 ${isDevicesOpen ? 'block' : 'hidden'}`}>
+                   {activeSessions.length === 0 ? <p className="text-gray-500 font-bold">No active sessions found.</p> : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                         {activeSessions.map(session => {
+                            const isCurrentDev = session.id === window.localStorage.getItem('raja_permanent_device_id');
+                            return (
+                              <div key={session.id} className={`p-5 rounded-2xl border flex flex-col justify-between ${isCurrentDev ? 'bg-blue-50 border-blue-200 shadow-sm' : 'bg-white border-gray-200 shadow-md'}`}>
+                                 <div>
+                                    <div className="flex justify-between items-start mb-2">
+                                       <p className="font-black text-lg text-gray-900 flex items-center gap-2">
+                                          {session.deviceModel.includes("Phone") || session.deviceModel.includes("iPhone") ? "📱" : "💻"} 
+                                          {session.deviceModel}
+                                       </p>
+                                       {isCurrentDev && <span className="bg-blue-600 text-white text-[10px] font-black px-2 py-1 rounded uppercase tracking-wider">Current</span>}
+                                    </div>
+                                    <p className="text-sm font-bold text-gray-600">IP: <span className="font-medium text-gray-800">{session.ip}</span></p>
+                                    <p className="text-sm font-bold text-gray-600">Loc: <span className="font-medium text-gray-800">{session.location || "Unknown"}</span></p>
+                                    <p className="text-xs font-medium text-gray-400 mt-2">Saved Since: {new Date(session.createdAt).toLocaleString('en-IN')}</p>
+                                 </div>
+                                 <button onClick={() => {
+                                     if(window.confirm(isCurrentDev ? "LOGOUT & REMOVE TRUST: Are you sure you want to log out and remove your own device from Trusted List?" : "REVOKE HACKER: Are you sure you want to instantly log out and DESTROY this device's trust? (Will need OTP again)")) {
+                                         db.collection('trustedDevices').doc(session.id).delete().catch(e=>console.log(e));
+                                         db.collection('adminSessions').doc(session.id).delete().catch(e=>console.log(e));
+                                         if(isCurrentDev) {
+                                            window.localStorage.removeItem('raja_device_id');
+                                            window.localStorage.removeItem('raja_permanent_device_id');
+                                            setIsAdmin(false);
+                                            setAdminStep(1);
+                                         }
+                                     }
+                                 }} className={`mt-4 w-full py-2 rounded-xl font-black text-sm active:scale-95 transition-all cursor-pointer ${isCurrentDev ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-300' : 'bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-200'}`}>
+                                    {isCurrentDev ? "Logout & Remove Trust" : "Revoke Access (Destroy Trust)"}
+                                 </button>
+                              </div>
+                            )
+                         })}
+                      </div>
+                   )}
+               </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+              <div className="space-y-8">
+                <div className="glass-panel p-8 rounded-3xl shadow-xl border-t-4 border-t-purple-500">
+                  <h3 className="text-2xl font-black mb-6 text-gray-900 flex justify-between items-center">
+                    {editArtId ? "✏️ Edit Artwork" : "Upload Artwork"}
+                    {editArtId ? <button type="button" onClick={() => { setEditArtId(null); setUploadData({title:'',desc:'',image:'',priceOriginal:'',priceOriginalOld:'',priceA3:'',priceA4:'',priceA5:'', isSold: false}); }} className="text-xs text-red-500 underline font-bold cursor-pointer">Cancel Edit</button> : null}
+                  </h3>
+                  <form onSubmit={saveArtwork} className="space-y-4">
+                    <input required placeholder="Artwork Title" className="w-full border-2 p-4 rounded-xl bg-white font-bold" value={uploadData.title} onChange={e => setUploadData({...uploadData, title: e.target.value})} />
+                    <textarea required placeholder="Description..." className="w-full border-2 p-4 rounded-xl bg-white font-medium" rows="2" value={uploadData.desc} onChange={e => setUploadData({...uploadData, desc: e.target.value})}></textarea>
+                    
+                    <div className="border-2 border-dashed border-purple-300 p-6 rounded-xl text-center bg-purple-50 cursor-pointer relative overflow-hidden">
+                      <label className="font-black text-purple-700 block cursor-pointer w-full h-full relative z-10">
+                        {uploadData.image ? "Change High-Resolution Image" : "Select High-Resolution Image"}
+                        <input type="file" accept="image/*" className="hidden" onChange={handleImage} required={!uploadData.image} />
+                      </label>
+                    </div>
+                    {uploadData.image ? <img src={uploadData.image} className="mt-4 h-40 mx-auto rounded-lg shadow-md object-contain border-2 border-white pointer-events-none" /> : null}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                      <div>
+                        <label className="text-xs font-black text-gray-500 uppercase">OLD PRICE (NO DISCOUNT)</label>
+                        <input required type="text" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={formatAdminPrice(uploadData.priceOriginalOld)} onChange={e => setUploadData({...uploadData, priceOriginalOld: e.target.value.replace(/[^\d]/g, '')})} />
+                      </div>
+                      <div>
+                        <label className="text-xs font-black text-gray-500 uppercase">CURRENT PRICE (DISCOUNT)</label>
+                        <input type="text" placeholder="Leave empty if no discount" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={formatAdminPrice(uploadData.priceOriginal)} onChange={e => setUploadData({...uploadData, priceOriginal: e.target.value.replace(/[^\d]/g, '')})} />
+                      </div>
+                      <div><label className="text-xs font-black text-gray-500 uppercase">Print A3 Price (Base ₹)</label><input required type="text" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={formatAdminPrice(uploadData.priceA3)} onChange={e => setUploadData({...uploadData, priceA3: e.target.value.replace(/[^\d]/g, '')})} /></div>
+                      <div><label className="text-xs font-black text-gray-500 uppercase">Print A4 Price (Base ₹)</label><input required type="text" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={formatAdminPrice(uploadData.priceA4)} onChange={e => setUploadData({...uploadData, priceA4: e.target.value.replace(/[^\d]/g, '')})} /></div>
+                      <div className="md:col-span-2"><label className="text-xs font-black text-gray-500 uppercase">Print A5 Price (Base ₹)</label><input required type="text" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={formatAdminPrice(uploadData.priceA5)} onChange={e => setUploadData({...uploadData, priceA5: e.target.value.replace(/[^\d]/g, '')})} /></div>
+                    </div>
+
+                    <label className="flex items-center gap-3 font-black text-red-600 bg-red-50 p-4 rounded-xl border border-red-200 cursor-pointer mt-4">
+                      <input type="checkbox" className="w-6 h-6 cursor-pointer accent-red-500" checked={uploadData.isSold || false} onChange={e => setUploadData({...uploadData, isSold: e.target.checked})} />
+                      Mark Original Artwork as SOLD OUT (Uncheck to Restock)
+                    </label>
+
+                    <button type="submit" disabled={isUploading} className={`w-full py-4 rounded-xl font-black text-lg mt-6 shadow-lg active:scale-95 transition-all ${isUploading ? 'bg-gray-400 text-gray-700 cursor-wait' : 'bg-gradient-to-r from-purple-600 to-pink-500 text-white cursor-pointer'}`}>
+                      {isUploading ? "Uploading... Please Wait ⏳" : (editArtId ? "Update Artwork" : "Publish to Live Gallery")}
+                    </button>
+                  </form>
+                </div>
+
+                <div className="glass-panel p-6 rounded-3xl shadow-sm border border-gray-200">
+                  <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-2">Manage Artworks</h3>
+                  {artworks.length === 0 ? <p className="text-gray-500 font-bold">No artworks published.</p> : (
+                    <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                      {artworks.map(art => (
+                        <div key={art.id} className="flex justify-between items-center bg-white p-3 rounded-xl shadow-sm border border-gray-100">
+                           <div className="flex items-center gap-3">
+                             <img src={art.image} className="w-12 h-12 object-cover rounded-lg border border-gray-200 pointer-events-none" />
+                             <div>
+                               <p className="font-bold text-sm text-gray-800 line-clamp-1">{art.title}</p>
+                               {art.isSold && <span className="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded font-black uppercase">Sold</span>}
+                             </div>
+                           </div>
+                           <div className="flex gap-2">
+                             <button onClick={() => startEditArt(art)} className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 active:scale-95 transition-transform cursor-pointer">
+                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                             </button>
+                             <button onClick={() => { if(window.confirm("Delete globally?")) db.collection('RajaStudio').doc(art.id).delete(); }} className="p-2 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 active:scale-95 transition-transform cursor-pointer">
+                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                             </button>
+                           </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-8">
+                <div className="glass-panel p-8 rounded-3xl shadow-xl border-t-4 border-t-pink-500">
+                  <h3 className="text-2xl font-black text-gray-900 mb-6 flex items-center justify-between">
+                    <span>{editAnnId ? "Edit Announcement" : "Post Announcement"}</span>
+                    {editAnnId ? <button type="button" onClick={() => { setEditAnnId(null); setAnnTitle(''); setAnnMsg(''); }} className="text-xs text-red-500 underline font-bold cursor-pointer">Cancel</button> : null}
+                  </h3>
+                  <form onSubmit={postAnnouncement} className="space-y-4">
+                     <input required placeholder="Announcement Title" value={annTitle} onChange={e=>setAnnTitle(e.target.value)} className="w-full border-2 p-4 rounded-xl bg-white font-bold"/>
+                     <textarea required placeholder="Message details..." value={annMsg} onChange={e=>setAnnMsg(e.target.value)} className="w-full border-2 p-4 rounded-xl bg-white font-medium" rows="3"></textarea>
+                     <button type="submit" className="w-full bg-gray-900 text-white py-4 rounded-xl font-black text-lg shadow-lg hover:bg-gray-800 active:scale-95 transition-all cursor-pointer">
+                       {editAnnId ? "Update Notification" : "Post Notification"}
+                     </button>
+                  </form>
+                  
+                  {announcements.length > 0 ? (
+                    <div className="mt-6 pt-6 border-t border-gray-200 space-y-3">
+                      {announcements.map(ann => (
+                        <div key={ann.id} className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
+                          <p className="font-bold text-sm line-clamp-1">{ann.title}</p>
+                          <div className="flex gap-2">
+                             <button onClick={() => startEditAnn(ann)} className="text-blue-500 hover:text-blue-700 active:scale-95 transition-transform cursor-pointer">
+                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                             </button>
+                             <button onClick={() => { if(window.confirm("Delete globally?")) db.collection('announcements').doc(ann.id).delete(); }} className="text-rose-500 hover:text-rose-700 active:scale-95 transition-transform cursor-pointer">
+                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                             </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="glass-panel rounded-3xl shadow-xl border-t-4 border-t-pink-500 mb-10 overflow-hidden relative">
+                   <button type="button" onClick={() => setIsOrdersOpen(!isOrdersOpen)} className="w-full text-left p-6 md:p-8 focus:outline-none flex justify-between items-center cursor-pointer hover:bg-pink-50/50 transition">
+                      <h3 className="text-xl md:text-2xl font-black text-gray-900 flex items-center gap-3">
+                         <svg className="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                         Secure Inbox: Orders {orders.length > 0 && <span className="bg-pink-100 text-pink-800 text-xs px-2 py-1 rounded-full">{orders.length}</span>}
+                      </h3>
+                      <svg className={`w-6 h-6 text-pink-600 transform transition-transform duration-300 flex-shrink-0 ${isOrdersOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                   </button>
+                   
+                   <div className={`px-6 md:px-8 pb-8 pt-2 ${isOrdersOpen ? 'block' : 'hidden'}`}>
+                      {orders.length > 0 && (
+                         <div className="flex justify-end mb-6">
+                            <button onClick={clearAllOrders} className="bg-red-500 text-white px-4 py-2 rounded-xl text-sm font-black hover:bg-red-600 active:scale-95 transition-all cursor-pointer shadow-md flex items-center gap-2">
+                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                               Delete All Orders
+                            </button>
+                         </div>
+                      )}
+                      
+                      {orders.length === 0 ? <p className="text-gray-500 font-bold bg-white p-6 rounded-2xl text-center shadow-sm">No orders yet.</p> : (
+                        <div className="space-y-6 max-h-[500px] overflow-y-auto pr-2">
+                          {orders.map(o => (
+                            <div key={o.id} className="bg-white p-6 rounded-3xl shadow-md border-l-8 border-pink-500">
+                              <div className="flex justify-between items-start mb-4 border-b pb-4">
+                                <div>
+                                   <p className="font-black text-xl text-gray-900">{o.orderId || o.id}</p>
+                                   <p className="text-sm font-bold text-gray-500">{o.date} • {o.time}</p>
+                                </div>
+                                <span className="bg-pink-100 text-pink-800 text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-wider">{o.type}</span>
+                              </div>
+                              <div className="mb-4">
+                                <p className="font-black text-lg text-gray-800">{o.name} <span className="text-green-500 mx-2">|</span> {o.country}</p>
+                                <p className="text-sm font-bold text-gray-600 mt-1">Email: {o.email || "Not Provided"}</p>
+                                <p className="text-sm font-bold text-gray-600 mt-1">WA: {o.phone}</p>
+                                {o.instagram ? <p className="text-sm font-bold text-gray-600 mt-1">Insta: {o.instagram}</p> : null}
+                                <p className="text-sm font-bold text-gray-600 mt-1">{o.address}</p>
+                                {o.city ? <p className="text-sm font-bold text-emerald-600 mt-1">✓ Verified Location: {o.city}, {o.state} - {o.pin}</p> : <p className="text-sm font-bold text-gray-600 mt-1">PIN/ZIP: {o.pin}</p>}
+                              </div>
+                              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                                {o.itemDetails ? o.itemDetails.map((item, i) => (
+                                   <div key={i} className="flex justify-between text-sm font-bold border-b border-gray-200 pb-2 mb-2">
+                                     <span className="text-gray-800">{item.title} <span className="text-pink-600">({item.selectedSize})</span></span>
+                                   </div>
+                                )) : null}
+                                <div className="flex justify-between items-center text-lg font-black mt-4 pt-4 border-t border-gray-300">
+                                  <span className="text-gray-700">{o.type === 'Commission' ? 'Budget / Amount' : 'Total Paid'}</span>
+                                  <span className="text-green-600 text-2xl">{o.displayAmount || '₹'+o.amount}</span>
+                                </div>
+                                <button onClick={() => { if(window.confirm("Delete this single order?")) db.collection('orders').doc(o.id).delete(); }} className="mt-4 w-full bg-rose-50 text-rose-600 py-2 rounded-xl font-bold text-sm cursor-pointer hover:bg-rose-100 active:scale-95 transition-all">Delete Single Order</button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      const registerFail = (type, data) => {
+         let fails = Number(window.localStorage.getItem('raja_admin_fails') || 0) + 1;
+         window.localStorage.setItem('raja_admin_fails', fails);
+         if (fails >= 3) {
+             const bTime = Date.now() + 15 * 60 * 1000;
+             setBlockUntil(bTime);
+             window.localStorage.setItem('raja_admin_block', bTime);
+             sendLoginAlert('BLOCKED', 'System Locked for 15 mins');
+             setAdminStep(1);
+             setPassword('');
+             setLiveOTP('');
+         } else {
+             sendLoginAlert(type, data);
+             if (type === 'FAILED') alert(`❌ Incorrect Password! Attempt ${fails}/3.`);
+             else if (type === 'OTP_FAILED') alert(`❌ Incorrect OTP! Attempt ${fails}/3.`);
+         }
+      };
+
+      const handlePasswordSubmit = () => {
+        if (blockUntil > Date.now()) return; 
+        if (verifyAdmin(password)) {
+          let isPermanentlyTrusted = false;
+          let permDevId = window.localStorage.getItem('raja_permanent_device_id');
+          if (permDevId) isPermanentlyTrusted = true; 
+
+          if (isPermanentlyTrusted) {
+              setIsAdmin(true);
+              setPassword('');
+              fetchDeviceDetails().then(devDetails => {
+                  try { 
+                     db.collection('adminSessions').doc(permDevId).set({
+                         id: permDevId, ip: devDetails.ip, location: devDetails.location, deviceModel: devDetails.deviceModel, createdAt: Date.now()
+                     });
+                     window.localStorage.setItem('raja_device_id', permDevId); 
+                     window.localStorage.setItem('raja_admin_fails', '0'); 
+                  } catch(err){}
+                  sendLoginAlert('SUCCESS_TRUSTED', 'Logged in via saved trusted device', devDetails);
+              });
+          } else {
+              const newOTP = Math.floor(100000 + Math.random() * 900000).toString();
+              setLiveOTP(newOTP);
+              setAdminStep(2); 
+              setResendTimer(30); 
+              sendLoginAlert('SEND_OTP', newOTP);
+          }
+        } else registerFail('FAILED', password);
+      };
+
+      const handlePinSubmit = () => {
+        if (blockUntil > Date.now()) return;
+        if (otpInput === liveOTP && liveOTP !== '') {
+           setIsAdmin(true);
+           setOtpInput('');
+           setPassword('');
+           setLiveOTP('');
+           setAdminStep(1);
+           fetchDeviceDetails().then(devDetails => {
+               let permDevId = window.localStorage.getItem('raja_permanent_device_id');
+               if (!permDevId) {
+                   permDevId = 'TRUSTED-' + Date.now() + '-' + Math.floor(Math.random()*1000);
+                   window.localStorage.setItem('raja_permanent_device_id', permDevId);
+               }
+               try { 
+                   db.collection('trustedDevices').doc(permDevId).set({
+                       id: permDevId, ip: devDetails.ip, location: devDetails.location, deviceModel: devDetails.deviceModel, createdAt: Date.now()
+                   });
+                   db.collection('adminSessions').doc(permDevId).set({
+                       id: permDevId, ip: devDetails.ip, location: devDetails.location, deviceModel: devDetails.deviceModel, createdAt: Date.now()
+                   });
+                   window.localStorage.setItem('raja_device_id', permDevId); 
+                   window.localStorage.setItem('raja_admin_fails', '0'); 
+               } catch(err){}
+               sendLoginAlert('NEW_DEVICE_VERIFIED', '', devDetails);
+           });
+        } else {
+           setOtpInput('');
+           registerFail('OTP_FAILED', otpInput);
+        }
+      };
+
+      const handleResendOTP = () => {
+         if (resendTimer > 0) return;
+         let fails = Number(window.localStorage.getItem('raja_admin_fails') || 0) + 1;
+         window.localStorage.setItem('raja_admin_fails', fails);
+         if (fails >= 3) {
+             const bTime = Date.now() + 15 * 60 * 1000;
+             setBlockUntil(bTime);
+             window.localStorage.setItem('raja_admin_block', bTime);
+             sendLoginAlert('BLOCKED', 'Spammed Resend OTP');
+             setAdminStep(1);
+             setPassword('');
+             setLiveOTP('');
+         } else {
+             const newOTP = Math.floor(100000 + Math.random() * 900000).toString();
+             setLiveOTP(newOTP);
+             setResendTimer(30);
+             sendLoginAlert('SEND_OTP', newOTP);
+             alert(`✅ New 6-Digit OTP Sent! (Attempt ${fails}/3)`);
+         }
+      };
+
+      return (
+        <div className="min-h-screen flex flex-col relative overflow-hidden">
+          <header className="glass-panel sticky top-0 z-40 shadow-sm">
+            <div className="max-w-7xl mx-auto px-4 md:px-8 h-20 flex items-center justify-between">
+              <div className="text-xl md:text-3xl font-black text-gray-900 tracking-tighter cursor-pointer flex items-center gap-1.5" onClick={() => nav('gallery')}>
+                <span className="uppercase">RAJA GUPTA ACT</span>
+              </div>
+              <div className="flex gap-2 md:gap-4 items-center">
+                 <button onClick={() => setCurrency(currency === 'INR' ? 'USD' : 'INR')} className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-300 font-black px-3 md:px-4 py-2 rounded-xl shadow-inner hover:bg-gray-200 active:scale-95 transition-all cursor-pointer flex items-center gap-1 text-sm md:text-base">
+                    {currency === 'INR' ? '₹ INR' : '$ USD'}
+                 </button>
+                 <button onClick={() => setMenuOpen(!menuOpen)} className="bg-gradient-to-r from-purple-600 to-pink-500 text-white font-black px-4 md:px-6 py-2.5 rounded-xl shadow-lg flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all cursor-pointer">
+                   {menuOpen ? "CLOSE" : "MENU"}
+                 </button>
+              </div>
+            </div>
+          </header>
+
+          {menuOpen ? (
+            <div className="fixed inset-0 top-20 z-50 bg-gray-900/40 backdrop-blur-sm" onClick={() => setMenuOpen(false)}>
+              <div className="bg-white w-full md:w-96 absolute right-0 shadow-2xl flex flex-col font-black text-lg border-l border-gray-100 h-full transform transition-transform" onClick={e => e.stopPropagation()}>
+                <div className="p-4 bg-gray-50 border-b text-xs text-gray-500 uppercase tracking-widest text-center">Navigation Menu</div>
+                <button onClick={() => nav('gallery')} className={`text-left p-6 border-b transition cursor-pointer flex items-center gap-4 ${view === 'gallery' ? 'text-purple-700 font-black bg-purple-50' : 'text-gray-800 hover:text-purple-700 hover:bg-purple-50'}`}>Gallery</button>
+                <button onClick={() => nav('cart')} className={`text-left p-6 border-b transition cursor-pointer flex items-center justify-between ${view === 'cart' ? 'text-purple-700 font-black bg-purple-50' : 'text-gray-800 hover:text-purple-700 hover:bg-purple-50'}`}>
+                  <span>Cart</span>
+                  {cart.length > 0 ? <span className="bg-pink-500 text-white text-sm px-3 py-1 rounded-full shadow-sm">{cart.length}</span> : null}
+                </button>
+                <button onClick={() => nav('public_notifications')} className={`text-left p-6 border-b transition cursor-pointer flex items-center gap-4 ${view === 'public_notifications' ? 'text-purple-700 font-black bg-purple-50' : 'text-gray-800 hover:text-purple-700 hover:bg-purple-50'}`}>Public Notifications</button>
+                <button onClick={() => nav('commission')} className={`text-left p-6 border-b transition cursor-pointer flex items-center gap-4 ${view === 'commission' ? 'text-purple-700 font-black bg-purple-50' : 'text-gray-800 hover:text-purple-700 hover:bg-purple-50'}`}>Commission</button>
+                <button onClick={() => nav('admin')} className={`text-left p-6 border-b transition cursor-pointer flex items-center gap-4 ${view === 'admin' ? 'text-purple-700 font-black bg-purple-50' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'}`}>Admin Panel</button>
+                <button onClick={() => { shareSite(); setMenuOpen(false); }} className="text-left p-6 border-b hover:bg-purple-50 flex items-center gap-4 text-purple-600 transition cursor-pointer">Share Website</button>
+                <a href="https://wa.me/917281074416" target="_blank" rel="noopener noreferrer" className="text-left p-6 bg-green-50 text-green-700 hover:bg-green-100 flex items-center gap-4 mt-auto transition cursor-pointer">Help (WhatsApp)</a>
+              </div>
+            </div>
+          ) : null}
+
+          <main className="flex-grow z-10 relative">
+            {view === 'gallery' ? GalleryView() : null}
+            {view === 'cart' ? CartView() : null}
+            {view === 'commission' ? CommissionView() : null}
+            {view === 'checkout_form' ? CheckoutForm() : null}
+            {view === 'payment' ? PaymentView() : null}
+            {view === 'public_notifications' ? PublicNotificationsView() : null}
+            {view === 'admin' ? (
+              blockUntil > Date.now() ? (
+                  <div className="p-6 max-w-sm mx-auto mt-20 text-center">
+                    <div className="glass-panel p-10 rounded-3xl shadow-2xl border-t-8 border-red-600 bg-red-50 relative overflow-hidden">
+                        <div className="bg-red-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner border border-red-200"><span className="text-4xl">🚫</span></div>
+                        <h2 className="font-black text-2xl mb-2 text-red-800">Access Blocked</h2>
+                        <p className="text-sm font-bold text-red-600 mb-4">Too many failed attempts or OTP requests.</p>
+                        <div className="bg-white p-4 rounded-xl shadow-inner border border-red-100">
+                           <p className="text-xs text-gray-500 font-black uppercase tracking-widest mb-1">Try again in</p>
+                           <p className="text-3xl font-black text-gray-900">{Math.ceil((blockUntil - Date.now())/60000)} MINS</p>
+                        </div>
+                    </div>
+                  </div>
+              ) : (
+                  isAdmin ? AdminPanel() : 
+                  <div className="p-6 max-w-sm mx-auto mt-20 text-center">
+                    {adminStep === 1 ? (
+                      <div className="glass-panel p-10 rounded-3xl shadow-2xl border-t-4 border-t-gray-900">
+                        <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                           <svg className="w-8 h-8 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        </div>
+                        <h2 className="font-black text-2xl mb-2 text-gray-900">Admin Security</h2>
+                        <p className="text-sm font-bold text-gray-500 mb-8">Protected Access Only</p>
+                        <input type="password" placeholder="Enter Password" value={password} onChange={e => setPassword(e.target.value)} className="w-full border-2 border-gray-200 p-4 rounded-xl mb-6 text-center tracking-widest font-black focus:border-gray-900 outline-none" />
+                        <button onClick={handlePasswordSubmit} className="w-full bg-gray-900 text-white py-4 rounded-xl font-black text-lg shadow-lg hover:shadow-xl active:scale-95 transition-all cursor-pointer">Secure Login</button>
+                      </div>
+                    ) : (
+                      <div className="glass-panel p-10 rounded-3xl shadow-2xl border-t-4 border-t-blue-600 bg-blue-50">
+                        <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                           <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        </div>
+                        <h2 className="font-black text-2xl mb-2 text-blue-900">OTP Sent!</h2>
+                        <p className="text-sm font-bold text-blue-600 mb-6">Please check your Telegram for the 6-digit OTP to verify this new device.</p>
+                        <input type="number" placeholder="Enter 6-Digit OTP" value={otpInput} onChange={e => setOtpInput(e.target.value)} className="w-full border-2 border-blue-200 p-4 rounded-xl mb-4 text-center tracking-widest font-black focus:border-blue-600 outline-none" />
+                        <button onClick={handlePinSubmit} className="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-lg shadow-lg hover:shadow-xl active:scale-95 transition-all cursor-pointer mb-4">Verify & Login</button>
+                        <button onClick={handleResendOTP} disabled={resendTimer > 0} className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${resendTimer > 0 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-white text-blue-600 border border-blue-200 hover:bg-blue-50 active:scale-95 cursor-pointer shadow-sm'}`}>
+                            {resendTimer > 0 ? `Wait ${resendTimer}s to Resend` : "Resend OTP"}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+              )
+            ) : null}
+          </main>
+
+          <footer className="glass-panel py-10 mt-12 flex-shrink-0 relative z-10 border-t border-gray-200">
+            <div className="flex flex-col items-center justify-center gap-6 relative">
+              <div className="text-center px-4">
+                  <p className="text-sm md:text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 mb-2 tracking-wide uppercase">Step into my world of art</p>
+              </div>
+              <div className="flex gap-6">
+                <a href="https://wa.me/917281074416" target="_blank" rel="noopener noreferrer" className="p-4 bg-white text-green-500 rounded-full hover:bg-green-500 hover:text-white active:scale-90 transition-all shadow-md hover:shadow-xl transform hover:-translate-y-1 block cursor-pointer">
+                  <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+                </a>
+                <a href="https://www.instagram.com/rajaguptaact?igsh=MXZmODNvdDlrY3lnNg==" target="_blank" rel="noopener noreferrer" className="p-4 bg-white text-pink-600 rounded-full shadow-md block cursor-pointer hover:bg-gradient-to-tr hover:from-yellow-400 hover:via-pink-500 hover:to-purple-600 hover:text-white active:scale-90 transition-all transform hover:-translate-y-1">
+                   <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 1 0 0-2.881z"/></svg>
                 </a>
               </div>
               <div className="text-center px-4 mt-2">
