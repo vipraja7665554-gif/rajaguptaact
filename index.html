@@ -9,7 +9,7 @@
   <!-- 🔥 INSTANT IMAGE LOADING (PRELOAD) 🔥 -->
   <link rel="preload" href="https://i.postimg.cc/LXnJmf5s/Picsart-26-07-11-18-35-32-342.jpg" as="image" />
   <link rel="preload" href="https://i.postimg.cc/bJsZqbry/Picsart-26-07-11-18-37-54-055.jpg" as="image" />
-  <link rel="preload" href="https://i.postimg.cc/XJprnFqW/Picsart-26-07-11-18-36-57-318.jpg" as="image" />
+  <link rel="preload" href="https://i.postimg.cc/gJVv6Q8Q/Picsart-26-07-11-21-04-15-561.jpg" as="image" />
   <link rel="preload" href="https://i.postimg.cc/434KFjT2/Picsart-26-07-11-18-34-14-020.jpg" as="image" />
   <link rel="preload" href="https://i.postimg.cc/3Rdk3pNJ/Picsart-26-07-11-18-45-56-326.jpg" as="image" />
 
@@ -87,11 +87,10 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // ✅ FIXED EXACT FIT MOCKUP COMPONENT
-    // Sirf Mota Black Frame diya gaya hai. White padding/background poori tarah hata diya gaya hai.
+    // ✅ FIXED EXACT FIT MOCKUP COMPONENT WITH UNIFORM ASPECT RATIO
     const CustomFitMockup = ({ bgImage, artImage, frameStyle }) => (
-      <div className="flex-none w-[85vw] md:w-[340px] lg:w-[400px] relative flex flex-col items-center justify-center select-none shadow-xl border border-gray-100 rounded-xl overflow-hidden snap-center bg-white transition-transform duration-500 hover:scale-[1.01]">
-        <div className="relative w-full leading-none text-[0px]">
+      <div className="flex-none w-[85vw] md:w-[340px] lg:w-[400px] aspect-[4/5] relative flex items-center justify-center select-none shadow-xl border border-gray-100 rounded-xl overflow-hidden snap-center bg-gray-50 transition-transform duration-500 hover:scale-[1.01]">
+        <div className="relative w-full flex-shrink-0 leading-none text-[0px]">
             
             {/* Background image */}
             <img src={bgImage} className="w-full h-auto block z-0 pointer-events-none" alt="Studio Mockup" fetchpriority="high" loading="eager" />
@@ -99,15 +98,16 @@
             {/* The Custom Frame Overlay */}
             <div className="absolute z-10 flex items-center justify-center" style={frameStyle}>
                 
-                {/* Sirf Black Frame: bg-white aur padding (p-2.5) hata di gayi hai */}
-                <div className="w-full h-full border-[8px] md:border-[12px] border-[#111111] shadow-[0_10px_25px_rgba(0,0,0,0.6)] flex items-center justify-center relative overflow-hidden bg-transparent">
+                {/* Thin, Realistic Brown Frame with depth shadow */}
+                <div className="w-full h-full border-[5px] md:border-[7px] border-[#4a2e15] shadow-[0_15px_35px_rgba(0,0,0,0.6)] flex items-center justify-center relative overflow-hidden bg-white">
                     <div className="img-protect-overlay z-20"></div>
                     
-                    {/* Artwork fitting exactly inside the black frame edge-to-edge */}
+                    {/* Artwork fitting exactly inside the frame edge-to-edge */}
                     <img src={artImage} className="absolute inset-0 w-full h-full object-fill" alt="Artwork" onContextMenu={(e) => e.preventDefault()} onDragStart={(e) => e.preventDefault()} />
                     
-                    {/* Realistic faint light blend */}
-                    <div className="absolute inset-0 bg-black/5 mix-blend-multiply pointer-events-none z-10"></div>
+                    {/* Realistic frame inner shadow & glare for 3D realism */}
+                    <div className="absolute inset-0 shadow-[inset_0_0_12px_rgba(0,0,0,0.5)] pointer-events-none z-10"></div>
+                    <div className="absolute inset-0 bg-gradient-to-tr from-black/5 via-transparent to-white/10 pointer-events-none z-10"></div>
                 </div>
 
             </div>
@@ -147,31 +147,31 @@
           <div className="relative">
             <div ref={scrollRef} className="flex overflow-x-auto gap-4 md:gap-6 mb-8 pb-4 hide-scrollbar snap-x snap-mandatory scroll-smooth">
               
-              {/* ✅ MOCKUPS: Frame size slightly increased to completely swallow the old blank frame */}
+              {/* Dimensions slightly expanded to perfectly cover the original frames behind it */}
               <CustomFitMockup 
                 bgImage="https://i.postimg.cc/LXnJmf5s/Picsart-26-07-11-18-35-32-342.jpg" 
                 artImage={art.image} 
-                frameStyle={{ top: '4%', left: '29.5%', width: '46%', height: '49%' }} 
+                frameStyle={{ top: '7.5%', left: '27%', width: '47.5%', height: '53%' }} 
               />
               <CustomFitMockup 
                 bgImage="https://i.postimg.cc/bJsZqbry/Picsart-26-07-11-18-37-54-055.jpg" 
                 artImage={art.image} 
-                frameStyle={{ top: '5%', left: '26.5%', width: '47%', height: '48%' }} 
+                frameStyle={{ top: '4.5%', left: '26%', width: '48%', height: '49%' }} 
               />
               <CustomFitMockup 
-                bgImage="https://i.postimg.cc/XJprnFqW/Picsart-26-07-11-18-36-57-318.jpg" 
+                bgImage="https://i.postimg.cc/gJVv6Q8Q/Picsart-26-07-11-21-04-15-561.jpg" 
                 artImage={art.image} 
-                frameStyle={{ top: '13%', left: '15.5%', width: '64%', height: '55%' }} 
+                frameStyle={{ top: '10%', left: '27.5%', width: '45%', height: '50%' }} 
               />
               <CustomFitMockup 
                 bgImage="https://i.postimg.cc/434KFjT2/Picsart-26-07-11-18-34-14-020.jpg" 
                 artImage={art.image} 
-                frameStyle={{ top: '9.5%', left: '35.5%', width: '44%', height: '45%' }} 
+                frameStyle={{ top: '9%', left: '35%', width: '45%', height: '46%' }} 
               />
               <CustomFitMockup 
                 bgImage="https://i.postimg.cc/3Rdk3pNJ/Picsart-26-07-11-18-45-56-326.jpg" 
                 artImage={art.image} 
-                frameStyle={{ top: '26.5%', left: '31.5%', width: '37%', height: '37%' }} 
+                frameStyle={{ top: '22.5%', left: '29.5%', width: '41.5%', height: '45%' }} 
               />
 
             </div>
@@ -1613,4 +1613,3 @@
   </script>
 </body>
 </html>
-
