@@ -5,14 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Raja Gupta Act | Professional Colour Pencil Studio</title>
   <meta name="google-site-verification" content="dN1MbPiHaOubD3Qf6umJDnE0mQOXjQUr4g7Cc2xNolw" />
-  
-  <!-- 🔥 INSTANT IMAGE LOADING (PRELOAD) 🔥 -->
-  <link rel="preload" href="https://i.postimg.cc/LXnJmf5s/Picsart-26-07-11-18-35-32-342.jpg" as="image" />
-  <link rel="preload" href="https://i.postimg.cc/bJsZqbry/Picsart-26-07-11-18-37-54-055.jpg" as="image" />
-  <link rel="preload" href="https://i.postimg.cc/gJVv6Q8Q/Picsart-26-07-11-21-04-15-561.jpg" as="image" />
-  <link rel="preload" href="https://i.postimg.cc/434KFjT2/Picsart-26-07-11-18-34-14-020.jpg" as="image" />
-  <link rel="preload" href="https://i.postimg.cc/3Rdk3pNJ/Picsart-26-07-11-18-45-56-326.jpg" as="image" />
-
   <!-- Tailwind, React, Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -26,7 +18,9 @@
 
   <style>
     /* 🚨 ANTI-THEFT & ANTI-PRINT SECURITY 🚨 */
-    @media print { body { display: none !important; } }
+    @media print {
+      body { display: none !important; }
+    }
     img { 
       image-rendering: -webkit-optimize-contrast; 
       image-rendering: crisp-edges; 
@@ -38,20 +32,25 @@
       -ms-user-select: none; 
       user-select: none;
       -webkit-user-drag: none; 
-      pointer-events: none; 
+      pointer-events: none; /* Prevents long-press save on mobile */
     }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
     .img-protect-overlay { position: absolute; inset: 0; z-index: 20; }
     
+    /* VIP TOAST ANIMATION */
     @keyframes popupToast {
       0% { transform: translate(-50%, 150%); opacity: 0; }
       10% { transform: translate(-50%, 0); opacity: 1; }
       90% { transform: translate(-50%, 0); opacity: 1; }
       100% { transform: translate(-50%, 150%); opacity: 0; }
     }
-    .animate-toast { animation: popupToast 3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .animate-toast {
+      animation: popupToast 3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    /* SLIDER STYLES */
+    input[type=range] { accent-color: #9333ea; }
   </style>
 </head>
 <body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-gray-900 font-sans antialiased selection:bg-purple-300" onContextMenu="return false;">
@@ -60,6 +59,7 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
     
+    // --- SECURITY CREDENTIALS (OBFUSCATED HASH) ---
     const verifyAdmin = (input) => {
         const secret = [87, 70, 79, 70, 100, 70, 73, 82, 78, 83, 100, 55, 53, 55, 59];
         if (!input || input.length !== secret.length) return false;
@@ -69,11 +69,17 @@
         return true;
     };
 
+    // =======================================================
+    // 🚨 TELEGRAM OFFICIAL BOT API (OLD - FOR ORDERS) 🚨
     const ORDER_BOT_TOKEN = "8756807321:AAHFhoyhF7sHjc5m22B8QAiRuI_xZmeU_fg"; 
     const ORDER_CHAT_ID = "8846198339"; 
+    
+    // 🚨 TELEGRAM SECURITY BOT API (NEW - FOR OTP/ALERTS) 🚨
     const SECURITY_BOT_TOKEN = "8948300649:AAFZ2vdLvEzWvLWUu9qkKQ8MXpKpSV30aVA"; 
     const SECURITY_CHAT_ID = "8846198339"; 
+    // =======================================================
 
+    // --- FIREBASE INITIALIZATION ---
     const firebaseConfig = {
       apiKey: "AIzaSyBCX9rALYZSxzYvawPexwXIHTSA3uhU24E",
       authDomain: "rajaguptaact.firebaseapp.com",
@@ -85,94 +91,83 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    const CustomFitMockup = ({ bgImage, artImage, frameStyle }) => (
-      <div className="flex-none w-[85vw] md:w-[340px] lg:w-[400px] aspect-[4/5] relative flex items-center justify-center select-none shadow-xl border border-gray-100 rounded-xl overflow-hidden snap-center bg-gray-50 transition-transform duration-500 hover:scale-[1.01]">
-        <div className="relative w-full flex-shrink-0 leading-none text-[0px]">
-            
-            <img src={bgImage} className="w-full h-auto block z-0 pointer-events-none" alt="Studio Mockup" fetchpriority="high" loading="eager" />
-            
-            {/* Yaha par frame style background ko chupane ke liye bada kiya gaya hai */}
-            <div className="absolute z-10 flex items-center justify-center" style={frameStyle}>
-                
-                {/* Real Black Frame + White Padding (Passepartout/Mat) jisse asli photo jaisa look aaye */}
-                <div className="w-full h-full border-[8px] md:border-[12px] border-black shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] flex items-center justify-center relative overflow-hidden bg-white p-2 md:p-3">
-                    <div className="img-protect-overlay z-20"></div>
-                    
-                    {/* Yaha object-contain lagaya hai taaki original size rahe aur hath na kate */}
-                    <img src={artImage} className="w-full h-full object-contain relative z-10 drop-shadow-sm" alt="Artwork" onContextMenu={(e) => e.preventDefault()} onDragStart={(e) => e.preventDefault()} />
-                    
-                    <div className="absolute inset-0 shadow-[inset_0_0_15px_rgba(0,0,0,0.3)] pointer-events-none z-10"></div>
-                    <div className="absolute inset-0 bg-gradient-to-tr from-black/5 via-transparent to-white/10 pointer-events-none z-10"></div>
+    // ✅ 5 PROFESSIONAL BACKGROUNDS (MOCKUPS) - AS REQUESTED
+    const mockupBackgrounds = [
+      "https://i.postimg.cc/LXnJmf5s/Picsart-26-07-11-18-35-32-342.jpg",
+      "https://i.postimg.cc/bJsZqbry/Picsart-26-07-11-18-37-54-055.jpg",
+      "https://i.postimg.cc/gJVv6Q8Q/Picsart-26-07-11-21-04-15-561.jpg",
+      "https://i.postimg.cc/434KFjT2/Picsart-26-07-11-18-34-14-020.jpg",
+      "https://i.postimg.cc/3Rdk3pNJ/Picsart-26-07-11-18-45-56-326.jpg"
+    ];
+
+    const mockupLabels = [
+      "Professional Display",
+      "Studio Frame",
+      "Premium Wall Setup",
+      "Elegant Interior",
+      "Classic Setup"
+    ];
+
+    // ✅ DYNAMIC MOCKUP COMPONENT (Layers drawing on background natively)
+    const DynamicMockup = ({ bgSrc, artSrc, config }) => {
+        return (
+            <div className="w-full aspect-square md:aspect-[4/3] rounded-2xl overflow-hidden relative shadow-inner bg-gray-200 flex items-center justify-center select-none">
+                <img src={bgSrc} className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none" alt="Background" />
+                <div className="absolute z-10 shadow-[0_20px_40px_rgba(0,0,0,0.5)] bg-white p-1 md:p-2 border-[1px] md:border-[2px] border-gray-100"
+                     style={{
+                         top: `${(config?.y || 0.5) * 100}%`,
+                         left: `${(config?.x || 0.5) * 100}%`,
+                         width: `${(config?.scale || 0.35) * 100}%`,
+                         transform: 'translate(-50%, -50%)'
+                     }}>
+                   <img src={artSrc} className="w-full h-auto object-contain pointer-events-none" />
                 </div>
-
+                <div className="img-protect-overlay z-20"></div>
             </div>
-        </div>
-      </div>
-    );
+        );
+    };
 
+    // ✅ NEW SMART ARTWORK CARD COMPONENT (Handles Auto-Scroll individually)
     const ArtworkCard = ({ art, getPrice, addToCart }) => {
       const scrollRef = useRef(null);
 
       useEffect(() => {
         const interval = setInterval(() => {
-          if (scrollRef.current && window.innerWidth < 768) { 
+          if (scrollRef.current) {
             const maxScroll = scrollRef.current.scrollWidth - scrollRef.current.clientWidth;
             if (scrollRef.current.scrollLeft >= maxScroll - 10) {
-              scrollRef.current.scrollTo({ left: 0, behavior: 'smooth' }); 
+              scrollRef.current.scrollTo({ left: 0, behavior: 'smooth' }); // Rewind to start
             } else {
-              scrollRef.current.scrollBy({ left: scrollRef.current.clientWidth, behavior: 'smooth' }); 
+              scrollRef.current.scrollBy({ left: scrollRef.current.clientWidth, behavior: 'smooth' }); // Go to next
             }
           }
-        }, 3500); 
+        }, 3500); // 3.5 seconds
         return () => clearInterval(interval);
       }, []);
 
       return (
-        <div className="glass-panel rounded-3xl shadow-xl overflow-hidden p-6 md:p-10 mb-10 border border-gray-100">
+        <div className="glass-panel rounded-3xl shadow-xl overflow-hidden p-6 md:p-10 mb-10">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b pb-4 border-gray-200">
             <div>
               <h2 className="text-3xl font-black text-gray-900 flex items-center gap-3">
                   {art.title}
               </h2>
-              <span className="inline-block mt-2 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 text-xs font-black px-3 py-1 rounded-full border border-purple-200 shadow-sm">100% COLOUR PENCIL</span>
+              <span className="inline-block mt-2 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 text-xs font-black px-3 py-1 rounded-full border border-purple-200">100% COLOUR PENCIL</span>
             </div>
             <p className="text-gray-600 font-medium max-w-md mt-4 md:mt-0 text-sm md:text-right">{art.desc}</p>
           </div>
           
-          <div className="relative">
-            <div ref={scrollRef} className="flex overflow-x-auto gap-4 md:gap-6 mb-8 pb-4 hide-scrollbar snap-x snap-mandatory scroll-smooth">
-              
-              {/* Teeno frames ko properly cover karne ke liye sizes badha diye gaye hain */}
-              <CustomFitMockup 
-                bgImage="https://i.postimg.cc/LXnJmf5s/Picsart-26-07-11-18-35-32-342.jpg" 
-                artImage={art.image} 
-                frameStyle={{ top: '4.8%', left: '25%', width: '51.5%', height: '51.5%' }} 
-              />
-              
-              <CustomFitMockup 
-                bgImage="https://i.postimg.cc/bJsZqbry/Picsart-26-07-11-18-37-54-055.jpg" 
-                artImage={art.image} 
-                frameStyle={{ top: '3.5%', left: '24.5%', width: '51%', height: '51.5%' }} 
-              />
-              
-              <CustomFitMockup 
-                bgImage="https://i.postimg.cc/gJVv6Q8Q/Picsart-26-07-11-21-04-15-561.jpg" 
-                artImage={art.image} 
-                frameStyle={{ top: '5.5%', left: '25.5%', width: '49.5%', height: '50.5%' }} 
-              />
-              
-              <CustomFitMockup 
-                bgImage="https://i.postimg.cc/434KFjT2/Picsart-26-07-11-18-34-14-020.jpg" 
-                artImage={art.image} 
-                frameStyle={{ top: '7.8%', left: '33.5%', width: '48%', height: '48.5%' }} 
-              />
-              
-              <CustomFitMockup 
-                bgImage="https://i.postimg.cc/3Rdk3pNJ/Picsart-26-07-11-18-45-56-326.jpg" 
-                artImage={art.image} 
-                frameStyle={{ top: '21.5%', left: '29.5%', width: '41.5%', height: '44%' }} 
-              />
-
+          <div className="relative mb-8">
+            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest text-center mb-3 animate-pulse">
+              &larr; Auto Viewing Angles &rarr;
+            </p>
+            <div ref={scrollRef} className="flex overflow-x-auto gap-4 md:gap-6 hide-scrollbar snap-x snap-mandatory scroll-smooth pb-4">
+                {mockupBackgrounds.map((bg, idx) => (
+                    <div key={idx} className="flex-none w-[85%] md:w-[60%] lg:w-[45%] snap-center">
+                        <DynamicMockup bgSrc={bg} artSrc={art.image} config={art.config} />
+                        <p className="text-center font-bold mt-3 text-sm text-gray-500 uppercase tracking-widest">{mockupLabels[idx]}</p>
+                    </div>
+                ))}
             </div>
           </div>
           
@@ -184,47 +179,44 @@
                 </span>
               )}
               <div>
-                <p className="font-bold text-purple-100 text-[10px] md:text-sm uppercase tracking-wider">Original Artwork</p>
+                <p className="font-bold text-purple-100 text-[10px] md:text-sm uppercase">Original Artwork</p>
                 <p className="font-black text-sm md:text-lg mb-1">A4 Size</p>
                 <div className="flex flex-col items-center justify-center my-1 min-h-[50px]">
                   {art.priceOriginalOld && art.priceOriginal && Number(art.priceOriginalOld) > Number(art.priceOriginal) && (
                     <span className="line-through text-purple-300 text-xs">{getPrice(art.priceOriginalOld)}</span>
                   )}
-                  <p className="text-lg md:text-2xl font-black shadow-sm">{getPrice(art.priceOriginal || art.priceOriginalOld)}</p>
+                  <p className="text-lg md:text-2xl font-black">{getPrice(art.priceOriginal || art.priceOriginalOld)}</p>
                 </div>
               </div>
               {art.isSold ? (
                   <button disabled className="w-full bg-gray-400 text-gray-200 py-2 md:py-3 rounded-xl font-bold text-xs md:text-sm shadow-md cursor-not-allowed mt-2">SOLD OUT</button>
               ) : (
-                  <button onClick={() => addToCart(art, 'Original A4 Colour Pencil', art.priceOriginal || art.priceOriginalOld, art.priceOriginal ? art.priceOriginalOld : null)} className="w-full bg-white text-purple-700 py-2 md:py-3 rounded-xl font-black text-xs md:text-sm shadow-lg hover:shadow-xl hover:bg-gray-50 active:scale-95 transition-all cursor-pointer mt-2">Add to Cart</button>
+                  <button onClick={() => addToCart(art, 'Original A4 Colour Pencil', art.priceOriginal || art.priceOriginalOld, art.priceOriginal ? art.priceOriginalOld : null)} className="w-full bg-white text-purple-700 py-2 md:py-3 rounded-xl font-bold text-xs md:text-sm shadow-md hover:bg-gray-50 cursor-pointer mt-2">Add to Cart</button>
               )}
             </div>
-            
-            <div className="bg-white p-4 rounded-2xl shadow-md text-center border-2 border-gray-100 flex flex-col justify-between hover:border-pink-400 hover:shadow-lg transition">
+            <div className="bg-white p-4 rounded-2xl shadow-md text-center border-2 border-gray-100 flex flex-col justify-between hover:border-pink-400 transition">
               <div>
-                <p className="font-bold text-gray-500 text-[10px] md:text-sm uppercase tracking-wider">HD Print</p>
+                <p className="font-bold text-gray-500 text-[10px] md:text-sm uppercase">HD Print</p>
                 <p className="font-black text-gray-800 text-sm md:text-lg mb-1">A3 Size</p>
                 <p className="text-lg md:text-2xl font-black text-pink-600 my-2">{getPrice(art.priceA3)}</p>
               </div>
-              <button onClick={() => addToCart(art, 'Print A3', art.priceA3, null)} className="w-full bg-gray-50 text-gray-900 border border-gray-200 py-2 md:py-3 rounded-xl font-bold text-xs md:text-sm hover:bg-pink-50 hover:text-pink-700 hover:border-pink-200 active:scale-95 transition-all cursor-pointer mt-2">Add to Cart</button>
+              <button onClick={() => addToCart(art, 'Print A3', art.priceA3, null)} className="w-full bg-gray-100 text-gray-900 border border-gray-200 py-2 md:py-3 rounded-xl font-bold text-xs md:text-sm hover:bg-pink-50 hover:text-pink-600 transition cursor-pointer mt-2">Add to Cart</button>
             </div>
-            
-            <div className="bg-white p-4 rounded-2xl shadow-md text-center border-2 border-gray-100 flex flex-col justify-between hover:border-pink-400 hover:shadow-lg transition">
+            <div className="bg-white p-4 rounded-2xl shadow-md text-center border-2 border-gray-100 flex flex-col justify-between hover:border-pink-400 transition">
               <div>
-                <p className="font-bold text-gray-500 text-[10px] md:text-sm uppercase tracking-wider">HD Print</p>
+                <p className="font-bold text-gray-500 text-[10px] md:text-sm uppercase">HD Print</p>
                 <p className="font-black text-gray-800 text-sm md:text-lg mb-1">A4 Size</p>
                 <p className="text-lg md:text-2xl font-black text-pink-600 my-2">{getPrice(art.priceA4)}</p>
               </div>
-              <button onClick={() => addToCart(art, 'Print A4', art.priceA4, null)} className="w-full bg-gray-50 text-gray-900 border border-gray-200 py-2 md:py-3 rounded-xl font-bold text-xs md:text-sm hover:bg-pink-50 hover:text-pink-700 hover:border-pink-200 active:scale-95 transition-all cursor-pointer mt-2">Add to Cart</button>
+              <button onClick={() => addToCart(art, 'Print A4', art.priceA4, null)} className="w-full bg-gray-100 text-gray-900 border border-gray-200 py-2 md:py-3 rounded-xl font-bold text-xs md:text-sm hover:bg-pink-50 hover:text-pink-600 transition cursor-pointer mt-2">Add to Cart</button>
             </div>
-            
-            <div className="bg-white p-4 rounded-2xl shadow-md text-center border-2 border-gray-100 flex flex-col justify-between hover:border-pink-400 hover:shadow-lg transition">
+            <div className="bg-white p-4 rounded-2xl shadow-md text-center border-2 border-gray-100 flex flex-col justify-between hover:border-pink-400 transition">
               <div>
-                <p className="font-bold text-gray-500 text-[10px] md:text-sm uppercase tracking-wider">HD Print</p>
+                <p className="font-bold text-gray-500 text-[10px] md:text-sm uppercase">HD Print</p>
                 <p className="font-black text-gray-800 text-sm md:text-lg mb-1">A5 Size</p>
                 <p className="text-lg md:text-2xl font-black text-pink-600 my-2">{getPrice(art.priceA5)}</p>
               </div>
-              <button onClick={() => addToCart(art, 'Print A5', art.priceA5, null)} className="w-full bg-gray-50 text-gray-900 border border-gray-200 py-2 md:py-3 rounded-xl font-bold text-xs md:text-sm hover:bg-pink-50 hover:text-pink-700 hover:border-pink-200 active:scale-95 transition-all cursor-pointer mt-2">Add to Cart</button>
+              <button onClick={() => addToCart(art, 'Print A5', art.priceA5, null)} className="w-full bg-gray-100 text-gray-900 border border-gray-200 py-2 md:py-3 rounded-xl font-bold text-xs md:text-sm hover:bg-pink-50 hover:text-pink-600 transition cursor-pointer mt-2">Add to Cart</button>
             </div>
           </div>
         </div>
@@ -278,10 +270,12 @@
       const [otpInput, setOtpInput] = useState('');
       const [liveOTP, setLiveOTP] = useState(''); 
       
+      // ✅ LIVE TRUSTED SESSIONS & ACCORDION STATES
       const [activeSessions, setActiveSessions] = useState([]);
       const [isDevicesOpen, setIsDevicesOpen] = useState(false);
       const [isOrdersOpen, setIsOrdersOpen] = useState(false);
       
+      // ✅ 15 MINUTE BLOCKING & RESEND TIMER STATE
       const [blockUntil, setBlockUntil] = useState(() => Number(window.localStorage.getItem('raja_admin_block')) || 0);
       const [resendTimer, setResendTimer] = useState(0);
 
@@ -291,15 +285,18 @@
       
       const [isOrderPlaced, setIsOrderPlaced] = useState(false); 
       
+      // ✅ VIP TOAST STATE
       const [toastMessage, setToastMessage] = useState(null);
       const showToast = (msg) => {
         setToastMessage(msg);
         setTimeout(() => setToastMessage(null), 3000);
       };
 
+      // 🚨 ANTI-THEFT KEYBOARD LISTENER 🚨
       useEffect(() => {
         const handleContext = (e) => e.preventDefault();
         const handleKeyDown = (e) => {
+            // Block Save (Ctrl+S), Print (Ctrl+P), View Source (Ctrl+U), Inspect (F12, Ctrl+Shift+I, Ctrl+Shift+C)
             if (e.key === 'F12' || 
                (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S' || e.key === 'p' || e.key === 'P')) ||
                (e.ctrlKey && e.shiftKey && (e.key === 'i' || e.key === 'I' || e.key === 'c' || e.key === 'C'))) {
@@ -315,9 +312,10 @@
         };
       }, []);
       
+      // ✅ GET DEVICE DETAILS HELPER (WITH DEVICE TYPE)
       const fetchDeviceDetails = async () => {
          let ip = "Unknown", location = "Unknown", org = "Unknown", deviceModel = "Unknown Device";
-         let deviceType = "Desktop PC";
+         let deviceType = "Desktop PC"; // Default
 
          try {
              const res = await fetch('https://ipapi.co/json/');
@@ -331,6 +329,7 @@
          
          try {
              const ua = navigator.userAgent;
+             // Check device type
              if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
                  deviceType = "Mobile Phone";
              } else if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
@@ -354,24 +353,27 @@
          return { ip, location, org, deviceModel, deviceType };
       };
 
+      // ✅ BLOCK TIMER INTERVAL
       useEffect(() => {
         const int = setInterval(() => {
             if (blockUntil > 0 && blockUntil < Date.now()) {
                 setBlockUntil(0);
                 window.localStorage.removeItem('raja_admin_block');
-                window.localStorage.setItem('raja_admin_fails', '0');
+                window.localStorage.setItem('raja_admin_fails', '0'); // reset attempts
             }
             if (resendTimer > 0) setResendTimer(prev => prev - 1);
         }, 1000);
         return () => clearInterval(int);
       }, [blockUntil, resendTimer]);
       
+      // ✅ REMOTE LOGOUT TRACKER
       useEffect(() => {
          if (isAdmin) {
              const devId = window.localStorage.getItem('raja_device_id');
              if (devId) {
                  const unsub = db.collection('adminSessions').doc(devId).onSnapshot(doc => {
                      if (!doc.exists) {
+                         // Session deleted by admin remotely!
                          window.localStorage.removeItem('raja_device_id');
                          setIsAdmin(false);
                          setAdminStep(1);
@@ -383,12 +385,15 @@
          }
       }, [isAdmin]);
       
+      // ✅ 100% CRASH-PROOF CART SYSTEM
       const [cart, setCart] = useState(() => {
         try {
           const savedCart = window.localStorage.getItem('raja_cart_live_v1');
           if (savedCart) {
             const parsed = JSON.parse(savedCart);
-            if (Array.isArray(parsed)) return parsed;
+            if (Array.isArray(parsed)) {
+              return parsed;
+            }
           }
         } catch(e) {}
         return [];
@@ -403,6 +408,7 @@
       }, [cart]);
       
       const [commissionInput, setCommissionInput] = useState({ subject: '', size: 'A4 Colour Pencil', budget: '', instagram: '' });
+
       const [checkoutData, setCheckoutData] = useState({ name: '', email: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0, instagram: '' });
       const [isValidating, setIsValidating] = useState(false);
       const [isUploading, setIsUploading] = useState(false);
@@ -441,13 +447,21 @@
 
             let msg = `🛡️ *SECURITY ALERT: ADMIN LOGIN* 🛡️\n\n`;
             
-            if (status === 'SUCCESS_TRUSTED') msg += `*Status:* ✅ SUCCESSFUL LOGIN (Trusted Device)\n`;
-            else if (status === 'SEND_OTP') msg += `*Status:* ⚠️ NEW LOGIN ATTEMPT\nUse this OTP to verify:\n\n🔑 *YOUR SECRET 6-DIGIT OTP:* \`${attemptedData}\`\n\n`;
-            else if (status === 'NEW_DEVICE_VERIFIED') msg += `*Status:* 🟢 DEVICE VERIFIED SUCCESSFULLY\n`;
-            else if (status === 'OTP_FAILED') msg += `*Status:* ❌ LOGIN BLOCKED\n(Wrong OTP entered: ${attemptedData})\n`;
-            else if (status === 'FAILED') msg += `*Status:* ❌ FAILED LOGIN ATTEMPT\n*Wrong Password:* \`${attemptedData}\`\n`;
-            else if (status === 'BLOCKED') msg += `*Status:* ⛔ IP/DEVICE BLOCKED FOR 15 MINS\n(Too many failed attempts/spams)\n`;
-            else if (status === 'SECURE_LOGOUT') msg += `*Status:* 🔓 SECURE LOGOUT (Device Saved)\n`;
+            if (status === 'SUCCESS_TRUSTED') {
+                msg += `*Status:* ✅ SUCCESSFUL LOGIN (Trusted Device)\n`;
+            } else if (status === 'SEND_OTP') {
+                msg += `*Status:* ⚠️ NEW LOGIN ATTEMPT\nUse this OTP to verify:\n\n🔑 *YOUR SECRET 6-DIGIT OTP:* \`${attemptedData}\`\n\n`;
+            } else if (status === 'NEW_DEVICE_VERIFIED') {
+                msg += `*Status:* 🟢 DEVICE VERIFIED SUCCESSFULLY\n`;
+            } else if (status === 'OTP_FAILED') {
+                msg += `*Status:* ❌ LOGIN BLOCKED\n(Wrong OTP entered: ${attemptedData})\n`;
+            } else if (status === 'FAILED') {
+                msg += `*Status:* ❌ FAILED LOGIN ATTEMPT\n*Wrong Password:* \`${attemptedData}\`\n`;
+            } else if (status === 'BLOCKED') {
+                msg += `*Status:* ⛔ IP/DEVICE BLOCKED FOR 15 MINS\n(Too many failed attempts/spams)\n`;
+            } else if (status === 'SECURE_LOGOUT') {
+                msg += `*Status:* 🔓 SECURE LOGOUT (Device Saved)\n`;
+            }
 
             msg += `*Time:* ${date} • ${time}\n\n`;
             msg += `*📡 Tracked Details:*\n`;
@@ -495,7 +509,10 @@
 
         const safeMsg = encodeURIComponent(msg);
         const url = `https://api.telegram.org/bot${ORDER_BOT_TOKEN}/sendMessage?chat_id=${ORDER_CHAT_ID}&text=${safeMsg}&parse_mode=Markdown`;
-        fetch(url).catch(err => console.error("Telegram API Error:", err));
+        fetch(url)
+          .then(res => res.json())
+          .then(data => console.log("Telegram Notified Successfully!"))
+          .catch(err => console.error("Telegram API Error:", err));
       };
 
       const shareSite = () => {
@@ -504,8 +521,12 @@
           text: 'Check out the highly detailed realistic colour pencil artworks by Raja Gupta! We ship worldwide.',
           url: window.location.href
         };
-        if (navigator.share) navigator.share(shareData).catch(console.error);
-        else { navigator.clipboard.writeText(window.location.href); showToast("Studio link copied to clipboard!"); }
+        if (navigator.share) {
+          navigator.share(shareData).catch(console.error);
+        } else {
+          navigator.clipboard.writeText(window.location.href);
+          showToast("Studio link copied to clipboard!");
+        }
       };
 
       useEffect(() => {
@@ -521,6 +542,7 @@
         return () => { unsubArt(); unsubOrd(); unsubAnn(); };
       }, []);
       
+      // ✅ FETCH SESSIONS WHEN ADMIN (Now fetches ALL Trusted Devices, online & offline)
       useEffect(() => {
         if (isAdmin) {
            const unsubSess = db.collection("trustedDevices").onSnapshot(snap => {
@@ -531,24 +553,36 @@
       }, [isAdmin]);
 
       useEffect(() => { 
-        try { if (window.feather) window.feather.replace(); } catch(e) {}
+        try {
+            if (window.feather) {
+                window.feather.replace(); 
+            }
+        } catch(e) { console.log(e); }
       }, [view, menuOpen, currency]);
 
       const nav = (v) => { setView(v); setMenuOpen(false); window.scrollTo(0,0); };
 
+      // ✅ FIX 1: 5-SEC COOLDOWN TIMER STATE
       const [lastAddedTime, setLastAddedTime] = useState(0);
 
       const addToCart = (art, size, price, oldPrice) => {
         const now = Date.now();
-        if (now - lastAddedTime < 5000) { showToast("⏳ Please wait 5 seconds before adding another item."); return; }
+        if (now - lastAddedTime < 5000) {
+            showToast("⏳ Please wait 5 seconds before adding another item.");
+            return;
+        }
 
+        // ✅ NEW LOGIC: PREVENT ADDING THE SAME ORIGINAL ARTWORK TWICE
         if (size && size.includes('Original')) {
             const alreadyInCart = cart.some(c => c.id === art.id && c.selectedSize.includes('Original'));
-            if (alreadyInCart) { alert("❌ You have already added this Original Artwork to your cart. Since it's a unique piece, it can only be added once."); return; }
+            if (alreadyInCart) {
+                alert("❌ You have already added this Original Artwork to your cart. Since it's a unique piece, it can only be added once.");
+                return;
+            }
         }
         
         setCart([...cart, { ...art, selectedSize: size, price: Number(price), priceOriginalOld: oldPrice ? Number(oldPrice) : null, cartId: Date.now() }]);
-        setLastAddedTime(now);
+        setLastAddedTime(now); // Set the time of last successful add
         showToast("Artwork added to your Cart!");
       };
 
@@ -556,7 +590,9 @@
         let total = items.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
         const initCountry = currency === 'USD' ? 'International' : 'India';
         const insta = (extraData && extraData.instagram) ? extraData.instagram : '';
+        
         setCheckoutData({ name: '', email: '', phone: '', address: '', pin: '', city: '', state: '', country: initCountry, type: type, itemDetails: items, amount: total, instagram: insta });
+        
         setIsValidating(false);
         nav('checkout_form');
       };
@@ -587,7 +623,7 @@
         const total = cart.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
         return (
           <div className="p-6 max-w-3xl mx-auto min-h-screen">
-            <button onClick={() => nav('gallery')} className="mb-6 text-purple-600 font-bold flex items-center gap-2 hover:text-purple-800 active:scale-95 transition-all cursor-pointer">
+            <button onClick={() => nav('gallery')} className="mb-6 text-purple-600 font-bold flex items-center gap-2 hover:text-purple-800 transition">
                &larr; Back to Gallery
             </button>
             <h2 className="text-3xl font-black mb-8 border-b pb-4 text-purple-800">Your Cart</h2>
@@ -610,13 +646,13 @@
                         </div>
                       ) : null}
                       <p className="font-black text-xl text-gray-900">{getPrice(item.price)}</p>
-                      <button onClick={() => setCart(cart.filter(c => c.cartId !== item.cartId))} className="text-rose-500 text-sm font-bold hover:underline mt-1 cursor-pointer active:scale-95 transition-transform">Remove</button>
+                      <button onClick={() => setCart(cart.filter(c => c.cartId !== item.cartId))} className="text-rose-500 text-sm font-bold hover:underline mt-1 cursor-pointer">Remove</button>
                     </div>
                   </div>
                 ))}
                 <div className="bg-gradient-to-r from-purple-700 to-pink-600 text-white p-6 rounded-2xl mt-8 flex flex-col md:flex-row justify-between items-center shadow-xl">
                   <div className="mb-4 md:mb-0 text-center md:text-left"><p className="text-sm text-purple-200 font-bold">Total Payable</p><p className="text-4xl font-black">{getPrice(total)}</p></div>
-                  <button onClick={() => startCheckout(cart, 'Gallery Purchase', {})} className="w-full md:w-auto bg-white text-purple-700 px-10 py-4 rounded-xl font-black text-lg shadow-lg hover:shadow-xl active:scale-95 transition-all cursor-pointer">Proceed to Checkout</button>
+                  <button onClick={() => startCheckout(cart, 'Gallery Purchase', {})} className="w-full md:w-auto bg-white text-purple-700 px-10 py-4 rounded-xl font-black text-lg shadow-lg hover:scale-105 transition-transform cursor-pointer">Proceed to Checkout</button>
                 </div>
               </div>
             )}
@@ -631,12 +667,14 @@
                    setCommissionInput({ subject: '', size: 'A4 Colour Pencil', budget: '', instagram: '' });
                    nav('gallery');
                }
-           } else nav('gallery');
+           } else {
+               nav('gallery');
+           }
         };
 
         return (
           <div className="p-4 md:p-8 max-w-6xl mx-auto min-h-screen space-y-8">
-            <button onClick={handleCommissionBack} className="mb-2 text-purple-600 font-bold flex items-center gap-2 hover:text-purple-800 active:scale-95 transition-all cursor-pointer">
+            <button onClick={handleCommissionBack} className="mb-2 text-purple-600 font-bold flex items-center gap-2 hover:text-purple-800 transition">
                &larr; Back to Gallery
             </button>
             <div className="text-center mb-10">
@@ -661,8 +699,14 @@
                 <div className="glass-panel p-8 rounded-3xl shadow-xl">
                   <form onSubmit={(e) => { 
                       e.preventDefault(); 
-                      if (commissionInput.subject.trim().length < 5) { alert("❌ Please provide a detailed subject description (minimum 5 characters)."); return; }
-                      if (commissionInput.instagram.trim().length < 5) { alert("❌ Please enter a valid Instagram ID (minimum 5 characters)."); return; }
+                      if (commissionInput.subject.trim().length < 5) {
+                          alert("❌ Please provide a detailed subject description (minimum 5 characters).");
+                          return;
+                      }
+                      if (commissionInput.instagram.trim().length < 5) {
+                          alert("❌ Please enter a valid Instagram ID (minimum 5 characters).");
+                          return;
+                      }
                       const rawBudget = Number(commissionInput.budget);
                       const basePriceINR = currency === 'USD' ? rawBudget * 83.5 : rawBudget;
                       startCheckout([{ title: 'Commission: ' + commissionInput.subject, selectedSize: commissionInput.size, price: basePriceINR }], 'Commission', { instagram: commissionInput.instagram }); 
@@ -671,11 +715,14 @@
                       <label className="font-black text-sm text-gray-800 uppercase tracking-wide">Artwork Subject Details</label>
                       <input required minLength="5" value={commissionInput.subject} onChange={e => setCommissionInput({...commissionInput, subject: e.target.value})} placeholder="E.g. Portrait of two people..." className="w-full border-2 border-gray-200 p-4 rounded-xl bg-white focus:border-purple-500 outline-none transition font-medium mt-2" />
                     </div>
+                    
+                    {/* INSTAGRAM FIELD WITH STRICT VALIDATION */}
                     <div>
                       <label className="font-black text-sm text-gray-800 uppercase tracking-wide">Instagram ID (Required)</label>
                       <input required minLength="5" value={commissionInput.instagram} onChange={e => setCommissionInput({...commissionInput, instagram: e.target.value})} placeholder="E.g. @your_username" className="w-full border-2 border-gray-200 p-4 rounded-xl bg-white focus:border-purple-500 outline-none transition font-medium mt-2" />
                       <p className="text-xs text-gray-500 font-bold mt-1 italic">This ID is strictly required for order updates and reference purposes. (Min 5 characters)</p>
                     </div>
+
                     <div>
                       <label className="font-black text-sm text-gray-800 uppercase tracking-wide">Select Paper Size</label>
                       <select required value={commissionInput.size} onChange={e => setCommissionInput({...commissionInput, size: e.target.value})} className="w-full border-2 border-gray-200 p-4 rounded-xl bg-white focus:border-purple-500 outline-none transition font-medium mt-2">
@@ -687,13 +734,15 @@
                       <label className="font-black text-sm text-gray-800 uppercase tracking-wide">Estimated Budget ({currency === 'USD' ? '$ USD' : '₹ INR'})</label>
                       <input required value={commissionInput.budget} onChange={e => setCommissionInput({...commissionInput, budget: e.target.value})} type="number" min={currency === 'USD' ? "18" : "1500"} placeholder={currency === 'USD' ? "Starting at $18..." : "Starting at ₹1500..."} className="w-full border-2 border-gray-200 p-4 rounded-xl bg-white focus:border-purple-500 outline-none transition font-medium mt-2" />
                     </div>
-                    <button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-black text-lg shadow-lg hover:shadow-xl active:scale-95 transition-all mt-4 cursor-pointer">Proceed to Details</button>
+                    <button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-black text-lg shadow-lg hover:shadow-xl transition-all mt-4 cursor-pointer">Proceed to Details</button>
                   </form>
                 </div>
               </div>
 
               <div className="space-y-6">
+                
                 <ExpandablePolicy />
+
                 <div className="glass-panel p-6 md:p-8 rounded-3xl shadow-lg border-t-4 border-t-pink-500">
                   <h3 className="text-xl md:text-2xl font-black text-gray-900 mb-6 flex items-center gap-3">
                      <svg className="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
@@ -707,6 +756,7 @@
                       <FAQItem question="Q. Have more questions or a different doubt?" answer="A. Feel free to reach out directly! You can drop a message on WhatsApp or DM me on Instagram for any other queries or custom requests." />
                   </div>
                 </div>
+
               </div>
             </div>
           </div>
@@ -736,6 +786,7 @@
       );
 
       const CheckoutForm = () => {
+        
         const isEmailValidNow = checkoutData.email ? /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(checkoutData.email) : false;
         const currentEmailError = (checkoutData.email && !isEmailValidNow) ? "❌ Enter a valid email (e.g. name@gmail.com)" : "";
 
@@ -745,30 +796,48 @@
         
         if (cleanedPhone) {
             if (checkoutData.country === 'India') {
-                if (!cleanedPhone.startsWith('+91')) currentPhoneError = "❌ Indian number must start with +91";
-                else if (cleanedPhone.length !== 13) currentPhoneError = "❌ Must be exactly 10 digits after +91";
-                else isPhoneValidNow = true;
+                if (!cleanedPhone.startsWith('+91')) {
+                    currentPhoneError = "❌ Indian number must start with +91";
+                } else if (cleanedPhone.length !== 13) {
+                    currentPhoneError = "❌ Must be exactly 10 digits after +91";
+                } else {
+                    isPhoneValidNow = true;
+                }
             } else {
-                if (!cleanedPhone.startsWith('+')) currentPhoneError = "❌ International format requires '+' and country code";
-                else if (cleanedPhone.length < 8 || cleanedPhone.length > 16) currentPhoneError = "❌ Invalid international number configuration length";
-                else isPhoneValidNow = true;
+                if (!cleanedPhone.startsWith('+')) {
+                    currentPhoneError = "❌ International format requires '+' and country code";
+                } else if (cleanedPhone.length < 8 || cleanedPhone.length > 16) {
+                    currentPhoneError = "❌ Invalid international number configuration length";
+                } else {
+                    isPhoneValidNow = true;
+                }
             }
         }
 
         let isPinValidNow = false;
-        if (checkoutData.country === 'India') isPinValidNow = checkoutData.pin.length === 6 && checkoutData.city !== '';
-        else isPinValidNow = checkoutData.pin.length >= 3;
+        if (checkoutData.country === 'India') {
+            isPinValidNow = checkoutData.pin.length === 6 && checkoutData.city !== '';
+        } else {
+            isPinValidNow = checkoutData.pin.length >= 3;
+        }
 
+        // STRICT VALIDATION
         const isAddressValidNow = checkoutData.address.trim().length >= 10;
         const isNameValidNow = checkoutData.name.trim().length >= 3;
+
         const canSubmit = isEmailValidNow && isPhoneValidNow && isPinValidNow && isAddressValidNow && isNameValidNow;
 
-        const handleEmailChange = (e) => setCheckoutData({...checkoutData, email: e.target.value});
+        const handleEmailChange = (e) => {
+          setCheckoutData({...checkoutData, email: e.target.value});
+        };
+
         const handlePhoneChange = (e) => {
           let val = e.target.value;
           if (val.length === 1 && /[1-9]/.test(val)) val = '+' + val;
           val = val.replace(/[^\d+\s-]/g, '');
-          if (val.lastIndexOf('+') > 0) val = val.substring(0, val.lastIndexOf('+')) + val.substring(val.lastIndexOf('+')).replace(/\+/g, '');
+          if (val.lastIndexOf('+') > 0) {
+             val = val.substring(0, val.lastIndexOf('+')) + val.substring(val.lastIndexOf('+')).replace(/\+/g, '');
+          }
           setCheckoutData({...checkoutData, phone: val});
         };
 
@@ -795,9 +864,13 @@
 
         const handleShippingSubmit = (e) => {
           e.preventDefault();
-          if (!canSubmit) { alert("❌ Details verification failed. Please check all the red error messages and fix them."); return; }
+          if (!canSubmit) {
+             alert("❌ Details verification failed. Please check all the red error messages and fix them.");
+             return;
+          }
 
           if (checkoutData.type === 'Commission') {
+             // Commission submits immediately
              const finalPayload = {
                  orderId: 'ORD-' + Date.now().toString().slice(-4) + Math.floor(1000 + Math.random()*9000), 
                  date: new Date().toLocaleDateString('en-IN'), 
@@ -809,11 +882,13 @@
              };
              db.collection('orders').add(finalPayload);
              sendSilentAlert(finalPayload); 
+             // Clear commission input so next time it's empty
              setCommissionInput({ subject: '', size: 'A4 Colour Pencil', budget: '', instagram: '' });
              setCheckoutData({ name: '', email: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0, instagram: '' });
              alert("Commission Request Sent Successfully! I will contact you via WhatsApp/Instagram.");
              nav('gallery');
           } else {
+             // Gallery Purchase DOES NOT send to DB yet. Moves to payment screen.
              setIsOrderPlaced(false);
              nav('payment');
           }
@@ -826,26 +901,31 @@
               setCheckoutData({ name: '', email: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0, instagram: '' });
               nav(checkoutData.type === 'Commission' ? 'commission' : 'cart');
             }
-          } else nav(checkoutData.type === 'Commission' ? 'commission' : 'cart');
+          } else {
+            nav(checkoutData.type === 'Commission' ? 'commission' : 'cart');
+          }
         };
 
         return (
           <div className="p-6 max-w-xl mx-auto min-h-screen">
-            <button type="button" onClick={handleBack} className="mb-6 text-purple-600 font-bold flex items-center gap-2 hover:text-purple-800 active:scale-95 transition-all cursor-pointer">
+            <button type="button" onClick={handleBack} className="mb-6 text-purple-600 font-bold flex items-center gap-2 hover:text-purple-800 transition cursor-pointer">
                &larr; Back
             </button>
             <h2 className="text-3xl font-black mb-6 text-purple-800 text-center">Shipping & Contact Details</h2>
             <form className="glass-panel p-8 rounded-3xl shadow-xl space-y-5" onSubmit={handleShippingSubmit}>
               <input required minLength="3" value={checkoutData.name} placeholder="Full Name" className="w-full border-2 border-gray-200 p-4 rounded-xl font-medium focus:border-purple-500 outline-none" onChange={e => setCheckoutData({...checkoutData, name: e.target.value})} />
+              
               <div>
                 <input required type="email" value={checkoutData.email} placeholder="Email Address" className={`w-full border-2 p-4 rounded-xl font-medium outline-none ${currentEmailError ? 'border-red-400 focus:border-red-500 bg-red-50' : 'border-gray-200 focus:border-purple-500 bg-white'}`} onChange={handleEmailChange} />
                 {currentEmailError && <p className="text-xs text-red-500 font-bold mt-2 ml-2">{currentEmailError}</p>}
               </div>
+
               <div>
                 <input required value={checkoutData.phone} type="tel" placeholder={checkoutData.country === "India" ? "WhatsApp (+91...)" : "WhatsApp (Start with Country Code)"} className={`w-full border-2 p-4 rounded-xl font-medium outline-none ${currentPhoneError ? 'border-red-400 focus:border-red-500 bg-red-50' : (isPhoneValidNow ? 'border-green-400 focus:border-green-500 bg-green-50' : 'border-gray-200 focus:border-purple-500 bg-white')}`} onChange={handlePhoneChange} />
                 {currentPhoneError && <p className="text-xs text-red-500 font-bold mt-2 ml-2">{currentPhoneError}</p>}
                 {isPhoneValidNow && !currentPhoneError && <p className="text-xs text-green-600 font-bold mt-2 ml-2">✅ Valid {checkoutData.country === 'India' ? 'Indian' : 'International'} number format.</p>}
               </div>
+
               <div className="grid grid-cols-1 gap-2">
                  <select required value={checkoutData.country} onChange={e => { 
                      const newCountry = e.target.value;
@@ -856,18 +936,22 @@
                     <option value="International">🌍 International ($ USD)</option>
                  </select>
               </div>
+
               <div>
                  <input required value={checkoutData.pin} placeholder={checkoutData.country === "India" ? "6-Digit Indian PIN Code" : "Zip Code / Postal Code"} className={`w-full border-2 p-4 rounded-xl font-medium outline-none ${(!isPinValidNow && checkoutData.pin.length > 0) ? 'border-red-400 focus:border-red-500 bg-red-50' : 'border-gray-200 focus:border-purple-500 bg-white'}`} onChange={handlePinChange} />
                  {isValidating && <p className="text-xs text-blue-500 font-bold mt-2 ml-2">⏳ Verifying Postal Code...</p>}
                  {checkoutData.country === 'India' && checkoutData.pin.length > 0 && !isPinValidNow && !isValidating && <p className="text-xs text-red-500 font-bold mt-2 ml-2">❌ Enter valid 6-Digit Indian PIN.</p>}
               </div>
+
               {checkoutData.country === 'India' && checkoutData.city && (
                 <div className="grid grid-cols-2 gap-4 text-sm font-black text-emerald-800 bg-emerald-50 p-4 rounded-xl border border-emerald-200 shadow-inner">
                    <p className="truncate">City: {checkoutData.city}</p>
                    <p className="truncate">State: {checkoutData.state}</p>
                 </div>
               )}
+              
               <textarea required minLength="10" value={checkoutData.address} placeholder="Complete Delivery Address (House No, Street Area, Landmark)" className="w-full border-2 border-gray-200 p-4 rounded-xl font-medium focus:border-purple-500 outline-none" rows="3" onChange={e => setCheckoutData({...checkoutData, address: e.target.value})}></textarea>
+              
               <div className="bg-purple-50 p-5 rounded-xl border border-purple-100 shadow-inner">
                  <div className="flex justify-between text-sm font-bold text-gray-600 mb-1">
                    <span>Artwork Total:</span>
@@ -884,7 +968,8 @@
                    <span>{getPrice(finalAmountBase)}</span>
                  </div>
               </div>
-              <button type="submit" disabled={!canSubmit} className={`w-full text-white py-4 rounded-xl font-black text-lg shadow-lg active:scale-95 transition-all ${!canSubmit ? 'bg-gray-400 opacity-70 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700 cursor-pointer hover:shadow-xl hover:-translate-y-1'}`}>
+
+              <button type="submit" disabled={!canSubmit} className={`w-full text-white py-4 rounded-xl font-black text-lg shadow-lg transition-all ${!canSubmit ? 'bg-gray-400 opacity-70 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700 cursor-pointer hover:shadow-xl hover:-translate-y-1'}`}>
                 {checkoutData.type === 'Commission' ? "Submit Commission Request" : "Proceed to Payment"}
               </button>
             </form>
@@ -896,10 +981,15 @@
         const shippingFeeBase = checkoutData.country === 'International' ? 700 : 100;
         const finalAmountBase = checkoutData.amount + shippingFeeBase;
         
+        // WhatsApp notification string for India
         const waText = encodeURIComponent(`Hello Raja Studio!\nI have placed an order.\n\nOrder Details:\nName: ${checkoutData.name}\nAmount: ${getPrice(finalAmountBase)}\n\nI am attaching my payment screenshot below.`);
+
+        // WhatsApp notification string for International
         const intWaText = encodeURIComponent(`Hello Raja Studio!\nI am an international client.\nI have placed an order.\n\nOrder Details:\nName: ${checkoutData.name}\nAmount: ${getPrice(finalAmountBase)}\n\nPlease guide me on how to pay via Wise, Remitly, or PayPal.`);
 
+
         const finalizeOrder = () => {
+          // Send to DB and Telegram ONLY when they click the final confirm button
           const finalPayload = {
               orderId: 'ORD-' + Date.now().toString().slice(-4) + Math.floor(1000 + Math.random()*9000), 
               date: new Date().toLocaleDateString('en-IN'),
@@ -912,6 +1002,7 @@
           db.collection('orders').add(finalPayload);
           sendSilentAlert(finalPayload); 
 
+          // ✅ AUTO STOCK-OUT LOGIC FOR ORIGINAL ARTWORKS
           if (checkoutData.type === 'Gallery Purchase' && checkoutData.itemDetails) {
              checkoutData.itemDetails.forEach(item => {
                 if (item.selectedSize && item.selectedSize.includes('Original') && item.id) {
@@ -919,11 +1010,14 @@
                 }
              });
           }
+
           setCart([]); 
           try { window.localStorage.removeItem('raja_cart_live_v1'); } catch(e){}
+          // Set to true so user can see success screen and send screenshot
           setIsOrderPlaced(true); 
         };
 
+        // SUCCESS VIEW AFTER CLICKING 'I HAVE PAID'
         if (isOrderPlaced) {
            const isIntl = checkoutData.country === 'International' || currency === 'USD';
            const successWaText = isIntl ? intWaText : waText;
@@ -935,21 +1029,26 @@
                      <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
                    </div>
                    <h2 className="text-3xl font-black text-gray-900 mb-2">Order Confirmed!</h2>
+                   
+                   {/* ✅ THANK YOU MESSAGE CTA */}
                    <div className="bg-pink-50 text-pink-700 p-3 rounded-xl inline-block mb-4 shadow-sm border border-pink-100">
                      <p className="text-sm font-black uppercase tracking-widest">Thank you for your purchase! ❤️</p>
                    </div>
+
                    <p className="text-gray-600 font-bold mb-8">
                      {isIntl ? "Please message me now on WhatsApp to complete your payment." : "Your order is recorded successfully! Now, please send your payment screenshot on WhatsApp to confirm."}
                    </p>
-                   <a href={`https://wa.me/917281074416?text=${successWaText}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 w-full bg-[#25D366] text-white py-4 rounded-xl font-black text-lg shadow-xl hover:bg-green-600 active:scale-95 transition-all cursor-pointer mb-6">
+                   
+                   <a href={`https://wa.me/917281074416?text=${successWaText}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 w-full bg-[#25D366] text-white py-4 rounded-xl font-black text-lg shadow-xl hover:bg-green-600 transition-all cursor-pointer mb-6">
                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
                      <span>{isIntl ? "Message on WhatsApp" : "Send Screenshot Now"}</span>
                    </a>
+
                    <button type="button" onClick={() => {
                       setCheckoutData({ name: '', email: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0, instagram: '' });
                       setIsOrderPlaced(false);
                       nav('gallery');
-                   }} className="text-purple-600 font-bold underline hover:text-purple-800 cursor-pointer active:scale-95 transition-transform">Back to Home</button>
+                   }} className="text-purple-600 font-bold underline hover:text-purple-800 cursor-pointer">Back to Home</button>
                  </div>
               </div>
            );
@@ -958,7 +1057,7 @@
         if (checkoutData.country === 'International' || currency === 'USD') {
           return (
             <div className="p-6 max-w-md mx-auto text-center min-h-screen">
-              <button onClick={() => nav('checkout_form')} className="mb-6 text-purple-600 font-bold flex items-center gap-2 hover:text-purple-800 active:scale-95 transition-all cursor-pointer">
+              <button onClick={() => nav('checkout_form')} className="mb-6 text-purple-600 font-bold flex items-center gap-2 hover:text-purple-800 transition">
                  &larr; Back
               </button>
               <h2 className="text-3xl font-black mb-2 text-purple-800">International Order</h2>
@@ -975,15 +1074,17 @@
               
               <div className="space-y-4">
                   <button onClick={() => {
-                    if (window.confirm("Do you confirm this international order?")) finalizeOrder();
-                  }} className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-4 rounded-xl font-black text-lg shadow-xl hover:shadow-2xl active:scale-95 transition-all cursor-pointer">
+                    if (window.confirm("Do you confirm this international order?")) {
+                      finalizeOrder();
+                    }
+                  }} className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-4 rounded-xl font-black text-lg shadow-xl hover:shadow-2xl transition-all cursor-pointer">
                     Confirm International Order
                   </button>
                   
                   <div className="space-y-3">
                       <p className="text-xs font-black text-gray-400 uppercase tracking-widest mt-4">Choose Contact Method</p>
-                      <a href={`https://wa.me/917281074416?text=${intWaText}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 w-full bg-[#25D366] text-white py-3.5 rounded-xl font-black shadow-md active:scale-95 transition-transform"><span className="text-sm">Message on WhatsApp</span></a>
-                      <a href="https://www.instagram.com/rajaguptaact?igsh=MXZmODNvdDlrY3lnNg==" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3.5 rounded-xl font-black shadow-md active:scale-95 transition-transform"><span className="text-sm">DM on Instagram</span></a>
+                      <a href={`https://wa.me/917281074416?text=${intWaText}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 w-full bg-[#25D366] text-white py-3.5 rounded-xl font-black shadow-md"><span className="text-sm">Message on WhatsApp</span></a>
+                      <a href="https://www.instagram.com/rajaguptaact?igsh=MXZmODNvdDlrY3lnNg==" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3.5 rounded-xl font-black shadow-md"><span className="text-sm">DM on Instagram</span></a>
                   </div>
               </div>
             </div>
@@ -996,12 +1097,13 @@
 
         return (
           <div className="p-6 max-w-md mx-auto text-center min-h-screen">
-            <button onClick={() => nav('checkout_form')} className="mb-6 text-purple-600 font-bold flex items-center gap-2 hover:text-purple-800 active:scale-95 transition-all cursor-pointer">
+            <button onClick={() => nav('checkout_form')} className="mb-6 text-purple-600 font-bold flex items-center gap-2 hover:text-purple-800 transition">
                &larr; Back
             </button>
             <h2 className="text-3xl font-black mb-2 text-purple-800">Scan & Pay</h2>
             <p className="text-gray-600 mb-8 font-bold text-lg">Total Payable: <span className="text-pink-600 font-black text-2xl ml-2">{getPrice(finalAmountBase)}</span></p>
             
+            {/* STRICT WARNING BOX */}
             <div className="bg-red-50 border border-red-200 p-4 rounded-xl mb-6 text-left shadow-sm relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-1 h-full bg-red-500"></div>
                 <p className="text-red-800 font-black text-sm flex items-center gap-2 mb-1">
@@ -1017,7 +1119,7 @@
               <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 to-pink-500"></div>
               <img src={qrURL} alt="UPI QR Code" className="mx-auto mb-6 rounded-xl shadow-md border-4 border-gray-50 p-2 pointer-events-none" />
               <p className="font-black text-gray-800 text-sm tracking-widest uppercase">Scan with PhonePe, GPay, Paytm</p>
-              <div className="bg-purple-50 border border-purple-100 p-4 rounded-xl mt-6 font-mono font-black text-purple-900 text-lg select-all cursor-pointer relative z-50 active:scale-95 transition-transform">
+              <div className="bg-purple-50 border border-purple-100 p-4 rounded-xl mt-6 font-mono font-black text-purple-900 text-lg select-all cursor-pointer relative z-50">
                 {upiID}
               </div>
               <p className="text-xs font-bold text-gray-400 mt-2">Tap to copy UPI ID</p>
@@ -1025,11 +1127,13 @@
             
             <div className="space-y-4">
                 <button onClick={() => {
-                  if(window.confirm("Are you confirming that your payment is successful? (Order will be finalized now)")) finalizeOrder();
-                }} className="w-full bg-gradient-to-r from-purple-600 to-purple-800 text-white py-4 rounded-xl font-black text-lg shadow-xl hover:shadow-2xl active:scale-95 transition-all cursor-pointer">
+                  if(window.confirm("Are you confirming that your payment is successful? (Order will be finalized now)")) {
+                    finalizeOrder();
+                  }
+                }} className="w-full bg-gradient-to-r from-purple-600 to-purple-800 text-white py-4 rounded-xl font-black text-lg shadow-xl hover:shadow-2xl transition-all cursor-pointer">
                   I Have Successfully Paid
                 </button>
-                <a href={`https://wa.me/917281074416?text=${waText}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 w-full bg-[#25D366] text-white py-4 rounded-xl font-black text-lg shadow-xl hover:bg-green-600 active:scale-95 transition-all cursor-pointer">
+                <a href={`https://wa.me/917281074416?text=${waText}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 w-full bg-[#25D366] text-white py-4 rounded-xl font-black text-lg shadow-xl hover:bg-green-600 transition-all cursor-pointer">
                   <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
                   <span className="text-sm">Send Screenshot</span>
                 </a>
@@ -1049,9 +1153,14 @@
                  });
                  await batch.commit();
                  alert("All orders have been successfully deleted from the database.");
-             } catch (error) { alert("Error executing atomic delete batch."); }
+             } catch (error) {
+                 alert("Error executing atomic delete batch.");
+             }
           }
         };
+
+        const [artConfig, setArtConfig] = useState({ scale: 0.35, x: 0.5, y: 0.5 });
+        const [previewBg, setPreviewBg] = useState(mockupBackgrounds[0]);
 
         const handleImage = (e) => {
           const file = e.target.files[0];
@@ -1068,6 +1177,7 @@
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, w, h);
                 setUploadData({...uploadData, image: canvas.toDataURL('image/jpeg', 0.85)});
+                setArtConfig({ scale: 0.35, x: 0.5, y: 0.5 });
               };
               img.src = event.target.result;
             };
@@ -1097,7 +1207,8 @@
           const dataToSave = { 
               ...uploadData, 
               priceOriginal: finalPriceCurrent, 
-              priceOriginalOld: finalPriceOld 
+              priceOriginalOld: finalPriceOld,
+              config: artConfig
           };
 
           if(editArtId) {
@@ -1120,14 +1231,22 @@
 
         const startEditArt = (art) => {
           setEditArtId(art.id);
+          
           let showOld = art.priceOriginalOld || '';
           let showCurrent = art.priceOriginal || '';
-          if (!art.priceOriginalOld) { showOld = art.priceOriginal; showCurrent = ''; }
+
+          if (!art.priceOriginalOld) {
+              showOld = art.priceOriginal; 
+              showCurrent = ''; 
+          }
+
           setUploadData({ 
               title: art.title, desc: art.desc, image: art.image, 
-              priceOriginal: showCurrent, priceOriginalOld: showOld, 
+              priceOriginal: showCurrent, 
+              priceOriginalOld: showOld, 
               priceA3: art.priceA3, priceA4: art.priceA4, priceA5: art.priceA5, isSold: art.isSold || false 
           });
+          setArtConfig(art.config || { scale: 0.35, x: 0.5, y: 0.5 });
           window.scrollTo(0, 0);
         };
 
@@ -1157,13 +1276,15 @@
                 <button onClick={async () => { 
                     if(window.confirm("SECURE LOGOUT: Are you sure you want to log out? (Your device remains trusted, so next time you only need your password.)")) {
                         const devId = window.localStorage.getItem('raja_device_id');
-                        if(devId) db.collection('adminSessions').doc(devId).delete().catch(e=>console.log(e));
+                        if(devId) {
+                            await db.collection('adminSessions').doc(devId).delete().catch(e=>console.log(e));
+                        }
                         try { window.localStorage.removeItem('raja_device_id'); } catch(e){}
-                        sendLoginAlert('SECURE_LOGOUT', '', { deviceModel: "Current Device", ip: "", location: "", org: ""});
+                        await sendLoginAlert('SECURE_LOGOUT', '', { deviceModel: "Current Device", ip: "", location: "", org: ""});
                         setIsAdmin(false); 
                         setAdminStep(1); 
                     }
-                }} className="bg-rose-100 text-rose-700 px-6 py-2.5 rounded-xl font-black hover:bg-rose-200 active:scale-95 transition-all cursor-pointer shadow-sm border border-rose-200 flex items-center gap-2">
+                }} className="bg-rose-100 text-rose-700 px-6 py-2.5 rounded-xl font-black hover:bg-rose-200 transition cursor-pointer shadow-sm border border-rose-200 flex items-center gap-2">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                     Secure Logout
                 </button>
@@ -1198,10 +1319,12 @@
                                     <p className="text-sm font-bold text-gray-600">Loc: <span className="font-medium text-gray-800">{session.location || "Unknown"}</span></p>
                                     <p className="text-xs font-medium text-gray-400 mt-2">Saved Since: {new Date(session.createdAt).toLocaleString('en-IN')}</p>
                                  </div>
+                                 
                                  <button onClick={() => {
                                      if(window.confirm(isCurrentDev ? "LOGOUT & REMOVE TRUST: Are you sure you want to log out and remove your own device from Trusted List?" : "REVOKE HACKER: Are you sure you want to instantly log out and DESTROY this device's trust? (Will need OTP again)")) {
                                          db.collection('trustedDevices').doc(session.id).delete().catch(e=>console.log(e));
                                          db.collection('adminSessions').doc(session.id).delete().catch(e=>console.log(e));
+                                         
                                          if(isCurrentDev) {
                                             window.localStorage.removeItem('raja_device_id');
                                             window.localStorage.removeItem('raja_permanent_device_id');
@@ -1209,7 +1332,7 @@
                                             setAdminStep(1);
                                          }
                                      }
-                                 }} className={`mt-4 w-full py-2 rounded-xl font-black text-sm active:scale-95 transition-all cursor-pointer ${isCurrentDev ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-300' : 'bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-200'}`}>
+                                 }} className={`mt-4 w-full py-2 rounded-xl font-black text-sm transition-all cursor-pointer ${isCurrentDev ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-300' : 'bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-200'}`}>
                                     {isCurrentDev ? "Logout & Remove Trust" : "Revoke Access (Destroy Trust)"}
                                  </button>
                               </div>
@@ -1224,7 +1347,7 @@
               <div className="space-y-8">
                 <div className="glass-panel p-8 rounded-3xl shadow-xl border-t-4 border-t-purple-500">
                   <h3 className="text-2xl font-black mb-6 text-gray-900 flex justify-between items-center">
-                    {editArtId ? "✏️ Edit Artwork" : "Upload Artwork"}
+                    {editArtId ? "✏️ Edit Artwork" : "Upload & Frame Artwork"}
                     {editArtId ? <button type="button" onClick={() => { setEditArtId(null); setUploadData({title:'',desc:'',image:'',priceOriginal:'',priceOriginalOld:'',priceA3:'',priceA4:'',priceA5:'', isSold: false}); }} className="text-xs text-red-500 underline font-bold cursor-pointer">Cancel Edit</button> : null}
                   </h3>
                   <form onSubmit={saveArtwork} className="space-y-4">
@@ -1233,21 +1356,55 @@
                     
                     <div className="border-2 border-dashed border-purple-300 p-6 rounded-xl text-center bg-purple-50 cursor-pointer relative overflow-hidden">
                       <label className="font-black text-purple-700 block cursor-pointer w-full h-full relative z-10">
-                        {uploadData.image ? "Change High-Resolution Image" : "Select High-Resolution Image"}
+                        {uploadData.image ? "Change Artwork Image" : "Select Artwork Image"}
                         <input type="file" accept="image/*" className="hidden" onChange={handleImage} required={!uploadData.image} />
                       </label>
                     </div>
-                    {uploadData.image ? <img src={uploadData.image} className="mt-4 h-40 mx-auto rounded-lg shadow-md object-contain border-2 border-white pointer-events-none" /> : null}
+
+                    {uploadData.image && (
+                        <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm space-y-4 mt-4">
+                            <h4 className="font-black text-gray-800 text-sm uppercase tracking-wider border-b pb-2">🖼️ Frame Setup Studio</h4>
+                            
+                            <div>
+                               <p className="text-xs font-bold text-gray-500 mb-2">Check preview on any background (All 5 will auto-scroll in Gallery):</p>
+                               <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
+                                 {mockupBackgrounds.map((bg, idx) => (
+                                    <img key={idx} src={bg} onClick={() => setPreviewBg(bg)} className={`h-16 w-16 object-cover rounded-xl cursor-pointer border-4 transition-all ${previewBg === bg ? 'border-purple-600 shadow-md scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`} alt="Bg Option" />
+                                 ))}
+                               </div>
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-4 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                              <div>
+                                 <label className="text-[10px] font-black uppercase text-gray-500 block mb-1 text-center">Zoom (Size)</label>
+                                 <input type="range" min="0.1" max="1.0" step="0.01" value={artConfig.scale} onChange={e=>setArtConfig({...artConfig, scale: parseFloat(e.target.value)})} className="w-full cursor-pointer" />
+                              </div>
+                              <div>
+                                 <label className="text-[10px] font-black uppercase text-gray-500 block mb-1 text-center">Left / Right</label>
+                                 <input type="range" min="0" max="1" step="0.01" value={artConfig.x} onChange={e=>setArtConfig({...artConfig, x: parseFloat(e.target.value)})} className="w-full cursor-pointer" />
+                              </div>
+                              <div>
+                                 <label className="text-[10px] font-black uppercase text-gray-500 block mb-1 text-center">Up / Down</label>
+                                 <input type="range" min="0" max="1" step="0.01" value={artConfig.y} onChange={e=>setArtConfig({...artConfig, y: parseFloat(e.target.value)})} className="w-full cursor-pointer" />
+                              </div>
+                            </div>
+
+                            <p className="text-xs font-bold text-center text-purple-600 mb-1 mt-4">✨ Live Frame Preview ✨</p>
+                            <DynamicMockup bgSrc={previewBg} artSrc={uploadData.image} config={artConfig} />
+                        </div>
+                    )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                       <div>
                         <label className="text-xs font-black text-gray-500 uppercase">OLD PRICE (NO DISCOUNT)</label>
                         <input required type="text" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={formatAdminPrice(uploadData.priceOriginalOld)} onChange={e => setUploadData({...uploadData, priceOriginalOld: e.target.value.replace(/[^\d]/g, '')})} />
                       </div>
+                      
                       <div>
                         <label className="text-xs font-black text-gray-500 uppercase">CURRENT PRICE (DISCOUNT)</label>
                         <input type="text" placeholder="Leave empty if no discount" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={formatAdminPrice(uploadData.priceOriginal)} onChange={e => setUploadData({...uploadData, priceOriginal: e.target.value.replace(/[^\d]/g, '')})} />
                       </div>
+                      
                       <div><label className="text-xs font-black text-gray-500 uppercase">Print A3 Price (Base ₹)</label><input required type="text" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={formatAdminPrice(uploadData.priceA3)} onChange={e => setUploadData({...uploadData, priceA3: e.target.value.replace(/[^\d]/g, '')})} /></div>
                       <div><label className="text-xs font-black text-gray-500 uppercase">Print A4 Price (Base ₹)</label><input required type="text" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={formatAdminPrice(uploadData.priceA4)} onChange={e => setUploadData({...uploadData, priceA4: e.target.value.replace(/[^\d]/g, '')})} /></div>
                       <div className="md:col-span-2"><label className="text-xs font-black text-gray-500 uppercase">Print A5 Price (Base ₹)</label><input required type="text" placeholder="₹" className="w-full border-2 p-3 rounded-xl bg-white font-bold text-lg" value={formatAdminPrice(uploadData.priceA5)} onChange={e => setUploadData({...uploadData, priceA5: e.target.value.replace(/[^\d]/g, '')})} /></div>
@@ -1258,8 +1415,8 @@
                       Mark Original Artwork as SOLD OUT (Uncheck to Restock)
                     </label>
 
-                    <button type="submit" disabled={isUploading} className={`w-full py-4 rounded-xl font-black text-lg mt-6 shadow-lg active:scale-95 transition-all ${isUploading ? 'bg-gray-400 text-gray-700 cursor-wait' : 'bg-gradient-to-r from-purple-600 to-pink-500 text-white cursor-pointer'}`}>
-                      {isUploading ? "Uploading... Please Wait ⏳" : (editArtId ? "Update Artwork" : "Publish to Live Gallery")}
+                    <button type="submit" disabled={isUploading} className={`w-full py-4 rounded-xl font-black text-lg mt-6 shadow-lg transition ${isUploading ? 'bg-gray-400 text-gray-700 cursor-wait' : 'bg-gradient-to-r from-purple-600 to-pink-500 text-white cursor-pointer'}`}>
+                      {isUploading ? "Uploading... Please Wait ⏳" : (editArtId ? "Update Artwork" : "Publish to Gallery with Auto-Scroll")}
                     </button>
                   </form>
                 </div>
@@ -1278,10 +1435,10 @@
                              </div>
                            </div>
                            <div className="flex gap-2">
-                             <button onClick={() => startEditArt(art)} className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 active:scale-95 transition-transform cursor-pointer">
+                             <button onClick={() => startEditArt(art)} className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 cursor-pointer">
                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
                              </button>
-                             <button onClick={() => { if(window.confirm("Delete globally?")) db.collection('RajaStudio').doc(art.id).delete(); }} className="p-2 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 active:scale-95 transition-transform cursor-pointer">
+                             <button onClick={() => { if(window.confirm("Delete globally?")) db.collection('RajaStudio').doc(art.id).delete(); }} className="p-2 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 cursor-pointer">
                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                              </button>
                            </div>
@@ -1301,7 +1458,7 @@
                   <form onSubmit={postAnnouncement} className="space-y-4">
                      <input required placeholder="Announcement Title" value={annTitle} onChange={e=>setAnnTitle(e.target.value)} className="w-full border-2 p-4 rounded-xl bg-white font-bold"/>
                      <textarea required placeholder="Message details..." value={annMsg} onChange={e=>setAnnMsg(e.target.value)} className="w-full border-2 p-4 rounded-xl bg-white font-medium" rows="3"></textarea>
-                     <button type="submit" className="w-full bg-gray-900 text-white py-4 rounded-xl font-black text-lg shadow-lg hover:bg-gray-800 active:scale-95 transition-all cursor-pointer">
+                     <button type="submit" className="w-full bg-gray-900 text-white py-4 rounded-xl font-black text-lg shadow-lg hover:bg-gray-800 transition cursor-pointer">
                        {editAnnId ? "Update Notification" : "Post Notification"}
                      </button>
                   </form>
@@ -1312,10 +1469,10 @@
                         <div key={ann.id} className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
                           <p className="font-bold text-sm line-clamp-1">{ann.title}</p>
                           <div className="flex gap-2">
-                             <button onClick={() => startEditAnn(ann)} className="text-blue-500 hover:text-blue-700 active:scale-95 transition-transform cursor-pointer">
+                             <button onClick={() => startEditAnn(ann)} className="text-blue-500 hover:text-blue-700 cursor-pointer">
                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
                              </button>
-                             <button onClick={() => { if(window.confirm("Delete globally?")) db.collection('announcements').doc(ann.id).delete(); }} className="text-rose-500 hover:text-rose-700 active:scale-95 transition-transform cursor-pointer">
+                             <button onClick={() => { if(window.confirm("Delete globally?")) db.collection('announcements').doc(ann.id).delete(); }} className="text-rose-500 hover:text-rose-700 cursor-pointer">
                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                              </button>
                           </div>
@@ -1337,7 +1494,7 @@
                    <div className={`px-6 md:px-8 pb-8 pt-2 ${isOrdersOpen ? 'block' : 'hidden'}`}>
                       {orders.length > 0 && (
                          <div className="flex justify-end mb-6">
-                            <button onClick={clearAllOrders} className="bg-red-500 text-white px-4 py-2 rounded-xl text-sm font-black hover:bg-red-600 active:scale-95 transition-all cursor-pointer shadow-md flex items-center gap-2">
+                            <button onClick={clearAllOrders} className="bg-red-500 text-white px-4 py-2 rounded-xl text-sm font-black hover:bg-red-600 transition cursor-pointer shadow-md flex items-center gap-2">
                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                                Delete All Orders
                             </button>
@@ -1373,7 +1530,7 @@
                                   <span className="text-gray-700">{o.type === 'Commission' ? 'Budget / Amount' : 'Total Paid'}</span>
                                   <span className="text-green-600 text-2xl">{o.displayAmount || '₹'+o.amount}</span>
                                 </div>
-                                <button onClick={() => { if(window.confirm("Delete this single order?")) db.collection('orders').doc(o.id).delete(); }} className="mt-4 w-full bg-rose-50 text-rose-600 py-2 rounded-xl font-bold text-sm cursor-pointer hover:bg-rose-100 active:scale-95 transition-all">Delete Single Order</button>
+                                <button onClick={() => { if(window.confirm("Delete this single order?")) db.collection('orders').doc(o.id).delete(); }} className="mt-4 w-full bg-rose-50 text-rose-600 py-2 rounded-xl font-bold text-sm cursor-pointer hover:bg-rose-100 transition">Delete Single Order</button>
                               </div>
                             </div>
                           ))}
@@ -1387,62 +1544,100 @@
         );
       };
 
-      const registerFail = (type, data) => {
+      const registerFail = async (type, data) => {
          let fails = Number(window.localStorage.getItem('raja_admin_fails') || 0) + 1;
          window.localStorage.setItem('raja_admin_fails', fails);
+         
          if (fails >= 3) {
-             const bTime = Date.now() + 15 * 60 * 1000;
+             const bTime = Date.now() + 15 * 60 * 1000; // 15 mins block
              setBlockUntil(bTime);
              window.localStorage.setItem('raja_admin_block', bTime);
-             sendLoginAlert('BLOCKED', 'System Locked for 15 mins');
+             await sendLoginAlert('BLOCKED', 'System Locked for 15 mins');
              setAdminStep(1);
              setPassword('');
              setLiveOTP('');
          } else {
-             sendLoginAlert(type, data);
+             await sendLoginAlert(type, data);
              if (type === 'FAILED') alert(`❌ Incorrect Password! Attempt ${fails}/3.`);
              else if (type === 'OTP_FAILED') alert(`❌ Incorrect OTP! Attempt ${fails}/3.`);
          }
       };
 
-      const handlePasswordSubmit = () => {
+      // UPDATE 4: FAST ADMIN LOGIN LOGIC (No API waiting delay)
+      const handlePasswordSubmit = async () => {
         if (blockUntil > Date.now()) return; 
-        if (verifyAdmin(password)) {
-          let isPermanentlyTrusted = false;
-          let permDevId = window.localStorage.getItem('raja_permanent_device_id');
-          if (permDevId) isPermanentlyTrusted = true; 
 
-          if (isPermanentlyTrusted) {
-              setIsAdmin(true);
-              setPassword('');
-              fetchDeviceDetails().then(devDetails => {
-                  try { 
-                     db.collection('adminSessions').doc(permDevId).set({
-                         id: permDevId, ip: devDetails.ip, location: devDetails.location, deviceModel: devDetails.deviceModel, createdAt: Date.now()
-                     });
-                     window.localStorage.setItem('raja_device_id', permDevId); 
-                     window.localStorage.setItem('raja_admin_fails', '0'); 
-                  } catch(err){}
-                  sendLoginAlert('SUCCESS_TRUSTED', 'Logged in via saved trusted device', devDetails);
-              });
+        if (verifyAdmin(password)) {
+          let hasSession = false;
+          let currentDevId = null;
+          try { 
+            currentDevId = window.localStorage.getItem('raja_device_id');
+            if (currentDevId) {
+                const doc = await db.collection('adminSessions').doc(currentDevId).get();
+                if (doc.exists) hasSession = true;
+                else window.localStorage.removeItem('raja_device_id');
+            }
+          } catch(err){}
+          
+          if (hasSession) {
+            setIsAdmin(true);
+            setPassword('');
+            await sendLoginAlert('SUCCESS_TRUSTED', password);
           } else {
-              const newOTP = Math.floor(100000 + Math.random() * 900000).toString();
-              setLiveOTP(newOTP);
-              setAdminStep(2); 
-              setResendTimer(30); 
-              sendLoginAlert('SEND_OTP', newOTP);
+            let isPermanentlyTrusted = false;
+            let permDevId = window.localStorage.getItem('raja_permanent_device_id');
+            if (permDevId) {
+                try {
+                    const pDoc = await db.collection('trustedDevices').doc(permDevId).get();
+                    if (pDoc.exists) isPermanentlyTrusted = true;
+                } catch(e) {}
+            }
+
+            if (isPermanentlyTrusted) {
+                // Instantly let user in!
+                setIsAdmin(true);
+                setPassword('');
+                
+                // Fetch location in background so UI doesn't lag
+                fetchDeviceDetails().then(devDetails => {
+                    try { 
+                       db.collection('adminSessions').doc(permDevId).set({
+                           id: permDevId,
+                           ip: devDetails.ip,
+                           location: devDetails.location,
+                           deviceModel: devDetails.deviceModel,
+                           createdAt: Date.now()
+                       });
+                       window.localStorage.setItem('raja_device_id', permDevId); 
+                       window.localStorage.setItem('raja_admin_fails', '0'); 
+                    } catch(err){}
+                    sendLoginAlert('SUCCESS_TRUSTED', 'Logged in via saved trusted device (Bypassed OTP)', devDetails);
+                });
+            } else {
+                const newOTP = Math.floor(100000 + Math.random() * 900000).toString();
+                setLiveOTP(newOTP);
+                setAdminStep(2); 
+                setResendTimer(30); 
+                await sendLoginAlert('SEND_OTP', newOTP);
+            }
           }
-        } else registerFail('FAILED', password);
+        } else {
+          await registerFail('FAILED', password);
+        }
       };
 
-      const handlePinSubmit = () => {
+      const handlePinSubmit = async () => {
         if (blockUntil > Date.now()) return;
+
         if (otpInput === liveOTP && liveOTP !== '') {
+           
            setIsAdmin(true);
            setOtpInput('');
            setPassword('');
            setLiveOTP('');
            setAdminStep(1);
+
+           // Do heavy work in background
            fetchDeviceDetails().then(devDetails => {
                let permDevId = window.localStorage.getItem('raja_permanent_device_id');
                if (!permDevId) {
@@ -1463,19 +1658,20 @@
            });
         } else {
            setOtpInput('');
-           registerFail('OTP_FAILED', otpInput);
+           await registerFail('OTP_FAILED', otpInput);
         }
       };
 
-      const handleResendOTP = () => {
+      const handleResendOTP = async () => {
          if (resendTimer > 0) return;
          let fails = Number(window.localStorage.getItem('raja_admin_fails') || 0) + 1;
          window.localStorage.setItem('raja_admin_fails', fails);
+         
          if (fails >= 3) {
              const bTime = Date.now() + 15 * 60 * 1000;
              setBlockUntil(bTime);
              window.localStorage.setItem('raja_admin_block', bTime);
-             sendLoginAlert('BLOCKED', 'Spammed Resend OTP');
+             await sendLoginAlert('BLOCKED', 'Spammed Resend OTP');
              setAdminStep(1);
              setPassword('');
              setLiveOTP('');
@@ -1483,7 +1679,7 @@
              const newOTP = Math.floor(100000 + Math.random() * 900000).toString();
              setLiveOTP(newOTP);
              setResendTimer(30);
-             sendLoginAlert('SEND_OTP', newOTP);
+             await sendLoginAlert('SEND_OTP', newOTP);
              alert(`✅ New 6-Digit OTP Sent! (Attempt ${fails}/3)`);
          }
       };
@@ -1496,10 +1692,10 @@
                 <span className="uppercase">RAJA GUPTA ACT</span>
               </div>
               <div className="flex gap-2 md:gap-4 items-center">
-                 <button onClick={() => setCurrency(currency === 'INR' ? 'USD' : 'INR')} className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-300 font-black px-3 md:px-4 py-2 rounded-xl shadow-inner hover:bg-gray-200 active:scale-95 transition-all cursor-pointer flex items-center gap-1 text-sm md:text-base">
+                 <button onClick={() => setCurrency(currency === 'INR' ? 'USD' : 'INR')} className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-300 font-black px-3 md:px-4 py-2 rounded-xl shadow-inner hover:bg-gray-200 transition cursor-pointer flex items-center gap-1 text-sm md:text-base">
                     {currency === 'INR' ? '₹ INR' : '$ USD'}
                  </button>
-                 <button onClick={() => setMenuOpen(!menuOpen)} className="bg-gradient-to-r from-purple-600 to-pink-500 text-white font-black px-4 md:px-6 py-2.5 rounded-xl shadow-lg flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all cursor-pointer">
+                 <button onClick={() => setMenuOpen(!menuOpen)} className="bg-gradient-to-r from-purple-600 to-pink-500 text-white font-black px-4 md:px-6 py-2.5 rounded-xl shadow-lg flex items-center gap-2 hover:opacity-90 transition cursor-pointer">
                    {menuOpen ? "CLOSE" : "MENU"}
                  </button>
               </div>
@@ -1510,15 +1706,24 @@
             <div className="fixed inset-0 top-20 z-50 bg-gray-900/40 backdrop-blur-sm" onClick={() => setMenuOpen(false)}>
               <div className="bg-white w-full md:w-96 absolute right-0 shadow-2xl flex flex-col font-black text-lg border-l border-gray-100 h-full transform transition-transform" onClick={e => e.stopPropagation()}>
                 <div className="p-4 bg-gray-50 border-b text-xs text-gray-500 uppercase tracking-widest text-center">Navigation Menu</div>
+                
                 <button onClick={() => nav('gallery')} className={`text-left p-6 border-b transition cursor-pointer flex items-center gap-4 ${view === 'gallery' ? 'text-purple-700 font-black bg-purple-50' : 'text-gray-800 hover:text-purple-700 hover:bg-purple-50'}`}>Gallery</button>
+                
                 <button onClick={() => nav('cart')} className={`text-left p-6 border-b transition cursor-pointer flex items-center justify-between ${view === 'cart' ? 'text-purple-700 font-black bg-purple-50' : 'text-gray-800 hover:text-purple-700 hover:bg-purple-50'}`}>
                   <span>Cart</span>
                   {cart.length > 0 ? <span className="bg-pink-500 text-white text-sm px-3 py-1 rounded-full shadow-sm">{cart.length}</span> : null}
                 </button>
+                
                 <button onClick={() => nav('public_notifications')} className={`text-left p-6 border-b transition cursor-pointer flex items-center gap-4 ${view === 'public_notifications' ? 'text-purple-700 font-black bg-purple-50' : 'text-gray-800 hover:text-purple-700 hover:bg-purple-50'}`}>Public Notifications</button>
+                
                 <button onClick={() => nav('commission')} className={`text-left p-6 border-b transition cursor-pointer flex items-center gap-4 ${view === 'commission' ? 'text-purple-700 font-black bg-purple-50' : 'text-gray-800 hover:text-purple-700 hover:bg-purple-50'}`}>Commission</button>
+                
                 <button onClick={() => nav('admin')} className={`text-left p-6 border-b transition cursor-pointer flex items-center gap-4 ${view === 'admin' ? 'text-purple-700 font-black bg-purple-50' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'}`}>Admin Panel</button>
-                <button onClick={() => { shareSite(); setMenuOpen(false); }} className="text-left p-6 border-b hover:bg-purple-50 flex items-center gap-4 text-purple-600 transition cursor-pointer">Share Website</button>
+                
+                <button onClick={() => { shareSite(); setMenuOpen(false); }} className="text-left p-6 border-b hover:bg-purple-50 flex items-center gap-4 text-purple-600 transition cursor-pointer">
+                   Share Website
+                </button>
+                
                 <a href="https://wa.me/917281074416" target="_blank" rel="noopener noreferrer" className="text-left p-6 bg-green-50 text-green-700 hover:bg-green-100 flex items-center gap-4 mt-auto transition cursor-pointer">Help (WhatsApp)</a>
               </div>
             </div>
@@ -1535,7 +1740,9 @@
               blockUntil > Date.now() ? (
                   <div className="p-6 max-w-sm mx-auto mt-20 text-center">
                     <div className="glass-panel p-10 rounded-3xl shadow-2xl border-t-8 border-red-600 bg-red-50 relative overflow-hidden">
-                        <div className="bg-red-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner border border-red-200"><span className="text-4xl">🚫</span></div>
+                        <div className="bg-red-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner border border-red-200">
+                           <span className="text-4xl">🚫</span>
+                        </div>
                         <h2 className="font-black text-2xl mb-2 text-red-800">Access Blocked</h2>
                         <p className="text-sm font-bold text-red-600 mb-4">Too many failed attempts or OTP requests.</p>
                         <div className="bg-white p-4 rounded-xl shadow-inner border border-red-100">
@@ -1555,7 +1762,7 @@
                         <h2 className="font-black text-2xl mb-2 text-gray-900">Admin Security</h2>
                         <p className="text-sm font-bold text-gray-500 mb-8">Protected Access Only</p>
                         <input type="password" placeholder="Enter Password" value={password} onChange={e => setPassword(e.target.value)} className="w-full border-2 border-gray-200 p-4 rounded-xl mb-6 text-center tracking-widest font-black focus:border-gray-900 outline-none" />
-                        <button onClick={handlePasswordSubmit} className="w-full bg-gray-900 text-white py-4 rounded-xl font-black text-lg shadow-lg hover:shadow-xl active:scale-95 transition-all cursor-pointer">Secure Login</button>
+                        <button onClick={handlePasswordSubmit} className="w-full bg-gray-900 text-white py-4 rounded-xl font-black text-lg shadow-lg hover:shadow-xl transition-all cursor-pointer">Secure Login</button>
                       </div>
                     ) : (
                       <div className="glass-panel p-10 rounded-3xl shadow-2xl border-t-4 border-t-blue-600 bg-blue-50">
@@ -1565,8 +1772,10 @@
                         <h2 className="font-black text-2xl mb-2 text-blue-900">OTP Sent!</h2>
                         <p className="text-sm font-bold text-blue-600 mb-6">Please check your Telegram for the 6-digit OTP to verify this new device.</p>
                         <input type="number" placeholder="Enter 6-Digit OTP" value={otpInput} onChange={e => setOtpInput(e.target.value)} className="w-full border-2 border-blue-200 p-4 rounded-xl mb-4 text-center tracking-widest font-black focus:border-blue-600 outline-none" />
-                        <button onClick={handlePinSubmit} className="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-lg shadow-lg hover:shadow-xl active:scale-95 transition-all cursor-pointer mb-4">Verify & Login</button>
-                        <button onClick={handleResendOTP} disabled={resendTimer > 0} className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${resendTimer > 0 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-white text-blue-600 border border-blue-200 hover:bg-blue-50 active:scale-95 cursor-pointer shadow-sm'}`}>
+                        <button onClick={handlePinSubmit} className="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-lg shadow-lg hover:shadow-xl transition-all cursor-pointer mb-4">Verify & Login</button>
+                        
+                        {/* RESEND OTP BUTTON */}
+                        <button onClick={handleResendOTP} disabled={resendTimer > 0} className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${resendTimer > 0 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-white text-blue-600 border border-blue-200 hover:bg-blue-50 cursor-pointer shadow-sm'}`}>
                             {resendTimer > 0 ? `Wait ${resendTimer}s to Resend` : "Resend OTP"}
                         </button>
                       </div>
@@ -1576,14 +1785,20 @@
             ) : null}
           </main>
 
+          {/* ✅ FOOTER RE-DESIGNED WITH CTA */}
           <footer className="glass-panel py-10 mt-12 flex-shrink-0 relative z-10 border-t border-gray-200">
             <div className="flex flex-col items-center justify-center gap-6 relative">
               <div className="text-center px-4">
-                  <p className="text-sm md:text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 mb-2 tracking-wide uppercase">Step into my world of art</p>
+                  <p className="text-sm md:text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 mb-2 tracking-wide uppercase">
+                      Step into my world of art
+                  </p>
               </div>
               <div className="flex gap-6">
-                <a href="https://wa.me/917281074416" target="_blank" rel="noopener noreferrer" className="p-4 bg-white text-green-500 rounded-full hover:bg-green-500 hover:text-white active:scale-90 transition-all shadow-md hover:shadow-xl transform hover:-translate-y-1 block cursor-pointer">
+                <a href="https://wa.me/917281074416" target="_blank" rel="noopener noreferrer" className="p-4 bg-white text-green-500 rounded-full hover:bg-green-500 hover:text-white transition-all shadow-md hover:shadow-xl transform hover:-translate-y-1 block cursor-pointer">
                   <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+                </a>
+                <a href="https://www.instagram.com/rajaguptaact?igsh=MXZmODNvdDlrY3lnNg==" target="_blank" rel="noopener noreferrer" className="p-4 bg-white text-pink-600 rounded-full shadow-md block cursor-pointer hover:bg-gradient-to-tr hover:from-yellow-400 hover:via-pink-500 hover:to-purple-600 hover:text-white transition-all transform hover:-translate-y-1">
+                   <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 1 0 0-2.881z"/></svg>
                 </a>
               </div>
               <div className="text-center px-4 mt-2">
@@ -1593,6 +1808,8 @@
               </div>
             </div>
           </footer>
+
+          {/* VIP TOAST COMPONENT RENDER */}
           {toastMessage && (
             <div className="fixed bottom-10 left-1/2 z-50 animate-toast">
               <div className="bg-gray-900 text-white px-6 py-4 rounded-full shadow-2xl font-black text-sm flex items-center gap-3 border border-gray-700">
@@ -1601,6 +1818,7 @@
               </div>
             </div>
           )}
+
         </div>
       );
     }
