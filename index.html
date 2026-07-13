@@ -170,22 +170,18 @@
                          <img src={m} className="w-full h-full object-cover transition-transform hover:scale-[1.03] duration-500" onContextMenu={(e) => e.preventDefault()} />
                          <div className="img-protect-overlay"></div>
                       </div>
-                      <p className="text-center font-black mt-3 text-sm text-gray-400 uppercase tracking-widest">Angle {i+1}</p>
                     </div>
                  ))
               ) : (
                 <>
                   <div className="flex-none w-[85%] md:w-[45%] lg:w-[30%] snap-center">
                     <FrameMockup src={art.image} />
-                    <p className="text-center font-black mt-3 text-sm text-gray-400 uppercase tracking-widest">In Frame</p>
                   </div>
                   <div className="flex-none w-[85%] md:w-[45%] lg:w-[30%] snap-center">
                     <WallMockup src={art.image} />
-                    <p className="text-center font-black mt-3 text-sm text-gray-400 uppercase tracking-widest">Home Wall</p>
                   </div>
                   <div className="flex-none w-[85%] md:w-[45%] lg:w-[30%] snap-center">
                     <TableMockup src={art.image} />
-                    <p className="text-center font-black mt-3 text-sm text-gray-400 uppercase tracking-widest">On Table</p>
                   </div>
                 </>
               )}
@@ -390,7 +386,8 @@
       const [resendTimer, setResendTimer] = useState(0);
 
       const [artworks, setArtworks] = useState([]);
-      const [isLoadingGallery, setIsLoadingGallery] = useState(true); // ✅ FIXED LOADING STATE
+      const [isLoadingGallery, setIsLoadingGallery] = useState(true); 
+      const [showEmptyGallery, setShowEmptyGallery] = useState(false); // ✅ NEW STATE for issue 2
       const [orders, setOrders] = useState([]);
       const [announcements, setAnnouncements] = useState([]);
       
@@ -674,6 +671,16 @@
         });
         return () => { unsubArt(); unsubOrd(); unsubAnn(); unsubBg(); };
       }, []);
+
+      // ✅ FIX 2: Delay for empty gallery message to prevent flash
+      useEffect(() => {
+         if (!isLoadingGallery && artworks.length === 0) {
+             const timer = setTimeout(() => setShowEmptyGallery(true), 1500);
+             return () => clearTimeout(timer);
+         } else {
+             setShowEmptyGallery(false);
+         }
+      }, [isLoadingGallery, artworks.length]);
       
       // ✅ FETCH SESSIONS WHEN ADMIN (Now fetches ALL Trusted Devices, online & offline)
       useEffect(() => {
@@ -758,20 +765,20 @@
             </p>
           </div>
           
-          {/* ✅ FIXED GALLERY LOADING STATE & EMPTY STATE */}
+          {/* ✅ FIXED GALLERY LOADING STATE & EMPTY STATE WITH DELAY */}
           {isLoadingGallery ? (
             <div className="text-center p-12 glass-panel rounded-3xl shadow-xl font-bold text-purple-600 text-xl flex flex-col items-center justify-center gap-4">
               <svg className="animate-spin h-10 w-10 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
               <span>Loading Gallery.... Please Wait</span>
             </div>
-          ) : artworks.length === 0 ? (
+          ) : artworks.length > 0 ? (
+            artworks.map(art => <ArtworkCard key={art.id} art={art} getPrice={getPrice} addToCart={addToCart} />)
+          ) : showEmptyGallery ? (
             <div className="text-center p-12 glass-panel rounded-3xl shadow-xl font-bold text-gray-500 text-xl flex flex-col items-center justify-center gap-4">
               <span className="text-4xl">🖼️</span>
               <span>No artworks uploaded yet. Please check back later!</span>
             </div>
-          ) : (
-            artworks.map(art => <ArtworkCard key={art.id} art={art} getPrice={getPrice} addToCart={addToCart} />)
-          )}
+          ) : null}
         </div>
       );
 
@@ -974,9 +981,10 @@
                        
                        {/* COMMISSION vs GALLERY PURCHASE LOGIC */}
                        {ord.orderId ? (
-                           <h3 className="text-xl font-black text-gray-900 font-mono tracking-wider flex items-center gap-2">
+                           <h3 onClick={() => { navigator.clipboard.writeText(ord.orderId); showToast("Order ID Copied!"); }} title="Click to copy Order ID" className="text-xl font-black text-gray-900 font-mono tracking-wider flex items-center gap-2 cursor-pointer hover:text-purple-600 transition">
                               <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                               {ord.orderId}
+                              <span className="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold ml-2 shadow-sm">COPY</span>
                            </h3>
                        ) : (
                            <h3 className="text-lg font-black text-purple-600 tracking-wider flex items-center gap-2">
@@ -1575,7 +1583,8 @@
         const saveArtwork = async (e) => {
           e.preventDefault();
 
-          if (selectedBgs.length === 0) {
+          // FIX 4: Admin Panel Edit Background Validation Bug Fix
+          if (selectedBgs.length === 0 && (!uploadData.customMockups || uploadData.customMockups.length === 0)) {
               alert("❌ A background must be selected to publish this artwork.");
               return;
           }
@@ -1683,6 +1692,37 @@
           setAnnMsg(ann.message);
         };
 
+        // FIX 3: 2-Finger Zoom and Drag for Background Cropper State Handling
+        const [dragStart, setDragStart] = useState(null);
+
+        const handleTouchStart = (e) => {
+            if (e.touches.length === 1) {
+                setDragStart({ type: 'pan', x: e.touches[0].clientX, y: e.touches[0].clientY, origX: bgCropAdj.x, origY: bgCropAdj.y });
+            } else if (e.touches.length === 2) {
+                const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+                setDragStart({ type: 'zoom', dist, origScale: bgCropAdj.scale });
+            }
+        };
+
+        const handleTouchMove = (e) => {
+            if (!dragStart) return;
+            // Prevent default to stop page scrolling while cropping
+            if (e.cancelable) e.preventDefault(); 
+            
+            if (dragStart.type === 'pan' && e.touches.length === 1) {
+                const dx = e.touches[0].clientX - dragStart.x;
+                const dy = e.touches[0].clientY - dragStart.y;
+                const newX = dragStart.origX - (dx / 2); // invert for natural swipe feel
+                const newY = dragStart.origY - (dy / 2);
+                setBgCropAdj(prev => ({...prev, x: Math.min(100, Math.max(0, newX)), y: Math.min(100, Math.max(0, newY))}));
+            } else if (dragStart.type === 'zoom' && e.touches.length === 2) {
+                const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+                const scaleDiff = (dist - dragStart.dist) * 0.5;
+                setBgCropAdj(prev => ({...prev, scale: Math.min(250, Math.max(100, dragStart.origScale + scaleDiff))}));
+            }
+        };
+        const handleTouchEnd = () => setDragStart(null);
+
         return (
           <div className="p-6 max-w-7xl mx-auto space-y-10 min-h-screen">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 glass-panel p-6 rounded-3xl shadow-sm">
@@ -1764,14 +1804,19 @@
                 {/* ✅ NEW: BACKGROUND MANAGER WITH CROPPER */}
                 <div className="glass-panel p-6 rounded-3xl shadow-sm border border-gray-200 bg-emerald-50/30">
                   <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-2">Manage Custom Backgrounds</h3>
-                  <p className="text-xs font-bold text-gray-500 mb-4">Upload up to 15 real background images (e.g., table, hands) here. Frame them perfectly before saving.</p>
+                  <p className="text-xs font-bold text-gray-500 mb-4">Upload up to 15 real background images (e.g., table, hands) here. You can drag to pan and pinch to zoom, or use sliders.</p>
                   
                   {rawBgFile ? (
                      <div className="bg-white p-5 rounded-2xl shadow-lg border border-emerald-200 mb-6">
                         <p className="text-sm font-black text-emerald-800 mb-3 uppercase tracking-widest text-center">Adjust & Crop Background</p>
                         
-                        {/* CROPPER PREVIEW WINDOW */}
-                        <div style={{ position: 'relative', width: '100%', maxWidth: '250px', aspectRatio: '4/5', overflow: 'hidden', margin: '0 auto', borderRadius: '0.75rem', backgroundColor: '#f3f4f6', border: '2px solid #10b981' }}>
+                        {/* CROPPER PREVIEW WINDOW WITH TOUCH EVENTS FOR PINCH AND DRAG */}
+                        <div 
+                          onTouchStart={handleTouchStart} 
+                          onTouchMove={handleTouchMove} 
+                          onTouchEnd={handleTouchEnd}
+                          style={{ position: 'relative', width: '100%', maxWidth: '250px', aspectRatio: '4/5', overflow: 'hidden', margin: '0 auto', borderRadius: '0.75rem', backgroundColor: '#f3f4f6', border: '2px solid #10b981', touchAction: 'none' }}
+                        >
                             <img src={rawBgFile} style={{
                                 position: 'absolute',
                                 top: `calc(50% + ${((bgCropAdj.y - 50) / 50) * 50}%)`,
@@ -1789,17 +1834,17 @@
                         <div className="space-y-4 mt-6 text-xs font-bold text-gray-700 px-2">
                             <label className="block flex gap-3 items-center">
                                 <span className="w-16">Left/Right</span> 
-                                <span className="w-10 text-emerald-700 font-black text-right">{bgCropAdj.x > 50 ? '+' : ''}{bgCropAdj.x - 50}%</span>
+                                <span className="w-10 text-emerald-700 font-black text-right">{bgCropAdj.x > 50 ? '+' : ''}{Math.round(bgCropAdj.x - 50)}%</span>
                                 <input type="range" min="0" max="100" value={bgCropAdj.x} onChange={e=>setBgCropAdj({...bgCropAdj, x:Number(e.target.value)})} className="flex-1 accent-emerald-600" />
                             </label>
                             <label className="block flex gap-3 items-center">
                                 <span className="w-16">Top/Bottom</span> 
-                                <span className="w-10 text-emerald-700 font-black text-right">{bgCropAdj.y > 50 ? '+' : ''}{bgCropAdj.y - 50}%</span>
+                                <span className="w-10 text-emerald-700 font-black text-right">{bgCropAdj.y > 50 ? '+' : ''}{Math.round(bgCropAdj.y - 50)}%</span>
                                 <input type="range" min="0" max="100" value={bgCropAdj.y} onChange={e=>setBgCropAdj({...bgCropAdj, y:Number(e.target.value)})} className="flex-1 accent-emerald-600" />
                             </label>
                             <label className="block flex gap-3 items-center">
                                 <span className="w-16">Zoom In</span> 
-                                <span className="w-16 text-emerald-700 font-black text-right">{bgCropAdj.scale}% Size</span>
+                                <span className="w-16 text-emerald-700 font-black text-right">{Math.round(bgCropAdj.scale)}% Size</span>
                                 <input type="range" min="100" max="250" value={bgCropAdj.scale} onChange={e=>setBgCropAdj({...bgCropAdj, scale:Number(e.target.value)})} className="flex-1 accent-emerald-600" />
                             </label>
                         </div>
@@ -1855,6 +1900,14 @@
                     {uploadData.image && savedBackgrounds.length > 0 && (
                       <div className="bg-gray-50 border border-gray-200 p-4 rounded-xl mt-4">
                          <p className="font-black text-gray-800 text-sm mb-2">Select Backgrounds (Choose 3 for best results):</p>
+                         
+                         {/* FIX 4: Admin Panel Edit Notification */}
+                         {editArtId && uploadData.customMockups?.length > 0 && (
+                             <p className="text-xs text-green-600 font-bold mb-3 p-2 bg-green-50 rounded-lg border border-green-200">
+                                 ✅ Previous backgrounds saved. Select new ones below ONLY if you want to replace them.
+                             </p>
+                         )}
+
                          <div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar">
                            {savedBackgrounds.map(bg => (
                                <label key={bg.id} className={`cursor-pointer flex flex-col items-center p-1 rounded-lg border-2 ${selectedBgs.includes(bg.id) ? 'border-purple-500 bg-purple-100' : 'border-transparent'}`}>
@@ -1961,7 +2014,7 @@
                         </div>
                     )}
 
-                    {/* ✅ GENERATED PREVIEW DISPLAY */}
+                    {/* ✅ GENERATED PREVIEW DISPLAY (Admin Angle text still shows here only) */}
                     {previewMockups.length > 0 && (
                         <div className="mt-4 bg-gray-900 p-6 rounded-2xl shadow-inner">
                             <p className="text-green-400 font-black text-sm uppercase tracking-widest mb-4 flex items-center gap-2">
@@ -2397,13 +2450,13 @@
                   </p>
               </div>
 
-              {/* Social Icons (Unchanged logic) */}
+              {/* FIX 1: Social Icons Fixed placement and SVG replacement */}
               <div className="flex gap-6">
                 <a href="https://wa.me/917281074416" target="_blank" rel="noopener noreferrer" className="p-4 bg-white text-green-500 rounded-full hover:bg-green-500 hover:text-white transition-all shadow-md hover:shadow-xl transform hover:-translate-y-1 block cursor-pointer">
                   <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
                 </a>
                 <a href="https://www.instagram.com/rajaguptaact" target="_blank" rel="noopener noreferrer" className="p-4 bg-white text-pink-500 rounded-full hover:bg-pink-500 hover:text-white transition-all shadow-md hover:shadow-xl transform hover:-translate-y-1 block cursor-pointer">
-                  <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm3.975-9.658a1.424 1.424 0 100-2.849 1.424 1.424 0 000 2.849z"/></svg>
+                  <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
                 </a>
               </div>
 
