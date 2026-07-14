@@ -89,6 +89,13 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    const A4Frame = ({ src, className }) => (
+      <div className={`bg-white p-1.5 md:p-2 border-[8px] md:border-[12px] border-gray-900 z-10 flex items-center justify-center w-[52%] aspect-[1/1.414] relative ${className}`}>
+        <div className="img-protect-overlay"></div> 
+        <img src={src} loading="eager" decoding="sync" alt="Artwork" className="w-full h-full object-cover pointer-events-none" onContextMenu={(e) => e.preventDefault()} onDragStart={(e) => e.preventDefault()} />
+      </div>
+    );
+
     // ✅ NEW SMART ARTWORK CARD COMPONENT (Handles Mobile Scroll peeking & Desktop Grid)
     const ArtworkCard = ({ art, getPrice, addToCart }) => {
       const scrollRef = useRef(null);
@@ -351,7 +358,6 @@
 
       const [artworks, setArtworks] = useState([]);
       const [isLoadingGallery, setIsLoadingGallery] = useState(true); 
-      const [showEmptyGallery, setShowEmptyGallery] = useState(false); 
       const [orders, setOrders] = useState([]);
       const [announcements, setAnnouncements] = useState([]);
       
@@ -635,16 +641,6 @@
         });
         return () => { unsubArt(); unsubOrd(); unsubAnn(); unsubBg(); };
       }, []);
-
-      // ✅ FIX 2: Delay for empty gallery message to prevent flash
-      useEffect(() => {
-         if (!isLoadingGallery && artworks.length === 0) {
-             const timer = setTimeout(() => setShowEmptyGallery(true), 1500);
-             return () => clearTimeout(timer);
-         } else {
-             setShowEmptyGallery(false);
-         }
-      }, [isLoadingGallery, artworks.length]);
       
       // ✅ FETCH SESSIONS WHEN ADMIN (Now fetches ALL Trusted Devices, online & offline)
       useEffect(() => {
@@ -737,12 +733,12 @@
             </div>
           ) : artworks.length > 0 ? (
             artworks.map(art => <ArtworkCard key={art.id} art={art} getPrice={getPrice} addToCart={addToCart} />)
-          ) : showEmptyGallery ? (
+          ) : (
             <div className="text-center p-12 glass-panel rounded-3xl shadow-xl font-bold text-gray-500 text-xl flex flex-col items-center justify-center gap-4">
               <span className="text-4xl">🖼️</span>
               <span>No artworks uploaded yet. Please check back later!</span>
             </div>
-          ) : null}
+          )}
         </div>
       );
 
@@ -1692,12 +1688,12 @@
             if (dragStart.type === 'pan' && e.touches.length === 1) {
                 const dx = e.touches[0].clientX - dragStart.x;
                 const dy = e.touches[0].clientY - dragStart.y;
-                const newX = dragStart.origX - (dx / 2); // invert for natural swipe feel
-                const newY = dragStart.origY - (dy / 2);
+                const newX = dragStart.origX + (dx / 2.5); // Fixed inversion
+                const newY = dragStart.origY + (dy / 3.125); // Fixed inversion
                 setBgCropAdj(prev => ({...prev, x: Math.min(100, Math.max(0, newX)), y: Math.min(100, Math.max(0, newY))}));
             } else if (dragStart.type === 'zoom' && e.touches.length === 2) {
                 const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-                const scaleDiff = (dist - dragStart.dist) * 0.5;
+                const scaleDiff = (dist - dragStart.dist) * 0.8; // Improved zoom speed
                 setBgCropAdj(prev => ({...prev, scale: Math.min(250, Math.max(100, dragStart.origScale + scaleDiff))}));
             }
         };
@@ -1829,7 +1825,7 @@
                   {savedBackgrounds.length === 0 ? <p className="text-gray-400 font-bold text-sm">No custom backgrounds saved yet.</p> : (
                     <div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar">
                       {savedBackgrounds.map(bg => (
-                        <div key={bg.id} className="relative flex-none w-20 h-24 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                        <div key={bg.id} className="relative flex-shrink-0 w-20 h-24 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
                            <img src={bg.image} className="w-full h-full object-cover" />
                            <button onClick={() => { if(window.confirm("Delete this background?")) db.collection('RajaBackgrounds').doc(bg.id).delete(); }} className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 cursor-pointer hover:bg-red-600">
                               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -1871,14 +1867,14 @@
 
                          <div className="flex gap-4 overflow-x-auto pb-4 hide-scrollbar pt-2 px-2">
                            {savedBackgrounds.map(bg => (
-                               <label key={bg.id} className={`cursor-pointer flex flex-col items-center p-1.5 rounded-xl border-4 transition-all relative ${selectedBgs.includes(bg.id) ? 'border-purple-600 bg-purple-50 scale-[1.02] shadow-md' : 'border-transparent hover:bg-gray-100'}`}>
+                               <label key={bg.id} className={`flex-shrink-0 w-20 cursor-pointer flex flex-col items-center p-1.5 rounded-xl border-4 transition-all relative ${selectedBgs.includes(bg.id) ? 'border-purple-600 bg-purple-50 scale-[1.02] shadow-md' : 'border-transparent hover:bg-gray-100'}`}>
                                   <input type="checkbox" className="hidden" checked={selectedBgs.includes(bg.id)} 
                                          onChange={(e) => {
                                              if(e.target.checked) setSelectedBgs([...selectedBgs, bg.id]);
                                              else setSelectedBgs(selectedBgs.filter(id => id !== bg.id));
                                              setPreviewMockups([]); 
                                          }} />
-                                  <img src={bg.image} className="w-16 h-20 object-cover rounded-md shadow-sm" />
+                                  <img src={bg.image} className="w-full h-20 object-cover rounded-md shadow-sm" />
                                   
                                   {selectedBgs.includes(bg.id) && (
                                       <div className="absolute -top-2 -right-2 bg-purple-600 text-white rounded-full p-1 shadow-lg z-10 border-2 border-white flex items-center justify-center h-6 w-6">
@@ -1925,7 +1921,7 @@
                                                  } else if (dragComp.type === 'zoomRotate' && e.touches.length === 2) {
                                                      const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
                                                      const angle = Math.atan2(e.touches[1].clientY - e.touches[0].clientY, e.touches[1].clientX - e.touches[0].clientX) * 180 / Math.PI;
-                                                     const scaleDiff = (dist - dragComp.dist) * 0.5;
+                                                     const scaleDiff = (dist - dragComp.dist) * 0.8;
                                                      let angleDiff = angle - dragComp.angle;
                                                      if (angleDiff > 180) angleDiff -= 360;
                                                      if (angleDiff < -180) angleDiff += 360;
@@ -1996,7 +1992,7 @@
                         </div>
                     )}
 
-                    {/* ✅ GENERATED PREVIEW DISPLAY */}
+                    {/* ✅ GENERATED PREVIEW DISPLAY (Admin Angle text still shows here only) */}
                     {previewMockups.length > 0 && (
                         <div className="mt-4 bg-gray-900 p-6 rounded-2xl shadow-inner">
                             <p className="text-green-400 font-black text-sm uppercase tracking-widest mb-4 flex items-center gap-2">
@@ -2320,7 +2316,6 @@
                 
                 <button onClick={() => nav('commission')} className={`text-left p-6 border-b transition cursor-pointer flex items-center gap-4 ${view === 'commission' ? 'text-purple-700 font-black bg-purple-50' : 'text-gray-800 hover:text-purple-700 hover:bg-purple-50'}`}>Commission</button>
                 
-                {/* ✅ NEW MENU ITEM: MY ORDER HISTORY */}
                 <button onClick={() => nav('my_orders')} className={`text-left p-6 border-b transition cursor-pointer flex items-center gap-4 ${view === 'my_orders' ? 'text-purple-700 font-black bg-purple-50' : 'text-gray-800 hover:text-purple-700 hover:bg-purple-50'}`}>Order History</button>
 
                 <button onClick={() => nav('admin')} className={`text-left p-6 border-b transition cursor-pointer flex items-center gap-4 ${view === 'admin' ? 'text-purple-700 font-black bg-purple-50' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'}`}>Admin Panel</button>
