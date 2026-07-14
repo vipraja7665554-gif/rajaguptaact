@@ -89,41 +89,6 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    const A4Frame = ({ src, className }) => (
-      <div className={`bg-white p-1.5 md:p-2 border-[8px] md:border-[12px] border-gray-900 z-10 flex items-center justify-center w-[52%] aspect-[1/1.414] relative ${className}`}>
-        <div className="img-protect-overlay"></div> 
-        <img src={src} loading="eager" decoding="sync" alt="Artwork" className="w-full h-full object-cover pointer-events-none" onContextMenu={(e) => e.preventDefault()} onDragStart={(e) => e.preventDefault()} />
-      </div>
-    );
-
-    // ✅ OLD MOCKUPS (Kept as fallback for old artworks so they don't break)
-    const FrameMockup = ({ src }) => (
-      <div className="w-full aspect-[4/5] bg-gradient-to-br from-[#f5f7fa] to-[#c3cfe2] rounded-2xl flex items-center justify-center p-4 shadow-inner relative overflow-hidden select-none">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(255,255,255,0.8)_0%,transparent_70%)]"></div>
-        <A4Frame src={src} className="shadow-[0_15px_35px_rgba(0,0,0,0.15)] transition-transform hover:scale-105 duration-500 relative z-10" />
-      </div>
-    );
-    const WallMockup = ({ src }) => {
-      return (
-        <div className="w-full aspect-[4/5] rounded-2xl flex items-center justify-center p-4 shadow-inner relative overflow-hidden select-none bg-[#f4f1ea]">
-          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 19px, #ccc 19px, #ccc 20px)" }}></div>
-          <div className="absolute top-0 left-0 w-[150%] h-[100%] bg-gradient-to-br from-white/80 via-transparent to-black/5 transform -rotate-12 blur-2xl"></div>
-          <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-black/5 blur-xl rounded-full mix-blend-multiply"></div>
-          <A4Frame src={src} className="mt-[-5%] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.3)] transition-transform hover:scale-105 duration-500 relative z-10" />
-        </div>
-      );
-    };
-    const TableMockup = ({ src }) => (
-      <div className="w-full aspect-[4/5] rounded-2xl relative overflow-hidden shadow-inner flex justify-center items-end pb-[12%] select-none bg-slate-100">
-        <div className="absolute top-0 left-0 w-full h-[70%] bg-[#d3dce6]" style={{ backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.4) 0px, rgba(255,255,255,0.4) 2px, transparent 2px, transparent 8px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.4) 0px, rgba(255,255,255,0.4) 2px, transparent 2px, transparent 8px)' }}></div>
-        <div className="absolute bottom-0 left-0 w-full h-[30%] bg-[#b08d6a] border-t-[8px] border-[#8a684a] shadow-[inset_0_10px_20px_rgba(0,0,0,0.2)]">
-            <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 15px, rgba(0,0,0,0.1) 15px, rgba(0,0,0,0.1) 17px)' }}></div>
-        </div>
-        <div className="absolute bottom-[10%] left-1/2 -translate-x-1/2 w-[60%] h-[15%] bg-black/40 blur-md rounded-[100%]"></div>
-        <A4Frame src={src} className="relative z-10 hover:-translate-y-2 shadow-[0_20px_25px_rgba(0,0,0,0.5)] transition-all duration-500" />
-      </div>
-    );
-
     // ✅ NEW SMART ARTWORK CARD COMPONENT (Handles Mobile Scroll peeking & Desktop Grid)
     const ArtworkCard = ({ art, getPrice, addToCart }) => {
       const scrollRef = useRef(null);
@@ -173,17 +138,12 @@
                     </div>
                  ))
               ) : (
-                <>
-                  <div className="flex-none w-[85%] md:w-[45%] lg:w-[30%] snap-center">
-                    <FrameMockup src={art.image} />
-                  </div>
-                  <div className="flex-none w-[85%] md:w-[45%] lg:w-[30%] snap-center">
-                    <WallMockup src={art.image} />
-                  </div>
-                  <div className="flex-none w-[85%] md:w-[45%] lg:w-[30%] snap-center">
-                    <TableMockup src={art.image} />
-                  </div>
-                </>
+                 <div className="flex-none w-[85%] md:w-[45%] lg:w-[30%] snap-center">
+                   <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden shadow-[0_4px_15px_rgba(0,0,0,0.1)] relative flex items-center justify-center bg-gray-100 border border-gray-200">
+                      <img src={art.image} className="w-full h-full object-cover transition-transform hover:scale-[1.03] duration-500" onContextMenu={(e) => e.preventDefault()} />
+                      <div className="img-protect-overlay"></div>
+                   </div>
+                 </div>
               )}
             </div>
           </div>
@@ -369,8 +329,9 @@
       const [isDevicesOpen, setIsDevicesOpen] = useState(false);
       const [isOrdersOpen, setIsOrdersOpen] = useState(false);
       
-      // ✅ FIXED: Moved dragStart Hook to Top Level to prevent React Crash on Login!
+      // ✅ FIXED: Moved Touch Hooks to Top Level to prevent React Crash!
       const [dragStart, setDragStart] = useState(null);
+      const [dragComp, setDragComp] = useState(null); 
 
       // ✅ NEW STATES FOR CUSTOM BACKGROUND COMPOSITOR & CROPPER
       const [savedBackgrounds, setSavedBackgrounds] = useState([]);
@@ -390,12 +351,12 @@
 
       const [artworks, setArtworks] = useState([]);
       const [isLoadingGallery, setIsLoadingGallery] = useState(true); 
-      const [showEmptyGallery, setShowEmptyGallery] = useState(false); // ✅ NEW STATE for issue 2
+      const [showEmptyGallery, setShowEmptyGallery] = useState(false); 
       const [orders, setOrders] = useState([]);
       const [announcements, setAnnouncements] = useState([]);
       
       const [isOrderPlaced, setIsOrderPlaced] = useState(false); 
-      const [lastOrderId, setLastOrderId] = useState(null); // ✅ NEW: Store Last Order ID for success views
+      const [lastOrderId, setLastOrderId] = useState(null); 
       
       // ✅ NEW: MY ORDER HISTORY STATE (LOCAL STORAGE)
       const [myLocalOrders, setMyLocalOrders] = useState(() => {
@@ -559,7 +520,7 @@
           .catch(err => console.log('Location engine fallback'));
       }, []);
 
-      const [uploadData, setUploadData] = useState({ title: '', desc: '', image: '', priceOriginal: '', priceOriginalOld: '', priceA3: '', priceA4: '', priceA5: '', isSold: false, customMockups: [] });
+      const [uploadData, setUploadData] = useState({ title: '', desc: '', image: '', priceOriginal: '', priceOriginalOld: '', priceA3: '', priceA4: '', priceA5: '', isSold: false, customMockups: [], selectedBgIds: [], savedBgAdjustments: {} });
       const [annTitle, setAnnTitle] = useState('');
       const [annMsg, setAnnMsg] = useState('');
 
@@ -660,7 +621,7 @@
       useEffect(() => {
         const unsubArt = db.collection("RajaStudio").onSnapshot(snap => {
           setArtworks(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => b.createdAt - a.createdAt));
-          setIsLoadingGallery(false); // ✅ LOADING DONE
+          setIsLoadingGallery(false); 
         });
         const unsubOrd = db.collection("orders").onSnapshot(snap => {
           setOrders(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => b.createdAt - a.createdAt));
@@ -757,6 +718,7 @@
         nav('checkout_form');
       };
 
+      // ✅ FIX 1: GALLERY LOADING VIEW LOGIC UPDATED TO NEVER FLASH EMPTY
       const GalleryView = () => (
         <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-12">
           <div className="text-center space-y-4 mb-12 glass-panel p-10 rounded-3xl shadow-lg border-t-4 border-t-purple-500 relative">
@@ -768,7 +730,6 @@
             </p>
           </div>
           
-          {/* ✅ FIXED GALLERY LOADING STATE & EMPTY STATE WITH DELAY */}
           {isLoadingGallery ? (
             <div className="text-center p-12 glass-panel rounded-3xl shadow-xl font-bold text-purple-600 text-xl flex flex-col items-center justify-center gap-4">
               <svg className="animate-spin h-10 w-10 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -959,12 +920,12 @@
         </div>
       );
 
-      // ✅ NEW: MY ORDER HISTORY VIEW (PUBLIC)
+      // ✅ NEW: MY ORDER HISTORY VIEW (PUBLIC) - FIX 6 (Menu text update handled in Header menu too)
       const MyOrdersView = () => {
         return (
           <div className="p-6 max-w-4xl mx-auto min-h-screen">
             <div className="mb-8 text-center">
-               <h2 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 mb-2">My Order History</h2>
+               <h2 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 mb-2">Order History</h2>
                <p className="text-gray-600 font-bold text-lg">Track your recent purchases and commissions</p>
             </div>
             {myLocalOrders.length === 0 ? (
@@ -1281,23 +1242,27 @@
            const successWaTextIntl = encodeURIComponent(`Hello Raja Gupta!\nI am an international client.\nI have placed an order.\n\n*Order ID:* ${lastOrderId}\n*Name:* ${checkoutData.name}\n*Amount:* ${getPrice(finalAmountBase)}\n\nPlease guide me on how to pay via Wise, Remitly, or PayPal.`);
            const successWaText = isIntl ? successWaTextIntl : successWaTextIndia;
            
+           // ✅ FIX 4 & 5: Enhanced "Thank You" message and "Back to Home Gallery" button
            return (
               <div className="p-6 max-w-md mx-auto text-center min-h-screen flex flex-col justify-center">
                  <div className="bg-white p-8 rounded-3xl shadow-2xl border-t-8 border-green-500 relative">
-                   <div className="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                   <div className="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
                      <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
                    </div>
-                   <h2 className="text-3xl font-black text-gray-900 mb-2">Order Confirmed!</h2>
+                   <h2 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 mb-3 mt-2">Thank You! ❤️</h2>
                    
                    {/* ✅ NEW ORDER ID DISPLAY COMPONENT */}
                    <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-4 shadow-inner">
                       <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mb-1">Your Order ID</p>
                       <p className="text-2xl font-black text-purple-700 font-mono tracking-wider select-all">{lastOrderId}</p>
-                      <p className="text-[10px] text-gray-400 font-bold mt-1">(You can view this later in "My Order History")</p>
                    </div>
 
-                   <p className="text-gray-600 font-bold mb-8">
-                     {isIntl ? "Please message me now on WhatsApp to complete your payment." : "Your order is recorded successfully! Now, please send your payment screenshot on WhatsApp to confirm."}
+                   <p className="text-sm md:text-base font-bold text-gray-600 mb-6 px-2 leading-relaxed">
+                     We deeply appreciate your support for handcrafted art. Your order has been successfully recorded and will be prepared with the utmost care and perfection.
+                   </p>
+
+                   <p className="text-xs font-black text-green-700 bg-green-50 p-2 rounded-lg border border-green-200 mb-6">
+                     {isIntl ? "Please message me now on WhatsApp to complete your payment." : "Please send your payment screenshot on WhatsApp to finalize."}
                    </p>
                    
                    <a href={`https://wa.me/917281074416?text=${successWaText}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 w-full bg-[#25D366] text-white py-4 rounded-xl font-black text-lg shadow-xl hover:bg-green-600 transition-all cursor-pointer mb-6">
@@ -1305,11 +1270,18 @@
                      <span>{isIntl ? "Message on WhatsApp" : "Send Screenshot Now"}</span>
                    </a>
 
-                   <button type="button" onClick={() => {
-                      setCheckoutData({ name: '', email: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0, instagram: '' });
-                      setIsOrderPlaced(false);
-                      nav('my_orders');
-                   }} className="text-purple-600 font-bold underline hover:text-purple-800 cursor-pointer">View in My Orders</button>
+                   <div className="flex flex-col items-center gap-4 border-t border-gray-100 pt-4 mt-2">
+                       <button type="button" onClick={() => {
+                          setCheckoutData({ name: '', email: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0, instagram: '' });
+                          setIsOrderPlaced(false);
+                          nav('my_orders');
+                       }} className="text-purple-600 font-black underline hover:text-purple-800 cursor-pointer">View in Order History</button>
+                       <button type="button" onClick={() => {
+                          setCheckoutData({ name: '', email: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0, instagram: '' });
+                          setIsOrderPlaced(false);
+                          nav('gallery');
+                       }} className="text-gray-500 font-bold hover:text-gray-800 cursor-pointer flex items-center gap-2">&larr; Back to Home Gallery</button>
+                   </div>
                  </div>
               </div>
            );
@@ -1412,22 +1384,23 @@
         const saveCroppedBg = () => {
             setIsBgUploading(true);
             const canvas = document.createElement('canvas');
-            canvas.width = 800;
-            canvas.height = 1000; // Perfect 4:5 storage
+            // ✅ FIX 3: Quality Loss Fixed. Tripled the canvas resolution for saving backgrounds (HD Quality)
+            canvas.width = 1200;
+            canvas.height = 1500; // Perfect HD 4:5 storage
             const ctx = canvas.getContext('2d');
             const img = new Image();
             
             img.onload = () => {
                 ctx.fillStyle = '#f3f4f6';
-                ctx.fillRect(0, 0, 800, 1000);
+                ctx.fillRect(0, 0, 1200, 1500);
 
                 // Base scale to ensure image covers the canvas initially
-                const baseScale = Math.max(800 / img.width, 1000 / img.height);
+                const baseScale = Math.max(1200 / img.width, 1500 / img.height);
                 const scaledW = img.width * baseScale * (bgCropAdj.scale / 100);
                 const scaledH = img.height * baseScale * (bgCropAdj.scale / 100);
 
                 ctx.save();
-                ctx.translate(400, 500); // Center of canvas
+                ctx.translate(600, 750); // Center of HD canvas
                 // Apply Pan
                 const panX = ((bgCropAdj.x - 50) / 50) * (scaledW / 2);
                 const panY = ((bgCropAdj.y - 50) / 50) * (scaledH / 2);
@@ -1436,10 +1409,11 @@
                 ctx.drawImage(img, -scaledW/2, -scaledH/2, scaledW, scaledH);
                 ctx.restore();
 
-                const bgData = canvas.toDataURL('image/jpeg', 0.85);
+                // Save at 95% JPEG quality for Maximum Sharpness
+                const bgData = canvas.toDataURL('image/jpeg', 0.95);
                 db.collection('RajaBackgrounds').add({ image: bgData, createdAt: Date.now() })
                   .then(() => {
-                      alert("Background Cropped & Saved Successfully!");
+                      alert("Background Cropped & Saved Successfully in HD!");
                       setIsBgUploading(false);
                       setRawBgFile(null);
                   })
@@ -1472,13 +1446,14 @@
               const img = new Image();
               img.onload = () => {
                 const canvas = document.createElement('canvas');
-                const MAX = 1200; let w = img.width; let h = img.height;
+                // ✅ FIX 3: Increased upload quality limits for original artwork
+                const MAX = 1600; let w = img.width; let h = img.height;
                 if (w > h && w > MAX) { h *= MAX / w; w = MAX; } 
                 else if (h > MAX) { w *= MAX / h; h = MAX; }
                 canvas.width = w; canvas.height = h;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, w, h);
-                setUploadData({...uploadData, image: canvas.toDataURL('image/jpeg', 0.85)});
+                setUploadData({...uploadData, image: canvas.toDataURL('image/jpeg', 0.95)});
               };
               img.src = event.target.result;
             };
@@ -1493,15 +1468,16 @@
             return Number(numStr).toLocaleString('en-IN');
         };
 
-        // ✅ HD CANVAS COMPOSITOR ENGINE (FIXED 1:1 ASPECT RATIO CENTER CROP)
+        // ✅ HD CANVAS COMPOSITOR ENGINE
         const generateComposite = (bgDataUrl, artDataUrl, adj) => {
             return new Promise((resolve) => {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 const bgImg = new Image();
                 bgImg.onload = () => {
-                    const CANVAS_W = 1000;
-                    const CANVAS_H = 1250; // Instagram Portrait 4:5
+                    // ✅ FIX 3: Resolution increased to 1200x1500 for crisp HD renders
+                    const CANVAS_W = 1200;
+                    const CANVAS_H = 1500; 
                     canvas.width = CANVAS_W;
                     canvas.height = CANVAS_H;
                     
@@ -1545,8 +1521,8 @@
                         ctx.drawImage(artImg, -w/2, -h/2, w, h);
                         ctx.restore();
                         
-                        // Optimized for Multiple HD Images without crashing Firestore
-                        resolve(canvas.toDataURL('image/jpeg', 0.82)); 
+                        // Output at 95% JPEG quality to avoid blur
+                        resolve(canvas.toDataURL('image/jpeg', 0.95)); 
                     };
                     artImg.src = artDataUrl;
                 };
@@ -1586,7 +1562,6 @@
         const saveArtwork = async (e) => {
           e.preventDefault();
 
-          // FIX 4: Admin Panel Edit Background Validation Bug Fix
           if (selectedBgs.length === 0 && (!uploadData.customMockups || uploadData.customMockups.length === 0)) {
               alert("❌ A background must be selected to publish this artwork.");
               return;
@@ -1626,7 +1601,9 @@
               ...uploadData, 
               priceOriginal: finalPriceCurrent, 
               priceOriginalOld: finalPriceOld,
-              customMockups: generatedMockups.length > 0 ? generatedMockups : (uploadData.customMockups || [])
+              customMockups: generatedMockups.length > 0 ? generatedMockups : (uploadData.customMockups || []),
+              selectedBgIds: selectedBgs, 
+              savedBgAdjustments: bgAdjustments 
           };
 
           if(editArtId) {
@@ -1634,7 +1611,7 @@
                .then(() => { 
                    alert("Artwork Updated Successfully!"); 
                    setEditArtId(null); 
-                   setUploadData({ title: '', desc: '', image: '', priceOriginal: '', priceOriginalOld: '', priceA3: '', priceA4: '', priceA5: '', isSold: false, customMockups: [] }); 
+                   setUploadData({ title: '', desc: '', image: '', priceOriginal: '', priceOriginalOld: '', priceA3: '', priceA4: '', priceA5: '', isSold: false, customMockups: [], selectedBgIds: [], savedBgAdjustments: {} }); 
                    setSelectedBgs([]);
                    setBgAdjustments({});
                    setPreviewMockups([]);
@@ -1644,7 +1621,7 @@
              db.collection('RajaStudio').add({ ...dataToSave, createdAt: Date.now() })
                .then(() => { 
                    alert("Artwork Uploaded Globally!"); 
-                   setUploadData({ title: '', desc: '', image: '', priceOriginal: '', priceOriginalOld: '', priceA3: '', priceA4: '', priceA5: '', isSold: false, customMockups: [] }); 
+                   setUploadData({ title: '', desc: '', image: '', priceOriginal: '', priceOriginalOld: '', priceA3: '', priceA4: '', priceA5: '', isSold: false, customMockups: [], selectedBgIds: [], savedBgAdjustments: {} }); 
                    setSelectedBgs([]);
                    setBgAdjustments({});
                    setPreviewMockups([]);
@@ -1671,8 +1648,10 @@
               priceA3: art.priceA3, priceA4: art.priceA4, priceA5: art.priceA5, isSold: art.isSold || false,
               customMockups: art.customMockups || []
           });
-          setSelectedBgs([]); // Reset selections on edit open
-          setBgAdjustments({});
+          
+          setSelectedBgs(art.selectedBgIds || []); 
+          setBgAdjustments(art.savedBgAdjustments || {});
+          
           setPreviewMockups([]);
           window.scrollTo(0, 0);
         };
@@ -1695,7 +1674,7 @@
           setAnnMsg(ann.message);
         };
 
-        // FIX 3: 2-Finger Zoom and Drag for Background Cropper State Handling
+        // TOUCH HANDLING (Pan and Zoom without sliders)
         const handleTouchStart = (e) => {
             if (e.touches.length === 1) {
                 setDragStart({ type: 'pan', x: e.touches[0].clientX, y: e.touches[0].clientY, origX: bgCropAdj.x, origY: bgCropAdj.y });
@@ -1802,16 +1781,14 @@
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
               <div className="space-y-8">
 
-                {/* ✅ NEW: BACKGROUND MANAGER WITH CROPPER */}
                 <div className="glass-panel p-6 rounded-3xl shadow-sm border border-gray-200 bg-emerald-50/30">
                   <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-2">Manage Custom Backgrounds</h3>
-                  <p className="text-xs font-bold text-gray-500 mb-4">Upload up to 15 real background images (e.g., table, hands) here. You can drag to pan and pinch to zoom, or use sliders.</p>
+                  <p className="text-xs font-bold text-gray-500 mb-4">Upload up to 15 real background images (e.g., table, hands) here. You can drag to pan and pinch to zoom.</p>
                   
                   {rawBgFile ? (
                      <div className="bg-white p-5 rounded-2xl shadow-lg border border-emerald-200 mb-6">
                         <p className="text-sm font-black text-emerald-800 mb-3 uppercase tracking-widest text-center">Adjust & Crop Background</p>
                         
-                        {/* CROPPER PREVIEW WINDOW WITH TOUCH EVENTS FOR PINCH AND DRAG */}
                         <div 
                           onTouchStart={handleTouchStart} 
                           onTouchMove={handleTouchMove} 
@@ -1831,24 +1808,7 @@
                             }} />
                         </div>
                         
-                        {/* CROPPER SLIDERS */}
-                        <div className="space-y-4 mt-6 text-xs font-bold text-gray-700 px-2">
-                            <label className="block flex gap-3 items-center">
-                                <span className="w-16">Left/Right</span> 
-                                <span className="w-10 text-emerald-700 font-black text-right">{bgCropAdj.x > 50 ? '+' : ''}{Math.round(bgCropAdj.x - 50)}%</span>
-                                <input type="range" min="0" max="100" value={bgCropAdj.x} onChange={e=>setBgCropAdj({...bgCropAdj, x:Number(e.target.value)})} className="flex-1 accent-emerald-600" />
-                            </label>
-                            <label className="block flex gap-3 items-center">
-                                <span className="w-16">Top/Bottom</span> 
-                                <span className="w-10 text-emerald-700 font-black text-right">{bgCropAdj.y > 50 ? '+' : ''}{Math.round(bgCropAdj.y - 50)}%</span>
-                                <input type="range" min="0" max="100" value={bgCropAdj.y} onChange={e=>setBgCropAdj({...bgCropAdj, y:Number(e.target.value)})} className="flex-1 accent-emerald-600" />
-                            </label>
-                            <label className="block flex gap-3 items-center">
-                                <span className="w-16">Zoom In</span> 
-                                <span className="w-16 text-emerald-700 font-black text-right">{Math.round(bgCropAdj.scale)}% Size</span>
-                                <input type="range" min="100" max="250" value={bgCropAdj.scale} onChange={e=>setBgCropAdj({...bgCropAdj, scale:Number(e.target.value)})} className="flex-1 accent-emerald-600" />
-                            </label>
-                        </div>
+                        <p className="text-[10px] text-emerald-600 font-black text-center mt-4 uppercase tracking-widest animate-pulse">👆 Drag to Move &bull; Pinch to Zoom</p>
                         
                         <div className="flex gap-3 mt-6">
                             <button onClick={saveCroppedBg} disabled={isBgUploading} className={`flex-1 text-white py-3 rounded-xl font-black shadow-md transition-all ${isBgUploading ? 'bg-gray-400 cursor-wait' : 'bg-emerald-600 hover:bg-emerald-700 cursor-pointer hover:shadow-lg'}`}>
@@ -1883,7 +1843,7 @@
                 <div className="glass-panel p-8 rounded-3xl shadow-xl border-t-4 border-t-purple-500">
                   <h3 className="text-2xl font-black mb-6 text-gray-900 flex justify-between items-center">
                     {editArtId ? "✏️ Edit Artwork" : "Upload Artwork"}
-                    {editArtId ? <button type="button" onClick={() => { setEditArtId(null); setUploadData({title:'',desc:'',image:'',priceOriginal:'',priceOriginalOld:'',priceA3:'',priceA4:'',priceA5:'', isSold: false, customMockups: []}); setSelectedBgs([]); setBgAdjustments({}); setPreviewMockups([]); }} className="text-xs text-red-500 underline font-bold cursor-pointer">Cancel Edit</button> : null}
+                    {editArtId ? <button type="button" onClick={() => { setEditArtId(null); setUploadData({title:'',desc:'',image:'',priceOriginal:'',priceOriginalOld:'',priceA3:'',priceA4:'',priceA5:'', isSold: false, customMockups: [], selectedBgIds: [], savedBgAdjustments: {}}); setSelectedBgs([]); setBgAdjustments({}); setPreviewMockups([]); }} className="text-xs text-red-500 underline font-bold cursor-pointer">Cancel Edit</button> : null}
                   </h3>
                   <form onSubmit={saveArtwork} className="space-y-4">
                     <input required placeholder="Artwork Title" className="w-full border-2 p-4 rounded-xl bg-white font-bold" value={uploadData.title} onChange={e => setUploadData({...uploadData, title: e.target.value})} />
@@ -1897,33 +1857,39 @@
                     </div>
                     {uploadData.image ? <img src={uploadData.image} className="mt-4 h-40 mx-auto rounded-lg shadow-md object-contain border-2 border-white pointer-events-none" /> : null}
 
-                    {/* ✅ COMPOSITOR UI: Select Backgrounds & Adjust */}
+                    {/* ✅ COMPOSITOR UI */}
                     {uploadData.image && savedBackgrounds.length > 0 && (
                       <div className="bg-gray-50 border border-gray-200 p-4 rounded-xl mt-4">
                          <p className="font-black text-gray-800 text-sm mb-2">Select Backgrounds (Choose 3 for best results):</p>
                          
-                         {/* FIX 4: Admin Panel Edit Notification */}
-                         {editArtId && uploadData.customMockups?.length > 0 && (
+                         {/* FIX: Admin Panel Edit Notification */}
+                         {editArtId && uploadData.selectedBgIds && uploadData.selectedBgIds.length > 0 && (
                              <p className="text-xs text-green-600 font-bold mb-3 p-2 bg-green-50 rounded-lg border border-green-200">
-                                 ✅ Previous backgrounds saved. Select new ones below ONLY if you want to replace them.
+                                 ✅ Previous backgrounds are already selected. You can modify them below.
                              </p>
                          )}
 
-                         <div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar">
+                         <div className="flex gap-4 overflow-x-auto pb-4 hide-scrollbar pt-2 px-2">
                            {savedBackgrounds.map(bg => (
-                               <label key={bg.id} className={`cursor-pointer flex flex-col items-center p-1 rounded-lg border-2 ${selectedBgs.includes(bg.id) ? 'border-purple-500 bg-purple-100' : 'border-transparent'}`}>
+                               <label key={bg.id} className={`cursor-pointer flex flex-col items-center p-1.5 rounded-xl border-4 transition-all relative ${selectedBgs.includes(bg.id) ? 'border-purple-600 bg-purple-50 scale-[1.02] shadow-md' : 'border-transparent hover:bg-gray-100'}`}>
                                   <input type="checkbox" className="hidden" checked={selectedBgs.includes(bg.id)} 
                                          onChange={(e) => {
                                              if(e.target.checked) setSelectedBgs([...selectedBgs, bg.id]);
                                              else setSelectedBgs(selectedBgs.filter(id => id !== bg.id));
-                                             setPreviewMockups([]); // reset preview if selection changes
+                                             setPreviewMockups([]); 
                                          }} />
-                                  <img src={bg.image} className="w-16 h-20 object-cover rounded shadow-sm" />
+                                  <img src={bg.image} className="w-16 h-20 object-cover rounded-md shadow-sm" />
+                                  
+                                  {selectedBgs.includes(bg.id) && (
+                                      <div className="absolute -top-2 -right-2 bg-purple-600 text-white rounded-full p-1 shadow-lg z-10 border-2 border-white flex items-center justify-center h-6 w-6">
+                                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="4"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                      </div>
+                                  )}
                                </label>
                            ))}
                          </div>
                          
-                         {/* Live Adjustments for Selected Backgrounds */}
+                         {/* Live Adjustments */}
                          {selectedBgs.length > 0 && (
                              <div className="mt-4 space-y-6">
                                 {selectedBgs.map(bgId => {
@@ -1936,9 +1902,44 @@
                                        <div key={bgId} className="border border-purple-200 bg-white p-4 rounded-xl shadow-sm">
                                           <p className="text-xs font-black text-purple-700 uppercase mb-3">Adjust Art Placement</p>
                                           
-                                          {/* Live CSS Preview (Matches exact Canvas output ratio) */}
-                                          <div style={{ position: 'relative', width: '100%', maxWidth: '250px', aspectRatio: '4/5', overflow: 'hidden', margin: '0 auto', borderRadius: '0.5rem', border: '1px solid #e5e7eb' }}>
-                                             <img src={bg.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                          {/* Touch-only Live CSS Preview */}
+                                          <div 
+                                             onTouchStart={(e) => {
+                                                 if (e.touches.length === 1) {
+                                                     setDragComp({ bgId, type: 'pan', x: e.touches[0].clientX, y: e.touches[0].clientY, origX: adj.x, origY: adj.y });
+                                                 } else if (e.touches.length === 2) {
+                                                     const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+                                                     const angle = Math.atan2(e.touches[1].clientY - e.touches[0].clientY, e.touches[1].clientX - e.touches[0].clientX) * 180 / Math.PI;
+                                                     setDragComp({ bgId, type: 'zoomRotate', dist, angle, origScale: adj.scale, origRotate: adj.rotate });
+                                                 }
+                                             }}
+                                             onTouchMove={(e) => {
+                                                 if (!dragComp || dragComp.bgId !== bgId) return;
+                                                 if (e.cancelable) e.preventDefault();
+                                                 if (dragComp.type === 'pan' && e.touches.length === 1) {
+                                                     const dx = e.touches[0].clientX - dragComp.x;
+                                                     const dy = e.touches[0].clientY - dragComp.y;
+                                                     const newX = dragComp.origX + (dx / 2.5); 
+                                                     const newY = dragComp.origY + (dy / 3.125); 
+                                                     setAdj({ x: Math.min(100, Math.max(0, newX)), y: Math.min(100, Math.max(0, newY)) });
+                                                 } else if (dragComp.type === 'zoomRotate' && e.touches.length === 2) {
+                                                     const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+                                                     const angle = Math.atan2(e.touches[1].clientY - e.touches[0].clientY, e.touches[1].clientX - e.touches[0].clientX) * 180 / Math.PI;
+                                                     const scaleDiff = (dist - dragComp.dist) * 0.5;
+                                                     let angleDiff = angle - dragComp.angle;
+                                                     if (angleDiff > 180) angleDiff -= 360;
+                                                     if (angleDiff < -180) angleDiff += 360;
+                                                     
+                                                     setAdj({ 
+                                                         scale: Math.min(150, Math.max(10, dragComp.origScale + scaleDiff)),
+                                                         rotate: dragComp.origRotate + angleDiff
+                                                     });
+                                                 }
+                                             }}
+                                             onTouchEnd={() => setDragComp(null)}
+                                             style={{ position: 'relative', width: '100%', maxWidth: '250px', aspectRatio: '4/5', overflow: 'hidden', margin: '0 auto', borderRadius: '0.5rem', border: '1px solid #e5e7eb', touchAction: 'none' }}
+                                          >
+                                             <img src={bg.image} style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
                                              <img src={uploadData.image} style={{
                                                  position: 'absolute',
                                                  top: `${adj.y}%`,
@@ -1946,37 +1947,17 @@
                                                  width: `${adj.scale}%`,
                                                  height: 'auto',
                                                  transform: `translate(-50%, -50%) rotate(${adj.rotate}deg)`,
-                                                 boxShadow: adj.shadow ? '8px 12px 15px rgba(0,0,0,0.6)' : 'none'
+                                                 boxShadow: adj.shadow ? '8px 12px 15px rgba(0,0,0,0.6)' : 'none',
+                                                 pointerEvents: 'none'
                                              }} />
                                           </div>
                                           
-                                          {/* Sliders */}
-                                          <div className="space-y-3 mt-5 text-xs font-bold text-gray-700 px-2">
-                                             <label className="block flex gap-3 items-center">
-                                                <span className="w-16">Left/Right</span> 
-                                                <span className="w-10 text-purple-700 font-black text-right">{adj.x > 50 ? '+' : ''}{adj.x - 50}%</span>
-                                                <input type="range" min="0" max="100" value={adj.x} onChange={e=>setAdj({x:Number(e.target.value)})} className="flex-1 accent-purple-600" />
-                                             </label>
-                                             <label className="block flex gap-3 items-center">
-                                                <span className="w-16">Top/Bottom</span> 
-                                                <span className="w-10 text-purple-700 font-black text-right">{adj.y > 50 ? '+' : ''}{adj.y - 50}%</span>
-                                                <input type="range" min="0" max="100" value={adj.y} onChange={e=>setAdj({y:Number(e.target.value)})} className="flex-1 accent-purple-600" />
-                                             </label>
-                                             <label className="block flex gap-3 items-center">
-                                                <span className="w-16">Size</span> 
-                                                <span className="w-16 text-purple-700 font-black text-right">{adj.scale}% Size</span>
-                                                <input type="range" min="10" max="150" value={adj.scale} onChange={e=>setAdj({scale:Number(e.target.value)})} className="flex-1 accent-purple-600" />
-                                             </label>
-                                             <label className="block flex gap-3 items-center">
-                                                <span className="w-16">Rotation</span> 
-                                                <span className="w-10 text-purple-700 font-black text-right">{adj.rotate > 0 ? '+' : ''}{adj.rotate}°</span>
-                                                <input type="range" min="-180" max="180" value={adj.rotate} onChange={e=>setAdj({rotate:Number(e.target.value)})} className="flex-1 accent-purple-600" />
-                                             </label>
-                                             <label className="flex items-center gap-2 cursor-pointer mt-2 pt-2 border-t border-gray-100">
-                                                <input type="checkbox" className="w-4 h-4 accent-purple-600" checked={adj.shadow} onChange={e=>setAdj({shadow:e.target.checked})} /> 
-                                                Enable Realistic 3D Shadow
-                                             </label>
-                                          </div>
+                                          <p className="text-[10px] text-purple-600 font-black text-center mt-4 uppercase tracking-widest animate-pulse">👆 Drag to Move &bull; Pinch to Zoom/Rotate</p>
+                                          
+                                          <label className="flex items-center justify-center gap-2 cursor-pointer mt-3 pt-3 border-t border-gray-100 text-xs font-bold text-gray-700">
+                                             <input type="checkbox" className="w-4 h-4 accent-purple-600" checked={adj.shadow} onChange={e=>setAdj({shadow:e.target.checked})} /> 
+                                             Enable Realistic 3D Shadow
+                                          </label>
                                        </div>
                                     );
                                 })}
@@ -2015,7 +1996,7 @@
                         </div>
                     )}
 
-                    {/* ✅ GENERATED PREVIEW DISPLAY (Admin Angle text still shows here only) */}
+                    {/* ✅ GENERATED PREVIEW DISPLAY */}
                     {previewMockups.length > 0 && (
                         <div className="mt-4 bg-gray-900 p-6 rounded-2xl shadow-inner">
                             <p className="text-green-400 font-black text-sm uppercase tracking-widest mb-4 flex items-center gap-2">
@@ -2340,7 +2321,7 @@
                 <button onClick={() => nav('commission')} className={`text-left p-6 border-b transition cursor-pointer flex items-center gap-4 ${view === 'commission' ? 'text-purple-700 font-black bg-purple-50' : 'text-gray-800 hover:text-purple-700 hover:bg-purple-50'}`}>Commission</button>
                 
                 {/* ✅ NEW MENU ITEM: MY ORDER HISTORY */}
-                <button onClick={() => nav('my_orders')} className={`text-left p-6 border-b transition cursor-pointer flex items-center gap-4 ${view === 'my_orders' ? 'text-purple-700 font-black bg-purple-50' : 'text-gray-800 hover:text-purple-700 hover:bg-purple-50'}`}>My Order History</button>
+                <button onClick={() => nav('my_orders')} className={`text-left p-6 border-b transition cursor-pointer flex items-center gap-4 ${view === 'my_orders' ? 'text-purple-700 font-black bg-purple-50' : 'text-gray-800 hover:text-purple-700 hover:bg-purple-50'}`}>Order History</button>
 
                 <button onClick={() => nav('admin')} className={`text-left p-6 border-b transition cursor-pointer flex items-center gap-4 ${view === 'admin' ? 'text-purple-700 font-black bg-purple-50' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'}`}>Admin Panel</button>
                 
@@ -2457,7 +2438,7 @@
                   <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
                 </a>
                 <a href="https://www.instagram.com/rajaguptaact" target="_blank" rel="noopener noreferrer" className="p-4 bg-white text-pink-500 rounded-full hover:bg-pink-500 hover:text-white transition-all shadow-md hover:shadow-xl transform hover:-translate-y-1 block cursor-pointer">
-                  <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm3.975-9.658a1.424 1.424 0 100-2.849 1.424 1.424 0 000 2.849z"/></svg>
+                  <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
                 </a>
               </div>
 
