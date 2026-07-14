@@ -96,7 +96,35 @@
       </div>
     );
 
-    // ✅ NEW SMART ARTWORK CARD COMPONENT (Handles Mobile Scroll peeking & Desktop Grid)
+    // ✅ OLD MOCKUPS (Kept as fallback for old artworks so they don't break)
+    const FrameMockup = ({ src }) => (
+      <div className="w-full aspect-[4/5] bg-gradient-to-br from-[#f5f7fa] to-[#c3cfe2] rounded-2xl flex items-center justify-center p-4 shadow-inner relative overflow-hidden select-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(255,255,255,0.8)_0%,transparent_70%)]"></div>
+        <A4Frame src={src} className="shadow-[0_15px_35px_rgba(0,0,0,0.15)] transition-transform hover:scale-105 duration-500 relative z-10" />
+      </div>
+    );
+    const WallMockup = ({ src }) => {
+      return (
+        <div className="w-full aspect-[4/5] rounded-2xl flex items-center justify-center p-4 shadow-inner relative overflow-hidden select-none bg-[#f4f1ea]">
+          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 19px, #ccc 19px, #ccc 20px)" }}></div>
+          <div className="absolute top-0 left-0 w-[150%] h-[100%] bg-gradient-to-br from-white/80 via-transparent to-black/5 transform -rotate-12 blur-2xl"></div>
+          <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-black/5 blur-xl rounded-full mix-blend-multiply"></div>
+          <A4Frame src={src} className="mt-[-5%] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.3)] transition-transform hover:scale-105 duration-500 relative z-10" />
+        </div>
+      );
+    };
+    const TableMockup = ({ src }) => (
+      <div className="w-full aspect-[4/5] rounded-2xl relative overflow-hidden shadow-inner flex justify-center items-end pb-[12%] select-none bg-slate-100">
+        <div className="absolute top-0 left-0 w-full h-[70%] bg-[#d3dce6]" style={{ backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.4) 0px, rgba(255,255,255,0.4) 2px, transparent 2px, transparent 8px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.4) 0px, rgba(255,255,255,0.4) 2px, transparent 2px, transparent 8px)' }}></div>
+        <div className="absolute bottom-0 left-0 w-full h-[30%] bg-[#b08d6a] border-t-[8px] border-[#8a684a] shadow-[inset_0_10px_20px_rgba(0,0,0,0.2)]">
+            <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 15px, rgba(0,0,0,0.1) 15px, rgba(0,0,0,0.1) 17px)' }}></div>
+        </div>
+        <div className="absolute bottom-[10%] left-1/2 -translate-x-1/2 w-[60%] h-[15%] bg-black/40 blur-md rounded-[100%]"></div>
+        <A4Frame src={src} className="relative z-10 hover:-translate-y-2 shadow-[0_20px_25px_rgba(0,0,0,0.5)] transition-all duration-500" />
+      </div>
+    );
+
+    // ✅ NEW SMART ARTWORK CARD COMPONENT
     const ArtworkCard = ({ art, getPrice, addToCart }) => {
       const scrollRef = useRef(null);
 
@@ -107,7 +135,6 @@
             if (scrollRef.current.scrollLeft >= maxScroll - 50) {
               scrollRef.current.scrollTo({ left: 0, behavior: 'smooth' }); // Rewind to start
             } else {
-              // Smoothly glide to the next angle width
               const childWidth = scrollRef.current.firstElementChild ? scrollRef.current.firstElementChild.offsetWidth + 16 : scrollRef.current.clientWidth;
               scrollRef.current.scrollBy({ left: childWidth, behavior: 'smooth' }); // Go to next
             }
@@ -132,9 +159,9 @@
             <p className="text-[10px] md:hidden text-gray-400 font-bold uppercase tracking-widest text-center mb-3 animate-pulse">
               &larr; Auto Viewing Angles &rarr;
             </p>
-            {/* ✅ DYNAMIC RESPONSIVE WRAPPER: Scroll on Mobile (with peeking), Wrap Grid on Desktop */}
+            {/* ✅ DYNAMIC RESPONSIVE WRAPPER */}
             <div ref={scrollRef} className="flex overflow-x-auto gap-4 md:gap-6 mb-8 pb-4 hide-scrollbar snap-x snap-mandatory scroll-smooth pt-1">
-              {/* ✅ DYNAMIC RENDER OF HD CUSTOM BACKGROUNDS IN PORTRAIT (4:5) */}
+              {/* ✅ DYNAMIC RENDER OF HD CUSTOM BACKGROUNDS */}
               {art.customMockups && art.customMockups.length > 0 ? (
                  art.customMockups.map((m, i) => (
                     <div key={i} className="flex-none w-[85%] md:w-[45%] lg:w-[30%] snap-center">
@@ -244,7 +271,6 @@
       );
     };
 
-    // ✅ NEW LEGAL PAGES & POLICY VIEWS
     const TermsView = ({ nav }) => (
       <div className="p-4 md:p-10 max-w-4xl mx-auto min-h-screen">
         <button onClick={() => nav('gallery')} className="mb-6 text-purple-600 font-bold flex items-center gap-2 hover:text-purple-800 transition">
@@ -331,16 +357,13 @@
       const [otpInput, setOtpInput] = useState('');
       const [liveOTP, setLiveOTP] = useState(''); 
       
-      // ✅ LIVE TRUSTED SESSIONS & ACCORDION STATES
       const [activeSessions, setActiveSessions] = useState([]);
       const [isDevicesOpen, setIsDevicesOpen] = useState(false);
       const [isOrdersOpen, setIsOrdersOpen] = useState(false);
       
-      // ✅ FIXED: Moved Touch Hooks to Top Level to prevent React Crash!
       const [dragStart, setDragStart] = useState(null);
       const [dragComp, setDragComp] = useState(null); 
 
-      // ✅ NEW STATES FOR CUSTOM BACKGROUND COMPOSITOR & CROPPER
       const [savedBackgrounds, setSavedBackgrounds] = useState([]);
       const [selectedBgs, setSelectedBgs] = useState([]); 
       const [bgAdjustments, setBgAdjustments] = useState({}); 
@@ -348,23 +371,21 @@
       const [rawBgFile, setRawBgFile] = useState(null);
       const [bgCropAdj, setBgCropAdj] = useState({ scale: 100, x: 50, y: 50 });
       
-      // ✅ NEW: PREVIEW STATES
       const [previewMockups, setPreviewMockups] = useState([]);
       const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
 
-      // ✅ 15 MINUTE BLOCKING & RESEND TIMER STATE
       const [blockUntil, setBlockUntil] = useState(() => Number(window.localStorage.getItem('raja_admin_block')) || 0);
       const [resendTimer, setResendTimer] = useState(0);
 
       const [artworks, setArtworks] = useState([]);
       const [isLoadingGallery, setIsLoadingGallery] = useState(true); 
+      const [showEmptyGallery, setShowEmptyGallery] = useState(false); 
       const [orders, setOrders] = useState([]);
       const [announcements, setAnnouncements] = useState([]);
       
       const [isOrderPlaced, setIsOrderPlaced] = useState(false); 
       const [lastOrderId, setLastOrderId] = useState(null); 
       
-      // ✅ NEW: MY ORDER HISTORY STATE (LOCAL STORAGE)
       const [myLocalOrders, setMyLocalOrders] = useState(() => {
           try {
               const saved = window.localStorage.getItem('raja_my_orders_v1');
@@ -379,18 +400,15 @@
           try { window.localStorage.setItem('raja_my_orders_v1', JSON.stringify(newOrders)); } catch(e){}
       };
 
-      // ✅ VIP TOAST STATE
       const [toastMessage, setToastMessage] = useState(null);
       const showToast = (msg) => {
         setToastMessage(msg);
         setTimeout(() => setToastMessage(null), 3000);
       };
 
-      // 🚨 ANTI-THEFT KEYBOARD LISTENER 🚨
       useEffect(() => {
         const handleContext = (e) => e.preventDefault();
         const handleKeyDown = (e) => {
-            // Block Save (Ctrl+S), Print (Ctrl+P), View Source (Ctrl+U), Inspect (F12, Ctrl+Shift+I, Ctrl+Shift+C)
             if (e.key === 'F12' || 
                (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S' || e.key === 'p' || e.key === 'P')) ||
                (e.ctrlKey && e.shiftKey && (e.key === 'i' || e.key === 'I' || e.key === 'c' || e.key === 'C'))) {
@@ -406,10 +424,9 @@
         };
       }, []);
       
-      // ✅ GET DEVICE DETAILS HELPER (WITH DEVICE TYPE)
       const fetchDeviceDetails = async () => {
          let ip = "Unknown", location = "Unknown", org = "Unknown", deviceModel = "Unknown Device";
-         let deviceType = "Desktop PC"; // Default
+         let deviceType = "Desktop PC"; 
 
          try {
              const res = await fetch('https://ipapi.co/json/');
@@ -423,7 +440,6 @@
          
          try {
              const ua = navigator.userAgent;
-             // Check device type
              if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
                  deviceType = "Mobile Phone";
              } else if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
@@ -447,27 +463,24 @@
          return { ip, location, org, deviceModel, deviceType };
       };
 
-      // ✅ BLOCK TIMER INTERVAL
       useEffect(() => {
         const int = setInterval(() => {
             if (blockUntil > 0 && blockUntil < Date.now()) {
                 setBlockUntil(0);
                 window.localStorage.removeItem('raja_admin_block');
-                window.localStorage.setItem('raja_admin_fails', '0'); // reset attempts
+                window.localStorage.setItem('raja_admin_fails', '0'); 
             }
             if (resendTimer > 0) setResendTimer(prev => prev - 1);
         }, 1000);
         return () => clearInterval(int);
       }, [blockUntil, resendTimer]);
       
-      // ✅ REMOTE LOGOUT TRACKER
       useEffect(() => {
          if (isAdmin) {
              const devId = window.localStorage.getItem('raja_device_id');
              if (devId) {
                  const unsub = db.collection('adminSessions').doc(devId).onSnapshot(doc => {
                      if (!doc.exists) {
-                         // Session deleted by admin remotely!
                          window.localStorage.removeItem('raja_device_id');
                          setIsAdmin(false);
                          setAdminStep(1);
@@ -479,7 +492,6 @@
          }
       }, [isAdmin]);
       
-      // ✅ 100% CRASH-PROOF CART SYSTEM
       const [cart, setCart] = useState(() => {
         try {
           const savedCart = window.localStorage.getItem('raja_cart_live_v1');
@@ -573,7 +585,6 @@
 
       const sendSilentAlert = (orderInfo) => {
         let msg = `🚨 *NEW STUDIO ORDER* 🚨\n\n`;
-        // Use orderId if it exists, otherwise it's just a Commission Request
         msg += `*Order ID:* ${orderInfo.orderId || "Commission Request"}\n`;
         msg += `*Date/Time:* ${orderInfo.date} • ${orderInfo.time}\n`;
         msg += `*Order Type:* ${orderInfo.type}\n`;
@@ -625,24 +636,53 @@
       };
 
       useEffect(() => {
+        let isMounted = true;
+        let timeout;
+        
         const unsubArt = db.collection("RajaStudio").onSnapshot(snap => {
-          setArtworks(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => b.createdAt - a.createdAt));
-          setIsLoadingGallery(false); 
+          if (!isMounted) return;
+          const arts = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => b.createdAt - a.createdAt);
+          setArtworks(arts);
+          
+          if (arts.length > 0) {
+             setIsLoadingGallery(false);
+             if (timeout) clearTimeout(timeout);
+          } else {
+             timeout = setTimeout(() => {
+                if (isMounted) setIsLoadingGallery(false);
+             }, 1500); 
+          }
         });
+        
         const unsubOrd = db.collection("orders").onSnapshot(snap => {
+          if (!isMounted) return;
           setOrders(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => b.createdAt - a.createdAt));
         });
         const unsubAnn = db.collection("announcements").onSnapshot(snap => {
+          if (!isMounted) return;
           setAnnouncements(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => b.createdAt - a.createdAt));
         });
-        // ✅ NEW: Fetch Saved Backgrounds
         const unsubBg = db.collection("RajaBackgrounds").onSnapshot(snap => {
+          if (!isMounted) return;
           setSavedBackgrounds(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => b.createdAt - a.createdAt));
         });
-        return () => { unsubArt(); unsubOrd(); unsubAnn(); unsubBg(); };
+        
+        return () => { 
+            isMounted = false; 
+            if(timeout) clearTimeout(timeout);
+            unsubArt(); unsubOrd(); unsubAnn(); unsubBg(); 
+        };
       }, []);
+
+      useEffect(() => {
+         if (!isLoadingGallery && artworks.length === 0) {
+             const timer = setTimeout(() => setShowEmptyGallery(true), 1500);
+             return () => clearTimeout(timer);
+         } else {
+             setShowEmptyGallery(false);
+         }
+      }, [isLoadingGallery, artworks.length]);
       
-      // ✅ FETCH SESSIONS WHEN ADMIN (Now fetches ALL Trusted Devices, online & offline)
       useEffect(() => {
         if (isAdmin) {
            const unsubSess = db.collection("trustedDevices").onSnapshot(snap => {
@@ -662,7 +702,6 @@
 
       const nav = (v) => { setView(v); setMenuOpen(false); window.scrollTo(0,0); };
 
-      // ✅ FIX 1: 5-SEC COOLDOWN TIMER STATE
       const [lastAddedTime, setLastAddedTime] = useState(0);
 
       const addToCart = (art, size, price, oldPrice) => {
@@ -672,7 +711,6 @@
             return;
         }
 
-        // ✅ NEW LOGIC: PREVENT ADDING THE SAME ORIGINAL ARTWORK TWICE
         if (size && size.includes('Original')) {
             const alreadyInCart = cart.some(c => c.id === art.id && c.selectedSize.includes('Original'));
             if (alreadyInCart) {
@@ -682,12 +720,11 @@
         }
         
         setCart([...cart, { ...art, selectedSize: size, price: Number(price), priceOriginalOld: oldPrice ? Number(oldPrice) : null, cartId: Date.now() }]);
-        setLastAddedTime(now); // Set the time of last successful add
+        setLastAddedTime(now); 
         showToast("Artwork added to your Cart!");
       };
 
       const startCheckout = (items, type, extraData) => {
-        // ✅ NEW LIVE STOCK CHECK FOR ORIGINALS (Prevents double purchase)
         if (type === 'Gallery Purchase') {
            let soldItems = [];
            items.forEach(cartItem => {
@@ -700,7 +737,7 @@
            });
            if (soldItems.length > 0) {
                alert(`❌ STOCK ALERT: The following Original Artwork(s) have just been SOLD OUT to another buyer:\n\n- ${soldItems.join('\n- ')}\n\nPlease remove them from your cart to proceed.`);
-               return; // Block the checkout completely
+               return; 
            }
         }
 
@@ -714,7 +751,6 @@
         nav('checkout_form');
       };
 
-      // ✅ FIX 1: GALLERY LOADING VIEW LOGIC UPDATED TO NEVER FLASH EMPTY
       const GalleryView = () => (
         <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-12">
           <div className="text-center space-y-4 mb-12 glass-panel p-10 rounded-3xl shadow-lg border-t-4 border-t-purple-500 relative">
@@ -733,12 +769,12 @@
             </div>
           ) : artworks.length > 0 ? (
             artworks.map(art => <ArtworkCard key={art.id} art={art} getPrice={getPrice} addToCart={addToCart} />)
-          ) : (
+          ) : showEmptyGallery ? (
             <div className="text-center p-12 glass-panel rounded-3xl shadow-xl font-bold text-gray-500 text-xl flex flex-col items-center justify-center gap-4">
               <span className="text-4xl">🖼️</span>
               <span>No artworks uploaded yet. Please check back later!</span>
             </div>
-          )}
+          ) : null}
         </div>
       );
 
@@ -753,7 +789,6 @@
             {cart.length === 0 ? <p className="text-gray-500 font-bold glass-panel p-8 rounded-2xl text-center">Your cart is completely empty.</p> : (
               <div className="space-y-4">
                 {cart.map((item, i) => {
-                  // ✅ VISUAL CART VALIDATION FOR SOLD OUT ITEMS
                   const isItemSoldOut = item.selectedSize && item.selectedSize.includes('Original') && artworks.find(a => a.id === item.id)?.isSold;
                   return (
                     <div key={i} className={`flex items-center justify-between glass-panel p-4 rounded-2xl shadow-sm border ${isItemSoldOut ? 'border-red-300 bg-red-50' : 'border-white'}`}>
@@ -847,7 +882,6 @@
                       <input required minLength="5" value={commissionInput.subject} onChange={e => setCommissionInput({...commissionInput, subject: e.target.value})} placeholder="E.g. Portrait of two people..." className="w-full border-2 border-gray-200 p-4 rounded-xl bg-white focus:border-purple-500 outline-none transition font-medium mt-2" />
                     </div>
                     
-                    {/* INSTAGRAM FIELD WITH STRICT VALIDATION */}
                     <div>
                       <label className="font-black text-sm text-gray-800 uppercase tracking-wide">Instagram ID (Required)</label>
                       <input required minLength="5" value={commissionInput.instagram} onChange={e => setCommissionInput({...commissionInput, instagram: e.target.value})} placeholder="E.g. @your_username" className="w-full border-2 border-gray-200 p-4 rounded-xl bg-white focus:border-purple-500 outline-none transition font-medium mt-2" />
@@ -916,7 +950,6 @@
         </div>
       );
 
-      // ✅ NEW: MY ORDER HISTORY VIEW (PUBLIC) - FIX 6 (Menu text update handled in Header menu too)
       const MyOrdersView = () => {
         return (
           <div className="p-6 max-w-4xl mx-auto min-h-screen">
@@ -939,7 +972,6 @@
                            <span className="text-gray-500 text-sm font-bold">{ord.date} • {ord.time}</span>
                        </div>
                        
-                       {/* COMMISSION vs GALLERY PURCHASE LOGIC */}
                        {ord.orderId ? (
                            <h3 onClick={() => { navigator.clipboard.writeText(ord.orderId); showToast("Order ID Copied!"); }} title="Click to copy Order ID" className="text-xl font-black text-gray-900 font-mono tracking-wider flex items-center gap-2 cursor-pointer hover:text-purple-600 transition">
                               <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -1015,7 +1047,6 @@
             isPinValidNow = checkoutData.pin.length >= 3;
         }
 
-        // STRICT VALIDATION
         const isAddressValidNow = checkoutData.address.trim().length >= 10;
         const isNameValidNow = checkoutData.name.trim().length >= 3;
 
@@ -1064,7 +1095,6 @@
           }
 
           if (checkoutData.type === 'Commission') {
-             // Commission submits immediately - NO ORDER ID GENERATED HERE
              const finalPayload = {
                  date: new Date().toLocaleDateString('en-IN'), 
                  time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
@@ -1077,7 +1107,6 @@
              db.collection('orders').add(finalPayload);
              sendSilentAlert(finalPayload); 
              
-             // ✅ ADD TO LOCAL ORDER HISTORY (Without Order ID)
              addLocalOrder({
                  date: finalPayload.date,
                  time: finalPayload.time,
@@ -1089,10 +1118,9 @@
              setCommissionInput({ subject: '', size: 'A4 Colour Pencil', budget: '', instagram: '' });
              setCheckoutData({ name: '', email: '', phone: '', address: '', pin: '', city: '', state: '', country: 'India', type: '', itemDetails: null, amount: 0, instagram: '' });
              
-             alert(`✅ Commission Request Sent Successfully!\n\n(You can track this request in "My Order History")\n\nI will contact you soon via WhatsApp/Instagram.`);
+             alert(`✅ Commission Request Sent Successfully!\n\n(You can track this request in "Order History")\n\nI will contact you soon via WhatsApp/Instagram.`);
              nav('my_orders');
           } else {
-             // Gallery Purchase DOES NOT send to DB yet. Moves to payment screen.
              setIsOrderPlaced(false);
              nav('payment');
           }
@@ -1186,7 +1214,6 @@
         const finalAmountBase = checkoutData.amount + shippingFeeBase;
 
         const finalizeOrder = () => {
-          // Send to DB and Telegram ONLY when they click the final confirm button
           const generatedId = 'ORD-' + Date.now().toString().slice(-4) + Math.floor(1000 + Math.random()*9000);
           
           const finalPayload = {
@@ -1202,7 +1229,6 @@
           db.collection('orders').add(finalPayload);
           sendSilentAlert(finalPayload); 
           
-          // ✅ ADD TO LOCAL ORDER HISTORY
           addLocalOrder({
               orderId: generatedId,
               date: finalPayload.date,
@@ -1214,7 +1240,6 @@
 
           setLastOrderId(generatedId);
 
-          // ✅ AUTO STOCK-OUT LOGIC FOR ORIGINAL ARTWORKS
           if (checkoutData.type === 'Gallery Purchase' && checkoutData.itemDetails) {
              checkoutData.itemDetails.forEach(item => {
                 if (item.selectedSize && item.selectedSize.includes('Original') && item.id) {
@@ -1225,20 +1250,16 @@
 
           setCart([]); 
           try { window.localStorage.removeItem('raja_cart_live_v1'); } catch(e){}
-          // Set to true so user can see success screen and send screenshot
           setIsOrderPlaced(true); 
         };
 
-        // SUCCESS VIEW AFTER CLICKING 'I HAVE PAID'
         if (isOrderPlaced) {
            const isIntl = checkoutData.country === 'International' || currency === 'USD';
            
-           // ✅ Dynamic WhatsApp Text incorporating the actual Order ID
            const successWaTextIndia = encodeURIComponent(`Hello Raja Gupta!\nI have placed an order.\n\n*Order ID:* ${lastOrderId}\n*Name:* ${checkoutData.name}\n*Amount:* ${getPrice(finalAmountBase)}\n\nI am attaching my payment screenshot below.`);
            const successWaTextIntl = encodeURIComponent(`Hello Raja Gupta!\nI am an international client.\nI have placed an order.\n\n*Order ID:* ${lastOrderId}\n*Name:* ${checkoutData.name}\n*Amount:* ${getPrice(finalAmountBase)}\n\nPlease guide me on how to pay via Wise, Remitly, or PayPal.`);
            const successWaText = isIntl ? successWaTextIntl : successWaTextIndia;
            
-           // ✅ FIX 4 & 5: Enhanced "Thank You" message and "Back to Home Gallery" button
            return (
               <div className="p-6 max-w-md mx-auto text-center min-h-screen flex flex-col justify-center">
                  <div className="bg-white p-8 rounded-3xl shadow-2xl border-t-8 border-green-500 relative">
@@ -1247,7 +1268,6 @@
                    </div>
                    <h2 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 mb-3 mt-2">Thank You! ❤️</h2>
                    
-                   {/* ✅ NEW ORDER ID DISPLAY COMPONENT */}
                    <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-4 shadow-inner">
                       <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mb-1">Your Order ID</p>
                       <p className="text-2xl font-black text-purple-700 font-mono tracking-wider select-all">{lastOrderId}</p>
@@ -1364,14 +1384,13 @@
       };
 
       const AdminPanel = () => {
-        // ✅ NEW: ADD CUSTOM BACKGROUND TO DATABASE WITH LIVE CROP/PAN
         const handleBgSelect = (e) => {
             const file = e.target.files[0];
             if(file) {
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     setRawBgFile(event.target.result);
-                    setBgCropAdj({ scale: 100, x: 50, y: 50 }); // Reset sliders when new image picked
+                    setBgCropAdj({ scale: 100, x: 50, y: 50 }); 
                 };
                 reader.readAsDataURL(file);
             }
@@ -1380,9 +1399,8 @@
         const saveCroppedBg = () => {
             setIsBgUploading(true);
             const canvas = document.createElement('canvas');
-            // ✅ FIX 3: Quality Loss Fixed. Tripled the canvas resolution for saving backgrounds (HD Quality)
             canvas.width = 1200;
-            canvas.height = 1500; // Perfect HD 4:5 storage
+            canvas.height = 1500; 
             const ctx = canvas.getContext('2d');
             const img = new Image();
             
@@ -1390,14 +1408,12 @@
                 ctx.fillStyle = '#f3f4f6';
                 ctx.fillRect(0, 0, 1200, 1500);
 
-                // Base scale to ensure image covers the canvas initially
                 const baseScale = Math.max(1200 / img.width, 1500 / img.height);
                 const scaledW = img.width * baseScale * (bgCropAdj.scale / 100);
                 const scaledH = img.height * baseScale * (bgCropAdj.scale / 100);
 
                 ctx.save();
-                ctx.translate(600, 750); // Center of HD canvas
-                // Apply Pan
+                ctx.translate(600, 750); 
                 const panX = ((bgCropAdj.x - 50) / 50) * (scaledW / 2);
                 const panY = ((bgCropAdj.y - 50) / 50) * (scaledH / 2);
                 ctx.translate(panX, panY);
@@ -1405,7 +1421,6 @@
                 ctx.drawImage(img, -scaledW/2, -scaledH/2, scaledW, scaledH);
                 ctx.restore();
 
-                // Save at 95% JPEG quality for Maximum Sharpness
                 const bgData = canvas.toDataURL('image/jpeg', 0.95);
                 db.collection('RajaBackgrounds').add({ image: bgData, createdAt: Date.now() })
                   .then(() => {
@@ -1413,7 +1428,7 @@
                       setIsBgUploading(false);
                       setRawBgFile(null);
                   })
-                  .catch(()=> { setIsBgUploading(false); alert("Error saving."); });
+                  .catch((err)=> { setIsBgUploading(false); alert("Error saving: " + err.message); });
             };
             img.src = rawBgFile;
         };
@@ -1442,14 +1457,13 @@
               const img = new Image();
               img.onload = () => {
                 const canvas = document.createElement('canvas');
-                // ✅ FIX 3: Increased upload quality limits for original artwork
                 const MAX = 1600; let w = img.width; let h = img.height;
                 if (w > h && w > MAX) { h *= MAX / w; w = MAX; } 
                 else if (h > MAX) { w *= MAX / h; h = MAX; }
                 canvas.width = w; canvas.height = h;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, w, h);
-                setUploadData({...uploadData, image: canvas.toDataURL('image/jpeg', 0.95)});
+                setUploadData({...uploadData, image: canvas.toDataURL('image/jpeg', 0.85)});
               };
               img.src = event.target.result;
             };
@@ -1464,20 +1478,18 @@
             return Number(numStr).toLocaleString('en-IN');
         };
 
-        // ✅ HD CANVAS COMPOSITOR ENGINE
         const generateComposite = (bgDataUrl, artDataUrl, adj) => {
             return new Promise((resolve) => {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 const bgImg = new Image();
+                bgImg.crossOrigin = "Anonymous";
                 bgImg.onload = () => {
-                    // ✅ FIX 3: Resolution increased to 1200x1500 for crisp HD renders
                     const CANVAS_W = 1200;
                     const CANVAS_H = 1500; 
                     canvas.width = CANVAS_W;
                     canvas.height = CANVAS_H;
                     
-                    // Object-fit Cover calculation for 4:5
                     let sWidth = bgImg.width;
                     let sHeight = bgImg.height;
                     let sX = 0;
@@ -1497,6 +1509,7 @@
                     ctx.drawImage(bgImg, sX, sY, sWidth, sHeight, 0, 0, CANVAS_W, CANVAS_H);
                     
                     const artImg = new Image();
+                    artImg.crossOrigin = "Anonymous";
                     artImg.onload = () => {
                         const w = CANVAS_W * (adj.scale / 100);
                         const h = w * (artImg.height / artImg.width);
@@ -1517,16 +1530,16 @@
                         ctx.drawImage(artImg, -w/2, -h/2, w, h);
                         ctx.restore();
                         
-                        // Output at 95% JPEG quality to avoid blur
-                        resolve(canvas.toDataURL('image/jpeg', 0.95)); 
+                        resolve(canvas.toDataURL('image/jpeg', 0.85)); 
                     };
+                    artImg.onerror = () => resolve(bgDataUrl); 
                     artImg.src = artDataUrl;
                 };
+                bgImg.onerror = () => resolve(artDataUrl); 
                 bgImg.src = bgDataUrl;
             });
         };
 
-        // ✅ PREVIEW BUTTON LOGIC
         const handlePreview = async (e) => {
             e.preventDefault();
             if (!uploadData.image || selectedBgs.length === 0) {
@@ -1539,22 +1552,24 @@
             }
 
             setIsGeneratingPreview(true);
-            let generated = [];
-            for (let bgId of selectedBgs) {
-                const bgDoc = savedBackgrounds.find(b => b.id === bgId);
-                if(bgDoc) {
-                    const adj = bgAdjustments[bgId] || {x:50, y:50, scale:40, rotate:0, shadow:true};
-                    const finalBase64 = await generateComposite(bgDoc.image, uploadData.image, adj);
-                    generated.push(finalBase64);
+            try {
+                let generated = [];
+                for (let bgId of selectedBgs) {
+                    const bgDoc = savedBackgrounds.find(b => b.id === bgId);
+                    if(bgDoc) {
+                        const adj = bgAdjustments[bgId] || {x:50, y:50, scale:40, rotate:0, shadow:true};
+                        const finalBase64 = await generateComposite(bgDoc.image, uploadData.image, adj);
+                        generated.push(finalBase64);
+                    }
                 }
+                setPreviewMockups(generated);
+            } catch(e) {
+                alert("Preview Generation Failed: " + e.message);
             }
-            setPreviewMockups(generated);
             setIsGeneratingPreview(false);
-            // Scroll down a bit to show preview
             window.scrollBy({ top: 400, behavior: 'smooth' });
         };
 
-        // ✅ SMART SAVE (Uses generated preview if available, else generates on the fly)
         const saveArtwork = async (e) => {
           e.preventDefault();
 
@@ -1578,51 +1593,57 @@
               finalPriceOld = ""; 
           }
 
-          let generatedMockups = [];
-          if (previewMockups.length > 0 && selectedBgs.length === previewMockups.length) {
-              // Time saver: If user already clicked preview, just use those images!
-              generatedMockups = previewMockups;
-          } else if (uploadData.image && selectedBgs.length > 0) {
-              for (let bgId of selectedBgs) {
-                  const bgDoc = savedBackgrounds.find(b => b.id === bgId);
-                  if(bgDoc) {
-                      const adj = bgAdjustments[bgId] || {x:50, y:50, scale:40, rotate:0, shadow:true};
-                      const finalBase64 = await generateComposite(bgDoc.image, uploadData.image, adj);
-                      generatedMockups.push(finalBase64);
+          try {
+              let generatedMockups = [];
+              if (previewMockups.length > 0 && selectedBgs.length === previewMockups.length) {
+                  generatedMockups = previewMockups;
+              } else if (uploadData.image && selectedBgs.length > 0) {
+                  for (let bgId of selectedBgs) {
+                      const bgDoc = savedBackgrounds.find(b => b.id === bgId);
+                      if(bgDoc) {
+                          const adj = bgAdjustments[bgId] || {x:50, y:50, scale:40, rotate:0, shadow:true};
+                          const finalBase64 = await generateComposite(bgDoc.image, uploadData.image, adj);
+                          generatedMockups.push(finalBase64);
+                      }
                   }
               }
-          }
 
-          const dataToSave = { 
-              ...uploadData, 
-              priceOriginal: finalPriceCurrent, 
-              priceOriginalOld: finalPriceOld,
-              customMockups: generatedMockups.length > 0 ? generatedMockups : (uploadData.customMockups || []),
-              selectedBgIds: selectedBgs, 
-              savedBgAdjustments: bgAdjustments 
-          };
+              const dataToSave = { 
+                  ...uploadData, 
+                  priceOriginal: finalPriceCurrent, 
+                  priceOriginalOld: finalPriceOld,
+                  customMockups: generatedMockups.length > 0 ? generatedMockups : (uploadData.customMockups || []),
+                  selectedBgIds: selectedBgs, 
+                  savedBgAdjustments: bgAdjustments 
+              };
 
-          if(editArtId) {
-             db.collection('RajaStudio').doc(editArtId).update(dataToSave)
-               .then(() => { 
-                   alert("Artwork Updated Successfully!"); 
-                   setEditArtId(null); 
-                   setUploadData({ title: '', desc: '', image: '', priceOriginal: '', priceOriginalOld: '', priceA3: '', priceA4: '', priceA5: '', isSold: false, customMockups: [], selectedBgIds: [], savedBgAdjustments: {} }); 
-                   setSelectedBgs([]);
-                   setBgAdjustments({});
-                   setPreviewMockups([]);
-                   setIsUploading(false); 
-               });
-          } else {
-             db.collection('RajaStudio').add({ ...dataToSave, createdAt: Date.now() })
-               .then(() => { 
-                   alert("Artwork Uploaded Globally!"); 
-                   setUploadData({ title: '', desc: '', image: '', priceOriginal: '', priceOriginalOld: '', priceA3: '', priceA4: '', priceA5: '', isSold: false, customMockups: [], selectedBgIds: [], savedBgAdjustments: {} }); 
-                   setSelectedBgs([]);
-                   setBgAdjustments({});
-                   setPreviewMockups([]);
-                   setIsUploading(false); 
-               });
+              if(editArtId) {
+                 db.collection('RajaStudio').doc(editArtId).update(dataToSave)
+                   .then(() => { 
+                       alert("Artwork Updated Successfully!"); 
+                       setEditArtId(null); 
+                       setUploadData({ title: '', desc: '', image: '', priceOriginal: '', priceOriginalOld: '', priceA3: '', priceA4: '', priceA5: '', isSold: false, customMockups: [], selectedBgIds: [], savedBgAdjustments: {} }); 
+                       setSelectedBgs([]);
+                       setBgAdjustments({});
+                       setPreviewMockups([]);
+                       setIsUploading(false); 
+                   })
+                   .catch(err => { alert("Update Error: " + err.message); setIsUploading(false); });
+              } else {
+                 db.collection('RajaStudio').add({ ...dataToSave, createdAt: Date.now() })
+                   .then(() => { 
+                       alert("Artwork Uploaded Globally!"); 
+                       setUploadData({ title: '', desc: '', image: '', priceOriginal: '', priceOriginalOld: '', priceA3: '', priceA4: '', priceA5: '', isSold: false, customMockups: [], selectedBgIds: [], savedBgAdjustments: {} }); 
+                       setSelectedBgs([]);
+                       setBgAdjustments({});
+                       setPreviewMockups([]);
+                       setIsUploading(false); 
+                   })
+                   .catch(err => { alert("Upload Error: " + err.message); setIsUploading(false); });
+              }
+          } catch(e) {
+              alert("Processing Error: " + e.message);
+              setIsUploading(false);
           }
         };
 
@@ -1670,31 +1691,22 @@
           setAnnMsg(ann.message);
         };
 
-        // TOUCH HANDLING (Pan and Zoom without sliders)
         const handleTouchStart = (e) => {
             if (e.touches.length === 1) {
                 setDragStart({ type: 'pan', x: e.touches[0].clientX, y: e.touches[0].clientY, origX: bgCropAdj.x, origY: bgCropAdj.y });
-            } else if (e.touches.length === 2) {
-                const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-                setDragStart({ type: 'zoom', dist, origScale: bgCropAdj.scale });
             }
         };
 
         const handleTouchMove = (e) => {
             if (!dragStart) return;
-            // Prevent default to stop page scrolling while cropping
             if (e.cancelable) e.preventDefault(); 
             
             if (dragStart.type === 'pan' && e.touches.length === 1) {
                 const dx = e.touches[0].clientX - dragStart.x;
                 const dy = e.touches[0].clientY - dragStart.y;
-                const newX = dragStart.origX + (dx / 2.5); // Fixed inversion
-                const newY = dragStart.origY + (dy / 3.125); // Fixed inversion
+                const newX = dragStart.origX + (dx / 2.5); 
+                const newY = dragStart.origY + (dy / 3.125); 
                 setBgCropAdj(prev => ({...prev, x: Math.min(100, Math.max(0, newX)), y: Math.min(100, Math.max(0, newY))}));
-            } else if (dragStart.type === 'zoom' && e.touches.length === 2) {
-                const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-                const scaleDiff = (dist - dragStart.dist) * 0.8; // Improved zoom speed
-                setBgCropAdj(prev => ({...prev, scale: Math.min(250, Math.max(100, dragStart.origScale + scaleDiff))}));
             }
         };
         const handleTouchEnd = () => setDragStart(null);
@@ -1779,7 +1791,7 @@
 
                 <div className="glass-panel p-6 rounded-3xl shadow-sm border border-gray-200 bg-emerald-50/30">
                   <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-2">Manage Custom Backgrounds</h3>
-                  <p className="text-xs font-bold text-gray-500 mb-4">Upload up to 15 real background images (e.g., table, hands) here. You can drag to pan and pinch to zoom.</p>
+                  <p className="text-xs font-bold text-gray-500 mb-4">Upload up to 15 real background images here. Drag to pan, and use buttons to zoom.</p>
                   
                   {rawBgFile ? (
                      <div className="bg-white p-5 rounded-2xl shadow-lg border border-emerald-200 mb-6">
@@ -1804,7 +1816,12 @@
                             }} />
                         </div>
                         
-                        <p className="text-[10px] text-emerald-600 font-black text-center mt-4 uppercase tracking-widest animate-pulse">👆 Drag to Move &bull; Pinch to Zoom</p>
+                        {/* ✅ FIX 2: DIRECT BUTTONS FOR ZOOM IN/OUT */}
+                        <div className="flex gap-4 justify-center mt-4">
+                           <button type="button" onClick={(e)=>{ e.preventDefault(); setBgCropAdj(p => ({...p, scale: Math.max(100, p.scale - 15)}));}} className="bg-emerald-100 text-emerald-800 px-6 py-2 rounded-lg font-black cursor-pointer active:scale-95 shadow-sm">- Zoom Out</button>
+                           <button type="button" onClick={(e)=>{ e.preventDefault(); setBgCropAdj(p => ({...p, scale: Math.min(300, p.scale + 15)}));}} className="bg-emerald-100 text-emerald-800 px-6 py-2 rounded-lg font-black cursor-pointer active:scale-95 shadow-sm">+ Zoom In</button>
+                        </div>
+                        <p className="text-[10px] text-emerald-600 font-black text-center mt-3 uppercase tracking-widest">👆 Drag image to center it perfectly</p>
                         
                         <div className="flex gap-3 mt-6">
                             <button onClick={saveCroppedBg} disabled={isBgUploading} className={`flex-1 text-white py-3 rounded-xl font-black shadow-md transition-all ${isBgUploading ? 'bg-gray-400 cursor-wait' : 'bg-emerald-600 hover:bg-emerald-700 cursor-pointer hover:shadow-lg'}`}>
@@ -1839,7 +1856,7 @@
                 <div className="glass-panel p-8 rounded-3xl shadow-xl border-t-4 border-t-purple-500">
                   <h3 className="text-2xl font-black mb-6 text-gray-900 flex justify-between items-center">
                     {editArtId ? "✏️ Edit Artwork" : "Upload Artwork"}
-                    {editArtId ? <button type="button" onClick={() => { setEditArtId(null); setUploadData({title:'',desc:'',image:'',priceOriginal:'',priceOriginalOld:'',priceA3:'',priceA4:'',priceA5:'', isSold: false, customMockups: [], selectedBgIds: [], savedBgAdjustments: {}}); setSelectedBgs([]); setBgAdjustments({}); setPreviewMockups([]); }} className="text-xs text-red-500 underline font-bold cursor-pointer">Cancel Edit</button> : null}
+                    {editArtId ? <button type="button" onClick={() => { setEditArtId(null); setUploadData({title:'',desc:'',image:'',priceOriginal:'',priceOriginalOld:'',priceA3:'',priceA4:'',priceA5:'', isSold: false, customMockups: [], selectedBgIds: [], savedBgAdjustments: {}}); setSelectedBgs([]); setBgAdjustments({}); setPreviewMockups([]); setIsUploading(false); }} className="text-xs text-red-500 underline font-bold cursor-pointer">Cancel Edit</button> : null}
                   </h3>
                   <form onSubmit={saveArtwork} className="space-y-4">
                     <input required placeholder="Artwork Title" className="w-full border-2 p-4 rounded-xl bg-white font-bold" value={uploadData.title} onChange={e => setUploadData({...uploadData, title: e.target.value})} />
@@ -1858,7 +1875,6 @@
                       <div className="bg-gray-50 border border-gray-200 p-4 rounded-xl mt-4">
                          <p className="font-black text-gray-800 text-sm mb-2">Select Backgrounds (Choose 3 for best results):</p>
                          
-                         {/* FIX: Admin Panel Edit Notification */}
                          {editArtId && uploadData.selectedBgIds && uploadData.selectedBgIds.length > 0 && (
                              <p className="text-xs text-green-600 font-bold mb-3 p-2 bg-green-50 rounded-lg border border-green-200">
                                  ✅ Previous backgrounds are already selected. You can modify them below.
@@ -1921,7 +1937,7 @@
                                                  } else if (dragComp.type === 'zoomRotate' && e.touches.length === 2) {
                                                      const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
                                                      const angle = Math.atan2(e.touches[1].clientY - e.touches[0].clientY, e.touches[1].clientX - e.touches[0].clientX) * 180 / Math.PI;
-                                                     const scaleDiff = (dist - dragComp.dist) * 0.8;
+                                                     const scaleDiff = (dist - dragComp.dist) * 0.5;
                                                      let angleDiff = angle - dragComp.angle;
                                                      if (angleDiff > 180) angleDiff -= 360;
                                                      if (angleDiff < -180) angleDiff += 360;
@@ -1992,7 +2008,7 @@
                         </div>
                     )}
 
-                    {/* ✅ GENERATED PREVIEW DISPLAY (Admin Angle text still shows here only) */}
+                    {/* ✅ GENERATED PREVIEW DISPLAY */}
                     {previewMockups.length > 0 && (
                         <div className="mt-4 bg-gray-900 p-6 rounded-2xl shadow-inner">
                             <p className="text-green-400 font-black text-sm uppercase tracking-widest mb-4 flex items-center gap-2">
@@ -2161,7 +2177,6 @@
          }
       };
 
-      // UPDATE 4: FAST ADMIN LOGIN LOGIC (No API waiting delay)
       const handlePasswordSubmit = async () => {
         if (blockUntil > Date.now()) return; 
 
@@ -2192,11 +2207,9 @@
             }
 
             if (isPermanentlyTrusted) {
-                // Instantly let user in!
                 setIsAdmin(true);
                 setPassword('');
                 
-                // Fetch location in background so UI doesn't lag
                 fetchDeviceDetails().then(devDetails => {
                     try { 
                        db.collection('adminSessions').doc(permDevId).set({
@@ -2235,7 +2248,6 @@
            setLiveOTP('');
            setAdminStep(1);
 
-           // Do heavy work in background
            fetchDeviceDetails().then(devDetails => {
                let permDevId = window.localStorage.getItem('raja_permanent_device_id');
                if (!permDevId) {
@@ -2338,7 +2350,6 @@
             {view === 'public_notifications' ? PublicNotificationsView() : null}
             {view === 'my_orders' ? MyOrdersView() : null}
             
-            {/* ✅ NEW POLICY VIEWS ADDED TO MAIN LOGIC */}
             {view === 'terms' ? <TermsView nav={nav} /> : null}
             {view === 'privacy' ? <PrivacyView nav={nav} /> : null}
             {view === 'refund' ? <RefundView nav={nav} /> : null}
@@ -2382,7 +2393,6 @@
                         <input type="number" placeholder="Enter 6-Digit OTP" value={otpInput} onChange={e => setOtpInput(e.target.value)} className="w-full border-2 border-blue-200 p-4 rounded-xl mb-4 text-center tracking-widest font-black focus:border-blue-600 outline-none" />
                         <button onClick={handlePinSubmit} className="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-lg shadow-lg hover:shadow-xl transition-all cursor-pointer mb-4">Verify & Login</button>
                         
-                        {/* RESEND OTP BUTTON */}
                         <button onClick={handleResendOTP} disabled={resendTimer > 0} className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${resendTimer > 0 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-white text-blue-600 border border-blue-200 hover:bg-blue-50 cursor-pointer shadow-sm'}`}>
                             {resendTimer > 0 ? `Wait ${resendTimer}s to Resend` : "Resend OTP"}
                         </button>
@@ -2393,18 +2403,15 @@
             ) : null}
           </main>
 
-          {/* ✅ FOOTER RE-DESIGNED WITH POLICIES & INFO */}
           <footer className="glass-panel py-10 mt-12 flex-shrink-0 relative z-10 border-t border-gray-200">
             <div className="max-w-6xl mx-auto px-4 flex flex-col items-center justify-center gap-8 relative">
               
-              {/* Tagline */}
               <div className="text-center">
                   <p className="text-sm md:text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 tracking-wide uppercase">
                       Step into my world of art
                   </p>
               </div>
 
-              {/* Policy Links (Opens as PDF-like pages) */}
               <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 text-xs md:text-sm font-black text-gray-500 uppercase tracking-widest">
                   <button onClick={() => nav('terms')} className="hover:text-purple-600 transition cursor-pointer">Terms of Service</button>
                   <span className="hidden md:inline text-gray-300">|</span>
@@ -2415,7 +2422,6 @@
                   <button onClick={() => nav('faq')} className="hover:text-purple-600 transition cursor-pointer">FAQ</button>
               </div>
 
-              {/* Location & Payments */}
               <div className="flex flex-col items-center gap-3 text-center bg-white/60 px-6 py-4 rounded-2xl border border-gray-100 shadow-sm w-full max-w-2xl">
                   <p className="text-xs md:text-sm font-bold text-gray-600 flex items-center justify-center gap-2">
                      <svg className="w-4 h-4 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -2427,7 +2433,6 @@
                   </p>
               </div>
 
-              {/* FIX 1: Social Icons Fixed placement and SVG replacement */}
               <div className="flex gap-6">
                 <a href="https://wa.me/917281074416" target="_blank" rel="noopener noreferrer" className="p-4 bg-white text-green-500 rounded-full hover:bg-green-500 hover:text-white transition-all shadow-md hover:shadow-xl transform hover:-translate-y-1 block cursor-pointer">
                   <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
@@ -2437,7 +2442,6 @@
                 </a>
               </div>
 
-              {/* Copyright enhanced */}
               <div className="text-center mt-2 max-w-2xl px-4">
                 <p className="text-xs md:text-sm font-bold text-gray-400 tracking-wider leading-relaxed">
                   &copy; 2026 Raja Gupta Act. All Rights Reserved.<br className="hidden md:block"/> Handcrafted with passion in India. Unauthorized duplication or reproduction of artworks is strictly prohibited.
@@ -2446,7 +2450,6 @@
             </div>
           </footer>
 
-          {/* VIP TOAST COMPONENT RENDER */}
           {toastMessage && (
             <div className="fixed bottom-10 left-1/2 z-50 animate-toast">
               <div className="bg-gray-900 text-white px-6 py-4 rounded-full shadow-2xl font-black text-sm flex items-center gap-3 border border-gray-700">
